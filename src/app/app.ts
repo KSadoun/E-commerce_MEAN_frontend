@@ -1,14 +1,38 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, OnInit, ChangeDetectorRef  } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Login } from "./components/login/login";
 
+import { AdminLayout } from "./components/admin/layout/layout";
+
+import { AuthApi } from "./services/auth/auth-api";
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Login],
+  imports: [RouterOutlet, AdminLayout],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App {
+export class App implements OnInit {
   protected readonly title = signal('ecommerce');
+  userRole: string | null = null;
+
+  constructor(private authApi: AuthApi, private cdr: ChangeDetectorRef) {}
+
+  ngOnInit() {
+    this.loadUserRole();
+  }
+
+  loadUserRole() {
+    this.authApi.getCurrentUser().subscribe({
+      next: (response: any) => {
+        console.log('User role:', response.role);
+        this.userRole = response.role;
+        this.cdr.detectChanges(); // Force change detection
+      },
+      error: (error) => {
+        console.error('Error fetching user role:', error);
+        this.userRole = null;
+        this.cdr.detectChanges(); // Force change detection
+      }
+    });
+  }
 }

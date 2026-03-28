@@ -1,5 +1,18 @@
 <!-- <app-navbar></app-navbar> -->
  
-<router-outlet></router-outlet>
 
 <!-- <app-footer></app-footer> -->
+
+@if (userRole === 'admin') {
+  <router-outlet></router-outlet>
+} @else if (userRole === 'seller') {
+  <!-- <app-seller-navbar></app-seller-navbar> -->
+  <!-- <app-seller-sidebar></app-seller-sidebar> -->
+  <router-outlet></router-outlet>
+} @else {
+  <!-- <app-user-navbar></app-user-navbar> -->
+  <router-outlet></router-outlet>
+}
+
+
+

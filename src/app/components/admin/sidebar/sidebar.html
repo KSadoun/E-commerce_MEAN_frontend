@@ -1,0 +1,33 @@
+<!-- SideNavBar Component -->
+<aside class="h-screen w-64 border-r border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex flex-col py-6">
+	<div class="px-6 mb-8">
+		<h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">E-Commerce</h2>
+		<p class="text-xs text-slate-500 font-medium">MEAN Stack</p>
+	</div>
+	<nav class="flex-1 space-y-1">
+		<a routerLink="/admin" [routerLinkActiveOptions]="{ exact: true }"
+            routerLinkActive="bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+			class="flex items-center space-x-3 p-3 transition-all text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 mx-2 rounded-lg hover:translate-x-1 duration-200"
+            >
+			<span class="font-inter text-sm font-medium">Dashboard</span>
+		</a>
+		<a routerLink="/admin/users" 
+            routerLinkActive="bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+			class="flex items-center space-x-3 p-3 transition-all text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 mx-2 rounded-lg hover:translate-x-1 duration-200"
+		>
+			<span class="font-inter text-sm font-medium">Users</span>
+		</a>
+		<a routerLink="/admin/products" 
+            routerLinkActive="bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+			class="flex items-center space-x-3 p-3 transition-all text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 mx-2 rounded-lg hover:translate-x-1 duration-200"
+		>
+			<span class="font-inter text-sm font-medium">Products</span>
+		</a>
+	</nav>
+	<!-- No add product button for admin sidebar -->
+	<div class="mt-auto border-t border-slate-200 dark:border-slate-800 pt-4">
+		<a class="flex items-center space-x-3 p-3 transition-all text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 mx-2 rounded-lg" href="/logout">
+			<span class="font-inter text-sm font-medium">Logout</span>
+		</a>
+	</div>
+</aside>
