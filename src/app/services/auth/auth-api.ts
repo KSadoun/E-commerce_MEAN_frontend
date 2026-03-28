@@ -21,4 +21,9 @@ export class AuthApi {
     return this.http.post(`${this.apiUrl}/auth/register`, seller);
   }
 
+  // Get current user role (from backend)
+  getCurrentUser() {
+    // Question: What if the user messes with the token in localStorage?
+    return this.http.get(`${this.apiUrl}/users/me`, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+  }
 }
