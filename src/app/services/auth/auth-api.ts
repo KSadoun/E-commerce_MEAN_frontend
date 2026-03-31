@@ -26,4 +26,14 @@ export class AuthApi {
     // Question: What if the user messes with the token in localStorage?
     return this.http.get(`${this.apiUrl}/users/me`, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
   }
+
+  // Get cached user role
+  getUserRole(): string | null {
+    return localStorage.getItem('userRole');
+  }
+
+  // Set user role (call this after successful login)
+  setUserRole(role: string) {
+    localStorage.setItem('userRole', role);
+  }
 }

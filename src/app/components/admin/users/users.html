@@ -1,4 +1,4 @@
-<div class="overflow-x-auto mt-10">
+<div [class.blur-content]="isLoading" class="overflow-x-auto mt-10">
     <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow">
         <thead class="bg-gray-100">
             <tr>
@@ -28,8 +28,15 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm flex gap-2">
-                                    <a [href]="'/admin/users/' + user.id + '/restrict'" class="px-3 py-1 bg-yellow-400 text-white rounded hover:bg-yellow-500 transition">Restrict</a>
-                                    <a [href]="'/admin/users/' + user.id" class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition">Delete</a>
+                                    @if (user.role !== 'admin') {
+                                        @if (user.isActive) {
+                                            <button class="px-3 py-1 bg-yellow-400 text-white rounded hover:bg-yellow-500 transition" (click)="restrictUser(user.id)">Restrict</button>
+                                        }
+                                        @else {
+                                            <button class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 transition" (click)="unrestrictUser(user.id)">Activate</button>
+                                        }
+                                        <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition" (click)="deleteUser(user.id)">Delete</button>
+                                    }
                                 </td>
                             </tr>
                         }
@@ -41,3 +48,10 @@
                 </tbody>
     </table>
 </div>
+
+<!-- Loading Spinner Overlay -->
+@if (isLoading) {
+  <div class="loading-overlay">
+    <div class="spinner"></div>
+  </div>
+}
