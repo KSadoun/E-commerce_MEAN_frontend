@@ -1,0 +1,55 @@
+<section aria-label="Seller metrics" class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+  @for (metric of metrics(); track metric.label) {
+    <article
+      class="metric-card rounded-2xl border p-5 shadow-lg transition-all duration-300 hover:-translate-y-1"
+      [class.border-emerald-200]="metric.label === 'Total Revenue'"
+      [class.bg-gradient-to-br]="metric.label === 'Total Revenue'"
+      [class.from-emerald-50]="metric.label === 'Total Revenue'"
+      [class.to-teal-50]="metric.label === 'Total Revenue'"
+      [class.dark:border-emerald-900/50]="metric.label === 'Total Revenue'"
+      [class.dark:from-emerald-950/40]="metric.label === 'Total Revenue'"
+      [class.dark:to-teal-950/30]="metric.label === 'Total Revenue'"
+      [class.border-blue-200]="metric.label === 'Total Orders'"
+      [class.bg-gradient-to-br]="metric.label === 'Total Orders'"
+      [class.from-blue-50]="metric.label === 'Total Orders'"
+      [class.to-indigo-50]="metric.label === 'Total Orders'"
+      [class.dark:border-blue-900/50]="metric.label === 'Total Orders'"
+      [class.dark:from-blue-950/40]="metric.label === 'Total Orders'"
+      [class.dark:to-indigo-950/30]="metric.label === 'Total Orders'"
+      [class.border-violet-200]="metric.label === 'Total Products'"
+      [class.bg-gradient-to-br]="metric.label === 'Total Products'"
+      [class.from-violet-50]="metric.label === 'Total Products'"
+      [class.to-fuchsia-50]="metric.label === 'Total Products'"
+      [class.dark:border-violet-900/50]="metric.label === 'Total Products'"
+      [class.dark:from-violet-950/40]="metric.label === 'Total Products'"
+      [class.dark:to-fuchsia-950/30]="metric.label === 'Total Products'"
+    >
+      <div class="mb-2 flex items-center justify-between">
+        <p class="text-sm font-semibold text-slate-600 dark:text-slate-300">{{ metric.label }}</p>
+        <span class="material-symbols-outlined text-slate-500 dark:text-slate-400">
+          @if (metric.label === 'Total Revenue') {
+            payments
+          } @else if (metric.label === 'Total Orders') {
+            shopping_bag
+          } @else {
+            inventory
+          }
+        </span>
+      </div>
+
+      <p
+        class="mt-2 text-3xl font-extrabold"
+        [class.text-emerald-700]="metric.label === 'Total Revenue'"
+        [class.dark:text-emerald-300]="metric.label === 'Total Revenue'"
+        [class.text-slate-900]="metric.label !== 'Total Revenue'"
+        [class.dark:text-slate-100]="metric.label !== 'Total Revenue'"
+      >
+        @if (metric.currency) {
+          {{ metric.value | currency: 'USD' : 'symbol' : '1.0-0' }}
+        } @else {
+          {{ metric.value }}
+        }
+      </p>
+    </article>
+  }
+</section>

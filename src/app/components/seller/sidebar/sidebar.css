@@ -1,0 +1,22 @@
+:host {
+  display: block;
+}
+
+.seller-sidebar {
+  width: 16rem;
+  transform: translateX(-100%);
+}
+
+.seller-sidebar.mobile-open {
+  transform: translateX(0);
+}
+
+@media (min-width: 1024px) {
+  .seller-sidebar {
+    transform: translateX(0);
+  }
+
+  .seller-sidebar.collapsed {
+    width: 5rem;
+  }
+}

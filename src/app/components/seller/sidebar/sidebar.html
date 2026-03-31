@@ -1,0 +1,89 @@
+<aside
+  class="seller-sidebar fixed left-0 top-0 z-40 flex h-screen border-r border-slate-200 bg-slate-50 py-6 transition-all duration-300 dark:border-slate-800 dark:bg-slate-950"
+  [class.collapsed]="collapsed()"
+  [class.mobile-open]="mobileOpen()"
+>
+  <div class="flex h-full w-full flex-col">
+    <div class="mb-6 px-6" [class.px-4]="collapsed()">
+      <h2 class="truncate text-lg font-bold text-slate-900 dark:text-slate-100">E-Commerce</h2>
+      @if (!collapsed()) {
+        <p class="text-xs font-medium text-slate-500">Seller Portal</p>
+      }
+    </div>
+
+    <nav class="space-y-1 px-2">
+      <a
+        routerLink="/seller"
+        [routerLinkActiveOptions]="{ exact: true }"
+        routerLinkActive="bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+        (click)="handleMenuClick()"
+        class="group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-500 transition-all duration-200 hover:translate-x-1 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-900"
+      >
+        <span class="material-symbols-outlined text-[20px]">space_dashboard</span>
+        @if (!collapsed()) {
+          <span>Dashboard</span>
+        }
+      </a>
+
+      <a
+        routerLink="/seller/inventory"
+        routerLinkActive="bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+        (click)="handleMenuClick()"
+        class="group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-500 transition-all duration-200 hover:translate-x-1 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-900"
+      >
+        <span class="material-symbols-outlined text-[20px]">inventory_2</span>
+        @if (!collapsed()) {
+          <span>Inventory</span>
+        }
+      </a>
+
+      <a
+        routerLink="/seller/sales"
+        routerLinkActive="bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+        (click)="handleMenuClick()"
+        class="group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-500 transition-all duration-200 hover:translate-x-1 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-900"
+      >
+        <span class="material-symbols-outlined text-[20px]">monitoring</span>
+        @if (!collapsed()) {
+          <span>Sales</span>
+        }
+      </a>
+
+      <a
+        routerLink="/seller/customers"
+        routerLinkActive="bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+        (click)="handleMenuClick()"
+        class="group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-500 transition-all duration-200 hover:translate-x-1 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-900"
+      >
+        <span class="material-symbols-outlined text-[20px]">groups</span>
+        @if (!collapsed()) {
+          <span>Customers</span>
+        }
+      </a>
+    </nav>
+
+    <div class="mt-auto border-t border-slate-200 px-2 pt-4 dark:border-slate-800">
+      <button
+        type="button"
+        (click)="navigateToAddProduct()"
+        class="mb-2 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-3 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/30 transition-all hover:-translate-y-0.5 hover:shadow-blue-600/50"
+      >
+        <span class="material-symbols-outlined text-[18px]">add_box</span>
+        @if (!collapsed()) {
+          <span>+ Add Product</span>
+        }
+      </button>
+
+      <button
+        type="button"
+        (click)="logout()"
+        class="flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-500 transition-all hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-900"
+      >
+        <span class="material-symbols-outlined text-[18px]">logout</span>
+        @if (!collapsed()) {
+          <span>Logout</span>
+        }
+      </button>
+    </div>
+  </div>
+</aside>
