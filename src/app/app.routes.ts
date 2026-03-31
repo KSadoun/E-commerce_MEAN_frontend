@@ -49,7 +49,10 @@ export const routes: Routes = [
     path: 'users',
     // TODO: re-enable guards after auth flow is finalized.
     // canActivate: [AuthGuard, UserGuard],
-    children: [{ path: '', component: UserDashboard }],
+    children: [
+        { path: 'dashboard', component: UserDashboard },
+        { path: 'register', component: UserRegister },
+    ]
   },
 
   // ===== Seller Routes =====

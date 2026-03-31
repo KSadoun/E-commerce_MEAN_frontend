@@ -1,1 +1,74 @@
-<p>User dashboard works!</p>
+<div class="p-4 max-w-4xl mx-auto">
+
+  <h1 class="text-xl font-bold mb-6">Account Dashboard</h1>
+
+  @if (user) {
+  <div class="mb-8 border border-gray-200 rounded-xl p-6 flex items-start gap-5">
+    <div class="w-14 h-14 rounded-full bg-blue-600 flex items-center justify-center shrink-0">
+      <span class="text-white text-xl font-bold">{{ user.name.charAt(0) }}</span>
+    </div>
+    <div class="flex-1">
+      <h2 class="text-lg font-semibold leading-tight">{{ user.name }}</h2>
+      <p class="text-sm text-blue-600 capitalize mb-3">{{ user.role }}</p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+        <div>
+          <span class="text-gray-400 text-xs uppercase">Email</span>
+          <p>{{ user.email }}</p>
+        </div>
+        @if (user.phone) {
+        <div>
+          <span class="text-gray-400 text-xs uppercase">Phone</span>
+          <p>{{ user.phone }}</p>
+        </div>
+        }
+        @if (user.address) {
+        <div class="sm:col-span-2">
+          <span class="text-gray-400 text-xs uppercase">Address</span>
+          <p>{{ user.address }}</p>
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+  } @else {
+    <p class="text-sm text-gray-400 mb-8">Loading profile...</p>
+  }
+
+  <h3 class="font-semibold mb-2">Wishlist</h3>
+  @if (wishlist.length === 0 && !loading) {
+  <p class="text-sm text-gray-400 mb-6">Empty.</p>
+  }
+  @for (item of wishlist; track item.id || $index) {
+  <div class="flex items-center gap-3 mb-2">
+    <span class="text-sm">{{ item.name }}</span>
+    @if (item.price) { <span class="text-sm text-gray-500">${{ item.price | number:'1.2-2' }}</span> }
+  </div>
+  }
+
+  <h3 class="font-semibold mt-6 mb-2">Recent Orders</h3>
+  @if (orders.length === 0 && !loading) {
+  <p class="text-sm text-gray-400">No orders yet.</p>
+  } @else {
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="text-left text-gray-500 border-b">
+        <th class="py-2">ID</th>
+        <th class="py-2">Date</th>
+        <th class="py-2">Status</th>
+        <th class="py-2">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (order of orders; track order.id || $index) {
+      <tr class="border-b">
+        <td class="py-2">#{{ order.id }}</td>
+        <td class="py-2">{{ order.createdAt | date:'shortDate' }}</td>
+        <td class="py-2 uppercase">{{ order.status }}</td>
+        <td class="py-2">${{ order.totalAmount | number:'1.2-2' }}</td>
+      </tr>
+      }
+    </tbody>
+  </table>
+  }
+
+</div>
