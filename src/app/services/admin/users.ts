@@ -1,13 +1,17 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment.development';
 import { User } from '../../models/user';
+import { Observable } from 'rxjs';
+import { shareReplay } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
   private apiUrl = environment.apiUrl;
+
+  private usersCache$: Observable<{ users: User[] }> | null = null;
 
   constructor(private http: HttpClient) {}
 
@@ -60,11 +64,56 @@ export class UserService {
     return this.http.get<User[]>(`${this.apiUrl}/admin/users`);
   }
 
-  restrictUser(userId: number, isActive: boolean) {
-    return this.http.patch(`${this.apiUrl}/admin/users/${userId}/restrict`, { isActive });
+//   restrictUser(userId: number, isActive: boolean) {
+//     return this.http.patch(`${this.apiUrl}/admin/users/${userId}/restrict`, { isActive });
+//   }
+
+//   softDeleteUser(userId: number) {
+//     return this.http.delete(`${this.apiUrl}/admin/users/${userId}`);
+//   }
+
+  getAllUsers(): Observable<{ users: User[] }> {
+    if (!this.usersCache$) {
+      this.usersCache$ = this.http.get<{ users: User[] }>(`${environment.apiUrl}/users/all`)
+        .pipe(shareReplay(1));
+    }
+    
+    return this.usersCache$;
   }
 
-  softDeleteUser(userId: number) {
-    return this.http.delete(`${this.apiUrl}/admin/users/${userId}`);
+  restrictUser(userId: number): Observable<void> {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    });
+    return this.http.patch<void>(
+      `${environment.apiUrl}/admin/users/${userId}/restrict`, 
+      {}, 
+      { headers }
+    );
+  }
+
+  unrestrictUser(userId: number): Observable<void> {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    });
+    return this.http.patch<void>(
+      `${environment.apiUrl}/admin/users/${userId}/unrestrict`, 
+      {}, 
+      { headers }
+    );
+  }
+
+  deleteUser(userId: number): Observable<void> {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    });
+    return this.http.delete<void>(
+      `${environment.apiUrl}/admin/users/${userId}`,
+      { headers }
+    );
+  }
+
+  clearCache(): void {
+    this.usersCache$ = null;
   }
 }

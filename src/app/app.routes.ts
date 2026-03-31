@@ -7,6 +7,7 @@ import { SellerDashboard } from './components/seller/dashboard/dashboard';
 import { UserRegister } from './components/user/register/register';
 import { SellerRegister } from './components/seller/register/register';
 import { Users } from './components/admin/users/users';
+import { AdminGuard } from './guards/admin.guard';
 // import { Sellers } from './components/admin/sellers/sellers';
 // import { Products } from './components/admin/products/products';
 
@@ -15,6 +16,7 @@ export const routes: Routes = [
     {
         path: 'admin',
         component: AdminLayout,
+        canActivate: [AdminGuard],
         children: [
             { path: '', component: AdminDashboard },
             { path: 'users', component: Users },
