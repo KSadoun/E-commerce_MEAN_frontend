@@ -19,7 +19,7 @@ export class Users implements OnInit {
 
   ngOnInit() {
     // Fetch users from the backend API and assign to this.users
-    this.usersService.getAllUser().subscribe((response: any) => {
+    this.usersService.getAllUsers().subscribe((response: any) => {
       console.log('Fetched response:', response);
       this.users = response.users; 
       
