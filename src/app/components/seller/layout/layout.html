@@ -11,6 +11,7 @@
     [collapsed]="collapsed()"
     [mobileOpen]="mobileMenuOpen()"
     (closeMobileMenu)="closeMobileMenu()"
+    (toggleCollapse)="toggleSidebar()"
   ></app-seller-sidebar>
 
   <div
@@ -20,7 +21,6 @@
     <app-seller-header
       [sellerName]="sellerName()"
       [sellerAvatar]="sellerAvatar()"
-      (toggleSidebar)="toggleSidebar()"
       (toggleMobileMenu)="toggleMobileMenu()"
     ></app-seller-header>
     <main class="p-4 sm:p-6 lg:p-8">

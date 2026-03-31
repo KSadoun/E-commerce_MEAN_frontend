@@ -13,12 +13,16 @@ export class SellerSidebar {
   readonly collapsed = input(false);
   readonly mobileOpen = input(false);
   readonly closeMobileMenu = output<void>();
+  readonly toggleCollapse = output<void>();
 
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
   navigateToAddProduct(): void {
-    this.router.navigate(['/seller/inventory']);
+    this.router.navigate(['/seller/inventory'], {
+      queryParams: { modal: 'add' },
+      queryParamsHandling: 'merge',
+    });
     this.closeMobileMenu.emit();
   }
 

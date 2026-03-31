@@ -1,3 +1,18 @@
 :host {
   display: block;
 }
+
+section {
+  animation: pageFade 280ms ease-out;
+}
+
+@keyframes pageFade {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

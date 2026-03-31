@@ -4,11 +4,19 @@
   [class.mobile-open]="mobileOpen()"
 >
   <div class="flex h-full w-full flex-col">
-    <div class="mb-6 px-6" [class.px-4]="collapsed()">
-      <h2 class="truncate text-lg font-bold text-slate-900 dark:text-slate-100">E-Commerce</h2>
-      @if (!collapsed()) {
+    <div class="mb-6 flex items-center justify-between px-6" [class.px-2]="collapsed()">
+      <div [class.hidden]="collapsed()">
+        <h2 class="truncate text-lg font-bold text-slate-900 dark:text-slate-100">E-Commerce</h2>
         <p class="text-xs font-medium text-slate-500">Seller Portal</p>
-      }
+      </div>
+      <button
+        type="button"
+        (click)="toggleCollapse.emit()"
+        class="rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+        aria-label="Toggle sidebar"
+      >
+        <span class="material-symbols-outlined">left_panel_open</span>
+      </button>
     </div>
 
     <nav class="space-y-1 px-2">

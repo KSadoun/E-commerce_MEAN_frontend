@@ -2,14 +2,14 @@
   display: block;
 }
 
-section {
-  animation: pageFade 280ms ease-out;
+article {
+  animation: toastIn 200ms ease-out;
 }
 
-@keyframes pageFade {
+@keyframes toastIn {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(-8px);
   }
   to {
     opacity: 1;

@@ -12,17 +12,12 @@ import { AuthService } from '../../../core/services/auth.service';
 export class SellerHeader {
   readonly sellerName = input.required<string>();
   readonly sellerAvatar = input.required<string>();
-  readonly toggleSidebar = output<void>();
   readonly toggleMobileMenu = output<void>();
 
   constructor(
     private authService: AuthService,
     private router: Router,
   ) {}
-
-  onToggleSidebar(): void {
-    this.toggleSidebar.emit();
-  }
 
   onToggleMobileMenu(): void {
     this.toggleMobileMenu.emit();
