@@ -1,0 +1,10 @@
+<div class="min-h-screen bg-[#f7f3ee] text-stone-900">
+  <app-home-header [navLinks]="navLinks" [isAuthenticated]="isAuthenticated()" />
+
+  <main>
+    <app-products-grid-section [products]="products" [materialOptions]="materialOptions" />
+    <app-highlights-section [highlights]="highlights" />
+  </main>
+
+  <app-home-footer [companyDescription]="companyDescription" [linkGroups]="footerLinks" />
+</div>
