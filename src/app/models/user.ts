@@ -9,6 +9,4 @@ export interface User {
     // wishlist: any[];
     isActive: boolean;
     isDeleted: boolean;
-    // createdAt: string;
-    // updatedAt: string;
 }

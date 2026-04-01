@@ -8,8 +8,9 @@ import { UserRegister } from './components/user/register/register';
 import { SellerRegister } from './components/seller/register/register';
 import { Users } from './components/admin/users/users';
 import { AdminGuard } from './guards/admin.guard';
-// import { Sellers } from './components/admin/sellers/sellers';
-// import { Products } from './components/admin/products/products';
+import { Products } from './components/admin/products/product-list/products';
+import { Categories } from './components/admin/categories/categories';
+import { CategoryProducts } from './components/admin/categories/category-products/category-products';
 
 export const routes: Routes = [
     { path: 'login', component: Login },
@@ -20,8 +21,9 @@ export const routes: Routes = [
         children: [
             { path: '', component: AdminDashboard },
             { path: 'users', component: Users },
-            // { path: 'sellers', component: Sellers },
-            // { path: 'products', component: Products },
+            { path: 'products', component: Products },
+            { path: 'categories', component: Categories },
+            { path: 'categories/:categoryId/products', component: CategoryProducts },
         ]
     },
     {
