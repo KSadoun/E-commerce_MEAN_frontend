@@ -1,24 +1,32 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthApi } from '../../services/auth/auth-api';
 
 @Component({
   selector: 'app-login',
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
 export class Login {
-  constructor(private authApi: AuthApi, private router: Router) {}
-  
+  constructor(
+    private authApi: AuthApi,
+    private router: Router,
+  ) {}
+
   email: string = '';
   password: string = '';
+  isSubmitting = false;
+  errorMessage = '';
 
   onSubmit() {
+    this.errorMessage = '';
+    this.isSubmitting = true;
+
     this.authApi.login(this.email, this.password).subscribe({
       next: (response: any) => {
-        
         // store token in localStorage
         localStorage.setItem('token', response.token);
 
@@ -29,14 +37,18 @@ export class Login {
           this.router.navigate(['/users']);
         } else if (role === 'seller') {
           this.router.navigate(['/seller']);
-        }
-        else {
+        } else {
           console.error('Unknown user role:', role);
+          this.errorMessage = 'Login succeeded but the account role is not recognized.';
         }
+
+        this.isSubmitting = false;
       },
       error: (error) => {
         console.error('Login failed:', error);
-      }
+        this.errorMessage = error?.error?.message || 'Invalid email or password.';
+        this.isSubmitting = false;
+      },
     });
   }
 }
