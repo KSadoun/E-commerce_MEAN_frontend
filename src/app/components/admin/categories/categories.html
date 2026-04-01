@@ -1,0 +1,110 @@
+<div class="categories-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Categories Management</h1>
+      <p class="subtitle">Manage and monitor all product categories</p>
+    </div>
+  </div>
+
+  <!-- Stats Section -->
+  <div class="stats-section">
+    <div class="stat-card">
+      <div class="stat-value">{{ categories.length }}</div>
+      <div class="stat-label">Total Categories</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ restrictedCount }}</div>
+      <div class="stat-label">Restricted</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ categories.length - restrictedCount }}</div>
+      <div class="stat-label">Active</div>
+    </div>
+  </div>
+
+  <!-- Search Section -->
+  <div class="search-section">
+    <div class="search-card">
+      <input 
+        type="text"
+        [(ngModel)]="searchTerm"
+        class="search-input"
+        placeholder="Search categories by name or description...">
+      <span class="search-badge">{{ filteredCategories.length }} category(ies)</span>
+    </div>
+  </div>
+
+  <!-- Table Section -->
+  <div [class.blur-content]="isLoading" class="table-wrapper">
+    <table class="categories-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Products</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (filteredCategories.length > 0) {
+          @for (category of filteredCategories; track category.id) {
+            <tr>
+              <td>{{ category.id }}</td>
+              <td class="font-semibold">{{ category.name }}</td>
+              <td class="text-truncate">{{ category.description }}</td>
+              <td class="text-center">
+                <span class="product-count-badge">{{ category.productsCount || 0 }}</span>
+              </td>
+              <td>
+                <span 
+                  class="status-badge" 
+                  [class]="category.isRestricted ? 'status-restricted' : 'status-active'">
+                  {{ category.isRestricted ? 'Restricted' : 'Active' }}
+                </span>
+              </td>
+              <td class="actions-cell">
+                <button 
+                  class="btn btn-view" 
+                  (click)="viewCategoryProducts(category.id)"
+                  title="View products in this category">
+                  View Products
+                </button>
+                @if (category.isRestricted) {
+                  <button 
+                    class="btn btn-unrestrict" 
+                    (click)="unrestrictCategory(category.id)"
+                    title="Unrestrict this category">
+                    Unrestrict
+                  </button>
+                } @else {
+                  <button 
+                    class="btn btn-restrict" 
+                    (click)="restrictCategory(category.id)"
+                    title="Restrict this category">
+                    Restrict
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        } @else {
+          <tr>
+            <td colspan="6" class="empty-state">
+              <p>No categories found</p>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Loading Spinner Overlay -->
+  @if (isLoading) {
+    <div class="loading-overlay">
+      <div class="spinner"></div>
+    </div>
+  }
+</div>

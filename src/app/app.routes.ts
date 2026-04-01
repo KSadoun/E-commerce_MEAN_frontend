@@ -3,10 +3,19 @@ import { Routes } from '@angular/router';
 // Auth
 import { Login } from './components/login/login';
 
+// Guards
+import { AdminGuard } from './core/guards/admin.guard';
+import { UserGuard } from './core/guards/user.guard';
+import { AuthGuard } from './core/guards/auth.guard';
+import { SellerGuard } from './core/guards/seller.guard';
+
 // Admin
 import { AdminLayout } from './components/admin/layout/layout';
 import { AdminDashboard } from './components/admin/dashboard/dashboard';
 import { Users } from './components/admin/users/users';
+import { Products } from './components/admin/products/product-list/products';
+import { Categories } from './components/admin/categories/categories';
+import { CategoryProducts } from './components/admin/categories/category-products/category-products';
 
 // User
 import { UserDashboard } from './components/user/dashboard/dashboard';
@@ -20,12 +29,6 @@ import { SellerSales } from './components/seller/sales/sales';
 import { SellerCustomers } from './components/seller/customers/customers';
 import { SellerRegister } from './components/seller/register/register';
 
-// Guards
-import { AdminGuard } from './core/guards/admin.guard';
-import { UserGuard } from './core/guards/user.guard';
-import { AuthGuard } from './core/guards/auth.guard';
-import { SellerGuard } from './core/guards/seller.guard';
-
 export const routes: Routes = [
   // ===== Auth =====
   { path: 'login', component: Login },
@@ -33,15 +36,19 @@ export const routes: Routes = [
   { path: 'seller/register', component: SellerRegister },
 
   // ===== Admin Routes =====
+  
   {
     path: 'admin',
     component: AdminLayout,
     // TODO: re-enable guards after auth flow is finalized.
     // canActivate: [AuthGuard, AdminGuard],
     children: [
-      { path: '', component: AdminDashboard }, // /admin
-      { path: 'users', component: Users }, // /admin/users
-    ],
+        { path: '', component: AdminDashboard },
+        { path: 'users', component: Users },
+        { path: 'products', component: Products },
+        { path: 'categories', component: Categories },
+        { path: 'categories/:categoryId/products', component: CategoryProducts },
+    ]
   },
 
   // ===== User Routes =====
@@ -72,4 +79,5 @@ export const routes: Routes = [
   // ===== Default & 404 =====
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: '**', redirectTo: '/login' },
+
 ];

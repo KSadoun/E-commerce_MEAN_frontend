@@ -1,0 +1,88 @@
+<div class="products-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Products Management</h1>
+      <p class="subtitle">Manage and monitor all products</p>
+    </div>
+  </div>
+
+  <!-- Filter Section -->
+  <div class="filter-section">
+    <div class="filter-card">
+      <label for="categoryFilter" class="filter-label">Filter by Category:</label>
+      <select 
+        id="categoryFilter"
+        [(ngModel)]="selectedCategory" 
+        class="filter-select">
+        <option value="">All Categories</option>
+        @for (category of uniqueCategories; track category) {
+          <option [value]="category">Category {{ category }}</option>
+        }
+      </select>
+      <span class="filter-badge">{{ filteredProducts.length }} {{ filteredProducts.length === 1 ? 'product' : 'products' }}</span>
+    </div>
+  </div>
+
+  <!-- Table Section -->
+  <div [class.blur-content]="isLoading" class="table-wrapper">
+    <table class="products-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Price</th>
+          <th>Stock</th>
+          <th>Category</th>
+          <th>Seller</th>
+          <th>Image</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (filteredProducts.length > 0) {
+          @for (product of filteredProducts; track product.id) {
+            <tr>
+              <td>{{ product.id }}</td>
+              <td class="font-semibold">{{ product.name }}</td>
+              <td class="text-truncate">{{ product.description }}</td>
+              <td class="price-cell">{{ product.price | currency }}</td>
+              <td>
+                <span class="stock-badge" [class]="product.stock > 0 ? 'stock-available' : 'stock-out'">
+                  {{ product.stock }}
+                </span>
+              </td>
+              <td>Category {{ product.categoryId }}</td>
+              <td>Seller {{ product.sellerId }}</td>
+              <td>
+                @if (product.image && product.image.length > 0) {
+                  <span class="image-badge">{{ product.image.length }} image(s)</span>
+                }
+                @else {
+                  <span class="text-gray-500 text-xs">No image</span>
+                }
+              </td>
+              <td class="actions-cell">
+                <button class="btn btn-delete" (click)="deleteProduct(product.id)" title="Delete this product">Delete</button>
+              </td>
+            </tr>
+          }
+        } @else {
+          <tr>
+            <td colspan="9" class="empty-state">
+              <p>No products found</p>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Loading Spinner Overlay -->
+  @if (isLoading) {
+    <div class="loading-overlay">
+      <div class="spinner"></div>
+    </div>
+  }
+</div>
