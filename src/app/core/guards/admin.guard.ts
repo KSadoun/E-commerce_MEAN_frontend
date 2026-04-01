@@ -1,31 +1,30 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Router, CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { AuthApi } from '../services/auth/auth-api';
+import { AuthService } from '../services/auth.service';
 import { map, catchError } from 'rxjs/operators';
 import { Observable, of } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AdminGuard implements CanActivate {
-  constructor(private authApi: AuthApi, private router: Router) {}
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
-    // Check if user is admin by calling the backend API
-    return this.authApi.getCurrentUser().pipe(
-      map((response: any) => {
+    return this.authService.getCurrentUser().pipe(
+      map((response) => {
         if (response.role === 'admin') {
           return true;
         }
-        // Not admin, redirect
+
         this.router.navigate(['/login']);
         return false;
       }),
       catchError(() => {
-        // API error or user not authenticated, redirect to login
         this.router.navigate(['/login']);
         return of(false);
-      })
+      }),
     );
   }
 }
