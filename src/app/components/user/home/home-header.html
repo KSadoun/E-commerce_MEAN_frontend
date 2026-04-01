@@ -1,0 +1,81 @@
+<header class="sticky top-0 z-40 border-b border-stone-200/60 bg-[#f7f3ee]/95 backdrop-blur">
+  <div class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 md:px-6 lg:px-8">
+    <a routerLink="/" class="text-lg font-semibold tracking-[0.18em] text-stone-800">ATELIER ARC</a>
+
+    <nav aria-label="Primary" class="hidden items-center gap-7 md:flex">
+      @for (link of navLinks(); track link.label) {
+        <a
+          [routerLink]="link.href"
+          class="text-sm font-medium tracking-wide text-stone-700 transition hover:text-stone-950"
+        >
+          {{ link.label }}
+        </a>
+      }
+    </nav>
+
+    <div class="flex items-center gap-1 text-stone-700">
+      <button
+        type="button"
+        aria-label="Wishlist"
+        class="rounded-full p-2 transition hover:bg-white/70 hover:text-stone-950"
+      >
+        <span class="material-symbols-outlined text-[22px]">favorite</span>
+      </button>
+      <button
+        type="button"
+        aria-label="Cart"
+        class="rounded-full p-2 transition hover:bg-white/70 hover:text-stone-950"
+      >
+        <span class="material-symbols-outlined text-[22px]">shopping_bag</span>
+      </button>
+
+      @if (isAuthenticated()) {
+        <a
+          routerLink="/users/dashboard"
+          aria-label="Profile"
+          class="rounded-full p-2 transition hover:bg-white/70 hover:text-stone-950"
+        >
+          <span class="material-symbols-outlined text-[22px]">account_circle</span>
+        </a>
+      } @else {
+        <a
+          routerLink="/login"
+          class="ml-1 hidden rounded-full border border-stone-400 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-stone-700 transition hover:border-stone-800 hover:text-stone-900 md:inline-flex"
+        >
+          Login
+        </a>
+        <a
+          routerLink="/users/register"
+          class="hidden rounded-full bg-stone-900 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-stone-100 transition hover:bg-stone-700 md:inline-flex"
+        >
+          Register
+        </a>
+      }
+    </div>
+  </div>
+
+  <nav
+    aria-label="Mobile primary"
+    class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 pb-3 md:hidden"
+  >
+    <div class="flex items-center gap-2 overflow-x-auto text-sm">
+      @for (link of navLinks(); track link.label) {
+        <a
+          [routerLink]="link.href"
+          class="shrink-0 rounded-full border border-stone-300 px-3 py-1.5 font-medium text-stone-700"
+        >
+          {{ link.label }}
+        </a>
+      }
+    </div>
+
+    @if (!isAuthenticated()) {
+      <a
+        routerLink="/login"
+        class="shrink-0 text-xs font-semibold uppercase tracking-wide text-stone-700 underline underline-offset-4"
+      >
+        Login
+      </a>
+    }
+  </nav>
+</header>
