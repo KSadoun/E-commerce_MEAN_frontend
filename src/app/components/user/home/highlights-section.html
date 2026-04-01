@@ -1,0 +1,11 @@
+<section class="border-y border-stone-200 bg-[#f2ede6] py-12">
+  <div class="mx-auto grid max-w-7xl grid-cols-1 gap-5 px-4 md:grid-cols-3 md:px-6 lg:px-8">
+    @for (item of highlights(); track item.id) {
+      <article class="rounded-2xl border border-stone-300/70 bg-white/70 p-5">
+        <span class="material-symbols-outlined text-3xl text-stone-700">{{ item.icon }}</span>
+        <h3 class="mt-4 text-lg font-semibold text-stone-900">{{ item.title }}</h3>
+        <p class="mt-2 text-sm leading-6 text-stone-600">{{ item.description }}</p>
+      </article>
+    }
+  </div>
+</section>
