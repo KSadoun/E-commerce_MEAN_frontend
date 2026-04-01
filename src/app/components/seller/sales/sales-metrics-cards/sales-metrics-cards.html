@@ -1,0 +1,30 @@
+<section class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+  @for (metric of metrics(); track metric.label) {
+    <article
+      class="rounded-2xl border p-5 shadow-lg transition-all duration-300 hover:-translate-y-1"
+      [class.border-emerald-200]="metric.label === 'Total Revenue'"
+      [class.bg-gradient-to-br]="metric.label === 'Total Revenue'"
+      [class.from-emerald-50]="metric.label === 'Total Revenue'"
+      [class.to-teal-50]="metric.label === 'Total Revenue'"
+      [class.border-blue-200]="metric.label === 'Total Orders'"
+      [class.from-blue-50]="metric.label === 'Total Orders'"
+      [class.to-indigo-50]="metric.label === 'Total Orders'"
+      [class.border-violet-200]="metric.label === 'Total Products'"
+      [class.from-violet-50]="metric.label === 'Total Products'"
+      [class.to-fuchsia-50]="metric.label === 'Total Products'"
+    >
+      <p class="text-sm font-semibold text-slate-600">{{ metric.label }}</p>
+      <p
+        class="mt-2 text-3xl font-extrabold"
+        [class.text-emerald-700]="metric.label === 'Total Revenue'"
+        [class.text-slate-900]="metric.label !== 'Total Revenue'"
+      >
+        @if (metric.currency) {
+          {{ metric.value | currency: 'USD' : 'symbol' : '1.0-0' }}
+        } @else {
+          {{ metric.value }}
+        }
+      </p>
+    </article>
+  }
+</section>
