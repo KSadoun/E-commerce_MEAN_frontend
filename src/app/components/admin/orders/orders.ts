@@ -42,8 +42,8 @@ export class Orders implements OnInit {
 
   getOrderStatusClass(status?: string): string {
     const baseClass = 'rounded-lg px-3 py-1 text-xs font-semibold';
-    
-    switch(status) {
+
+    switch (status) {
       case 'delivered':
         return `${baseClass} bg-emerald-100/80 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300`;
       case 'shipped':
