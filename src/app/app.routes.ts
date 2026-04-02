@@ -28,6 +28,13 @@ import { Shop } from './components/user/shop/shop';
 import { CategoriesPage } from './components/user/categories/categories-page';
 import { ContactPage } from './components/user/contact/contact-page';
 
+// User — Cart, Checkout, Orders, Payments
+import { Cart } from './components/user/cart/cart';
+import { CheckoutComponent } from './components/user/checkout/checkout.component';
+import { PaymentResultComponent } from './components/user/payment-result/payment-result.component';
+import { OrdersComponent } from './components/user/orders/orders.component';
+import { OrderDetailComponent } from './components/user/order-detail/order-detail.component';
+
 // Seller
 import { SellerDashboard } from './components/seller/dashboard/dashboard';
 import { SellerLayout } from './components/seller/layout/layout';
@@ -50,8 +57,14 @@ export const routes: Routes = [
   { path: 'users/register', component: UserRegister },
   { path: 'seller/register', component: SellerRegister },
 
-  // ===== Admin Routes =====
+  // ===== Cart, Checkout, Orders, Payments =====
+  { path: 'cart', component: Cart },
+  { path: 'checkout', component: CheckoutComponent },
+  { path: 'payment/result', component: PaymentResultComponent },
+  { path: 'orders', component: OrdersComponent },
+  { path: 'orders/:id', component: OrderDetailComponent },
 
+  // ===== Admin Routes =====
   {
     path: 'admin',
     component: AdminLayout,
