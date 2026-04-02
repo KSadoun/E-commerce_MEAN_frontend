@@ -2,6 +2,8 @@ import { Routes } from '@angular/router';
 
 // Auth
 import { Login } from './components/login/login';
+import { ForgotPassword } from './components/forgot-password/forgot-password';
+import { ResetPassword } from './components/reset-password/reset-password';
 
 // Guards
 import { AdminGuard } from './core/guards/admin.guard';
@@ -20,6 +22,10 @@ import { CategoryProducts } from './components/admin/categories/category-product
 // User
 import { UserDashboard } from './components/user/dashboard/dashboard';
 import { UserRegister } from './components/user/register/register';
+import { Home } from './components/user/home/home';
+import { Shop } from './components/user/shop/shop';
+import { CategoriesPage } from './components/user/categories/categories-page';
+import { ContactPage } from './components/user/contact/contact-page';
 
 // Seller
 import { SellerDashboard } from './components/seller/dashboard/dashboard';
@@ -30,25 +36,33 @@ import { SellerCustomers } from './components/seller/customers/customers';
 import { SellerRegister } from './components/seller/register/register';
 
 export const routes: Routes = [
+  { path: '', component: Home },
+  { path: 'shop', component: Shop },
+
+  { path: 'categories', component: CategoriesPage },
+  { path: 'contact', component: ContactPage },
+
   // ===== Auth =====
   { path: 'login', component: Login },
+  { path: 'forgot-password', component: ForgotPassword },
+  { path: 'reset-password', component: ResetPassword },
   { path: 'users/register', component: UserRegister },
   { path: 'seller/register', component: SellerRegister },
 
   // ===== Admin Routes =====
-  
+
   {
     path: 'admin',
     component: AdminLayout,
     // TODO: re-enable guards after auth flow is finalized.
     // canActivate: [AuthGuard, AdminGuard],
     children: [
-        { path: '', component: AdminDashboard },
-        { path: 'users', component: Users },
-        { path: 'products', component: Products },
-        { path: 'categories', component: Categories },
-        { path: 'categories/:categoryId/products', component: CategoryProducts },
-    ]
+      { path: '', component: AdminDashboard },
+      { path: 'users', component: Users },
+      { path: 'products', component: Products },
+      { path: 'categories', component: Categories },
+      { path: 'categories/:categoryId/products', component: CategoryProducts },
+    ],
   },
 
   // ===== User Routes =====
@@ -57,9 +71,9 @@ export const routes: Routes = [
     // TODO: re-enable guards after auth flow is finalized.
     // canActivate: [AuthGuard, UserGuard],
     children: [
-        { path: 'dashboard', component: UserDashboard },
-        { path: 'register', component: UserRegister },
-    ]
+      { path: 'dashboard', component: UserDashboard },
+      { path: 'register', component: UserRegister },
+    ],
   },
 
   // ===== Seller Routes =====
@@ -77,7 +91,5 @@ export const routes: Routes = [
   },
 
   // ===== Default & 404 =====
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
-  { path: '**', redirectTo: '/login' },
-
+  { path: '**', redirectTo: '/' },
 ];
