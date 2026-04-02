@@ -105,10 +105,12 @@ export class HomeCatalogService {
         map((response) =>
           response.products.map((product, index) => ({
             id: String(product.id),
+            backendId: product.id,                   
             title: product.name,
             category: product.categoryName || 'Featured',
-            material: 'Curated Selection',
+            material: product.categoryName || 'Curated Selection',
             price: Number(product.price),
+            stock: product.stock ?? 0,                
             imageUrl:
               product.images?.[0] ||
               this.fallbackProductImages[index % this.fallbackProductImages.length] ||
@@ -128,11 +130,12 @@ export class HomeCatalogService {
             const category = product.categoryName || 'General';
             return {
               id: String(product.id),
+              backendId: product.id,                  
               title: product.name,
               category,
-              // The shop filter currently works on "material", so map category to keep filtering functional.
               material: category,
               price: Number(product.price),
+              stock: product.stock ?? 0,              
               imageUrl:
                 product.images?.[0] ||
                 this.fallbackProductImages[index % this.fallbackProductImages.length] ||
@@ -148,15 +151,12 @@ export class HomeCatalogService {
     if (product.stock <= 5) {
       return 'Limited Stock';
     }
-
     if ((product.rating ?? 0) >= 4.5) {
       return 'Staff Pick';
     }
-
     if (product.price >= 1000) {
       return 'Premium';
     }
-
     return undefined;
   }
 }

@@ -1,13 +1,14 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   computed,
+  DestroyRef,
   inject,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
+
 
 import {
   COMPANY_DESCRIPTION,
@@ -15,7 +16,9 @@ import {
   HIGHLIGHT_FEATURES,
   HOME_NAV_LINKS,
 } from '../home/home.data';
+import { CatalogProduct } from '../home/home.models';
 import { AuthService } from '../../../core/services/auth.service';
+import { HomeCatalogService } from '../../../services/user/home-catalog.service';
 import { HighlightsSection } from '../home/highlights-section';
 import { HomeFooter } from '../home/home-footer';
 import { HomeHeader } from '../home/home-header';
@@ -31,18 +34,23 @@ import { HomeCatalogService } from '../../../services/user/home-catalog.service'
 })
 export class Shop {
   private readonly authService = inject(AuthService);
-  private readonly homeCatalogService = inject(HomeCatalogService);
   private readonly route = inject(ActivatedRoute);
+  private readonly catalogService = inject(HomeCatalogService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly isAuthenticated = signal(this.authService.isAuthenticated());
   readonly products = signal<ReadonlyArray<CatalogProduct>>([]);
   readonly preselectedMaterial = signal<string | null>(null);
 
+  readonly products = signal<ReadonlyArray<CatalogProduct>>([]);
+  readonly loading = signal(true);
+
+  readonly materialOptions = computed(() => {
+    const materials = new Set(this.products().map((p) => p.material));
+    return [...materials].sort();
+  });
+
   readonly navLinks = HOME_NAV_LINKS;
-  readonly materialOptions = computed(() =>
-    Array.from(new Set(this.products().map((product) => product.material))).sort(),
-  );
   readonly highlights = HIGHLIGHT_FEATURES;
   readonly footerLinks = FOOTER_LINK_GROUPS;
   readonly companyDescription = COMPANY_DESCRIPTION;
@@ -52,11 +60,22 @@ export class Shop {
       this.preselectedMaterial.set(params.get('material'));
     });
 
-    this.homeCatalogService
+    this.catalogService
       .getCatalogProducts()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (products) => this.products.set(products),
+    this.catalogService
+      .getCatalogProducts()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (products) => {
+          this.products.set(products);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loading.set(false);
+        },
       });
 
     const updateAuthState = (): void => {

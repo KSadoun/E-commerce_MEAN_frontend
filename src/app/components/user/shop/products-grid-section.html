@@ -16,7 +16,7 @@
           class="h-2 w-full cursor-pointer appearance-none rounded-lg bg-stone-200"
         />
         <div class="flex items-center justify-between text-xs text-stone-500">
-          <span>$300</span>
+          <span>\\$300</span>
           <span>Up to ${{ maxSelectedPrice() | number: '1.0-0' }}</span>
         </div>
       </div>
@@ -51,7 +51,9 @@
       <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
         @for (product of visibleProducts(); track product.id) {
           <article
-            class="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm shadow-stone-100/70 transition hover:-translate-y-1 hover:shadow-lg hover:shadow-stone-200/50"
+            class="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm
+                   shadow-stone-100/70 transition hover:-translate-y-1 hover:shadow-lg
+                   hover:shadow-stone-200/50"
           >
             <div class="relative h-56 overflow-hidden">
               <img
@@ -76,13 +78,38 @@
                   {{ product.label }}
                 </span>
               }
+             
+              @if (product.stock <= 0) {
+                <span class="absolute right-3 top-3 rounded-full bg-red-600 px-3 py-1 text-xs font-bold text-white">
+                  Out of Stock
+                </span>
+              }
             </div>
+
             <div class="space-y-2 px-4 py-4">
               <h3 class="text-base font-semibold text-stone-900">{{ product.title }}</h3>
               <p class="text-sm text-stone-500">{{ product.category }}</p>
               <p class="pt-1 text-lg font-semibold text-stone-900">
                 ${{ product.price | number: '1.0-0' }}
               </p>
+
+             
+              <button
+                type="button"
+                (click)="addToCart(product, $event)"
+                [disabled]="addingToCart()[product.id] || product.stock <= 0"
+                class="mt-2 w-full rounded-xl bg-stone-900 px-4 py-2.5 text-sm
+                       font-semibold text-white transition hover:bg-stone-700
+                       disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                @if (addingToCart()[product.id]) {
+                  Adding...
+                } @else if (product.stock <= 0) {
+                  Out of Stock
+                } @else {
+                  Add to Cart
+                }
+              </button>
             </div>
           </article>
         }
@@ -93,7 +120,8 @@
           <button
             type="button"
             (click)="loadMore()"
-            class="rounded-full border border-stone-400 px-7 py-3 text-sm font-semibold text-stone-800 transition hover:border-stone-800 hover:text-stone-950"
+            class="rounded-full border border-stone-400 px-7 py-3 text-sm font-semibold
+                   text-stone-800 transition hover:border-stone-800 hover:text-stone-950"
           >
             Load More
           </button>
@@ -101,4 +129,14 @@
       }
     </div>
   </div>
+
+ 
+  @if (cartMessage()) {
+    <div
+      class="fixed bottom-6 right-6 z-50 rounded-xl bg-stone-900 px-5 py-3
+             text-sm font-medium text-white shadow-lg"
+    >
+      {{ cartMessage() }}
+    </div>
+  }
 </section>
