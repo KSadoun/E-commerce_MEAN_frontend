@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import {environment} from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment.development';
 
 @Injectable({
   providedIn: 'root',
@@ -11,6 +11,18 @@ export class AuthApi {
 
   login(email: string, password: string) {
     return this.http.post(`${this.apiUrl}/auth/login`, { email, password });
+  }
+
+  forgotPassword(email: string) {
+    return this.http.post(`${this.apiUrl}/auth/forgot-password`, { email });
+  }
+
+  resetPassword(oldPassword: string, newPassword: string) {
+    return this.http.patch(
+      `${this.apiUrl}/auth/reset-password`,
+      { oldPassword, newPassword },
+      { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } },
+    );
   }
 
   registerUser(user: any) {
@@ -24,6 +36,18 @@ export class AuthApi {
   // Get current user role (from backend)
   getCurrentUser() {
     // Question: What if the user messes with the token in localStorage?
-    return this.http.get(`${this.apiUrl}/users/me`, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+    return this.http.get(`${this.apiUrl}/users/me`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+    });
+  }
+
+  // Get cached user role
+  getUserRole(): string | null {
+    return localStorage.getItem('userRole');
+  }
+
+  // Set user role (call this after successful login)
+  setUserRole(role: string) {
+    localStorage.setItem('userRole', role);
   }
 }

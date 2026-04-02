@@ -1,0 +1,84 @@
+<div class="category-products-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <button class="btn-back" (click)="goBack()" title="Go back to categories">
+        ← Back to Categories
+      </button>
+      <h1>Category Products</h1>
+      <p class="subtitle">All products in this category</p>
+    </div>
+  </div>
+
+  <!-- Stats Section -->
+  <div class="stats-section">
+    <div class="stat-card">
+      <div class="stat-value">{{ products.length }}</div>
+      <div class="stat-label">Total Products</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ inStockCount }}</div>
+      <div class="stat-label">In Stock</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ outOfStockCount }}</div>
+      <div class="stat-label">Out of Stock</div>
+    </div>
+  </div>
+
+  <!-- Table Section -->
+  <div [class.blur-content]="isLoading" class="table-wrapper">
+    <table class="products-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Price</th>
+          <th>Stock</th>
+          <th>Seller</th>
+          <th>Images</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (products.length > 0) {
+          @for (product of products; track product.id) {
+            <tr>
+              <td>{{ product.id }}</td>
+              <td class="font-semibold">{{ product.name }}</td>
+              <td class="text-truncate">{{ product.description }}</td>
+              <td class="price-cell">{{ product.price | currency }}</td>
+              <td>
+                <span class="stock-badge" [class]="product.stock > 0 ? 'stock-available' : 'stock-out'">
+                  {{ product.stock }}
+                </span>
+              </td>
+              <td>Seller #{{ product.sellerId }}</td>
+              <td>
+                @if (product.image && product.image.length > 0) {
+                  <span class="image-badge">{{ product.image.length }} image(s)</span>
+                }
+                @else {
+                  <span class="text-gray-500 text-xs">No image</span>
+                }
+              </td>
+            </tr>
+          }
+        } @else {
+          <tr>
+            <td colspan="7" class="empty-state">
+              <p>No products found in this category</p>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Loading Spinner Overlay -->
+  @if (isLoading) {
+    <div class="loading-overlay">
+      <div class="spinner"></div>
+    </div>
+  }
+</div>

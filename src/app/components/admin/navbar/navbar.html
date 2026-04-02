@@ -1,14 +1,45 @@
-<!-- TopAppBar Contextual -->
-<header class="sticky top-0 w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl z-40">
-	<div class="flex justify-between items-center w-full px-8 py-4 max-w-7xl mx-auto">
-		<div>
-			<h1 class="text-2xl font-black tracking-tighter text-blue-800 dark:text-blue-300">Admin Panel</h1>
-		</div>
-		<div class="flex items-center gap-3 pl-6 border-l border-slate-200 dark:border-slate-800">
-			<div class="text-right">
-				<p class="text-sm font-bold text-on-surface">Admin Name</p>
-			</div>
-			<img alt="Admin Profile" class="w-10 h-10 rounded-full bg-slate-100 border-2 border-primary-fixed shadow-sm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAP2Kxu6RdFSO_KfOzaiU7CN3LDDeynzcvOu76pfDzSCrotLEFfyh88zcjpdKdN8YX437Zc7vK4A7Z92Y3yPau3l9gWs1ULNopmPvGMPkZ0uLYBeYvD7lJzV7QsnM_e5gpM2Q4eYww_XI8FgfqS0m1hG-HB4JViL65kyZWmPM9buCOkZxEISnAp_iBQsb8kOTruXi929ERGjsH5rwkH2tIoYV-uaQbthjYQA2-Y196-EUf3nvuejETAvY2Cm_hLIRKzEbjX278Gpcwj" />
-		</div>
-	</div>
+<header
+  class="sticky top-0 z-40 border-b border-slate-200 bg-white/80 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/80"
+>
+  <div
+    class="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8"
+  >
+    <div class="flex items-center gap-2">
+      <button
+        type="button"
+        (click)="onToggleMobileMenu()"
+        class="inline-flex rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 lg:hidden dark:text-slate-300 dark:hover:bg-slate-800"
+        aria-label="Open menu"
+      >
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+
+      <h1 class="text-2xl font-black tracking-tight text-blue-800 dark:text-blue-300">
+        Admin Dashboard
+      </h1>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <button
+        type="button"
+        class="relative rounded-full p-2 text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+        aria-label="Notifications"
+      >
+        <span class="material-symbols-outlined">notifications</span>
+        <span class="absolute right-1 top-1 h-2.5 w-2.5 rounded-full bg-blue-500"></span>
+      </button>
+
+      <div class="flex items-center gap-3 border-l border-slate-200 pl-3 dark:border-slate-700">
+        <img
+          alt="Admin Profile"
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuAP2Kxu6RdFSO_KfOzaiU7CN3LDDeynzcvOu76pfDzSCrotLEFfyh88zcjpdKdN8YX437Zc7vK4A7Z92Y3yPau3l9gWs1ULNopmPvGMPkZ0uLYBeYvD7lJzV7QsnM_e5gpM2Q4eYww_XI8FgfqS0m1hG-HB4JViL65kyZWmPM9buCOkZxEISnAp_iBQsb8kOTruXi929ERGjsH5rwkH2tIoYV-uaQbthjYQA2-Y196-EUf3nvuejETAvY2Cm_hLIRKzEbjX278Gpcwj"
+          class="h-10 w-10 rounded-full border-2 border-blue-500/40 object-cover"
+        />
+        <div class="hidden sm:block">
+          <p class="text-sm font-bold text-slate-800 dark:text-slate-100">Admin</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Admin account</p>
+        </div>
+      </div>
+    </div>
+  </div>
 </header>

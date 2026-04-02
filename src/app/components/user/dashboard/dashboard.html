@@ -1,1 +1,162 @@
-<p>User dashboard works!</p>
+<div class="min-h-screen bg-[#f7f3ee] py-8 px-4 sm:px-6 lg:px-8 font-sans text-stone-900">
+  <div class="max-w-5xl mx-auto space-y-8">
+
+    <!-- Header -->
+    <header class="flex items-center gap-4">
+      <a routerLink="/"
+        class="p-2 text-stone-500 bg-white border border-stone-200 rounded-full hover:text-stone-900"
+        aria-label="Go back">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+      </a>
+      <div>
+        <h1 class="text-3xl font-semibold text-stone-900 tracking-tight">Account Dashboard</h1>
+        <p class="mt-1 text-sm text-stone-500">Manage your profile, orders, and wishlist.</p>
+      </div>
+    </header>
+
+    @if (user) {
+    <!-- Profile Card -->
+    <div class="bg-white rounded-lg p-6">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+        <div
+          class="w-24 h-24 rounded-full bg-stone-800 flex items-center justify-center shrink-0">
+          <span class="text-stone-100 text-3xl font-bold uppercase">{{ user.name.charAt(0) }}</span>
+        </div>
+
+        <div class="flex-1 space-y-1">
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <h2 class="text-2xl font-semibold text-stone-900 tracking-tight">{{ user.name }}</h2>
+            <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-stone-100 text-stone-700 uppercase">
+              {{ user.role }}
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-stone-100">
+            <div class="flex items-center text-sm text-stone-600">
+              <span class="material-symbols-outlined text-stone-400 mr-3 text-xl">mail</span>
+              {{ user.email }}
+            </div>
+            @if (user.phone) {
+            <div class="flex items-center text-sm text-stone-600">
+              <span class="material-symbols-outlined text-stone-400 mr-3 text-xl">call</span>
+              {{ user.phone }}
+            </div>
+            }
+            @if (user.address) {
+            <div class="flex items-center text-sm text-stone-600 md:col-span-2">
+              <span class="material-symbols-outlined text-stone-400 mr-3 text-xl">location_on</span>
+              {{ user.address }}
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+    } @else {
+    <!-- Skeleton Profile -->
+    <div
+      class="bg-white shadow-xl shadow-stone-200/40 border border-stone-200/60 rounded-2xl p-6 flex items-center gap-6">
+      <div class="w-24 h-24 rounded-full bg-stone-200 shrink-0"></div>
+      <div class="flex-1 space-y-4 py-1">
+        <div class="h-6 bg-stone-200 rounded w-1/4"></div>
+        <div class="space-y-3 pt-4 border-t border-stone-100">
+          <div class="h-4 bg-stone-200 rounded w-3/4"></div>
+          <div class="h-4 bg-stone-200 rounded w-1/2"></div>
+        </div>
+      </div>
+    </div>
+    }
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Orders -->
+      <div class="lg:col-span-2 space-y-6">
+        <div class="bg-white shadow-xl shadow-stone-200/40 rounded-2xl border border-stone-200/60 overflow-hidden">
+          <div class="px-6 py-5 border-b border-stone-100 flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-stone-900">Recent Orders</h3>
+            <span class="text-xs font-medium text-stone-600 bg-stone-100 px-2 py-1 rounded-md">{{ orders.length }}
+              total</span>
+          </div>
+
+          <div class="p-6">
+            @if (orders.length === 0 && !loading) {
+            <div class="text-center py-12">
+              <span class="material-symbols-outlined text-stone-300 text-5xl mb-2">inventory_2</span>
+              <h3 class="text-sm font-semibold text-stone-900">No orders</h3>
+              <p class="mt-1 text-sm text-stone-500">We haven't received any orders from you yet.</p>
+            </div>
+            } @else if (loading) {
+            <div class="space-y-4">
+              <div class="h-12 bg-stone-100 rounded w-full"></div>
+              <div class="h-12 bg-stone-100 rounded w-full"></div>
+              <div class="h-12 bg-stone-100 rounded w-full"></div>
+            </div>
+            } @else {
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm text-left">
+                <thead>
+                  <tr class="text-stone-500 font-medium border-b border-stone-200">
+                    <th class="pb-3 font-semibold">Order ID</th>
+                    <th class="pb-3 font-semibold">Date</th>
+                    <th class="pb-3 font-semibold">Status</th>
+                    <th class="pb-3 text-right font-semibold">Total</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-stone-100">
+                  @for (order of orders; track order.id || $index) {
+                  <tr class="hover:bg-stone-50/80">
+                    <td class="py-4 font-medium text-stone-900">#{{ order.id }}</td>
+                    <td class="py-4 text-stone-500">{{ order.createdAt | date:'mediumDate' }}</td>
+                    <td class="py-4">
+                      <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold border border-transparent"
+                        [ngClass]="order.status">
+                        {{ order.status }}
+                      </span>
+                    </td>
+                    <td class="py-4 text-right font-semibold text-stone-900"> {{order.currency}} {{ order.total | number:'1.2-2'
+                      }}</td>
+                  </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar (Wishlist) -->
+      <div class="space-y-6">
+        <div class="bg-white shadow-xl shadow-stone-200/40 rounded-2xl border border-stone-200/60 overflow-hidden">
+          <div class="px-6 py-5 border-b border-stone-100 flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-stone-900">My Wishlist</h3>
+          </div>
+
+          <div class="p-6">
+            @if (wishlist.length === 0 && !loading) {
+            <div class="text-center py-8">
+              <span class="material-symbols-outlined text-stone-300 text-5xl mb-2">favorite</span>
+              <p class="text-sm text-stone-500">Your wishlist is empty.</p>
+            </div>
+            } @else {
+            <div class="space-y-3">
+              @for (item of wishlist; track item.id) {
+              <div class="group flex items-center justify-between p-3 rounded-xl bg-stone-50 hover:bg-stone-100 cursor-pointer">
+                <div>
+                  <h4 class="text-sm font-medium text-stone-900 group-hover:text-stone-600 truncate">{{ item.name }}</h4>
+                  @if (item.price) {
+                  <p class="text-xs font-medium text-stone-500 mt-0.5">${{ item.price | number:'1.2-2' }}</p>
+                  }
+                </div>
+              </div>
+              }
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -1,33 +1,86 @@
-<!-- SideNavBar Component -->
-<aside class="h-screen w-64 border-r border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex flex-col py-6">
-	<div class="px-6 mb-8">
-		<h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">E-Commerce</h2>
-		<p class="text-xs text-slate-500 font-medium">MEAN Stack</p>
-	</div>
-	<nav class="flex-1 space-y-1">
-		<a routerLink="/admin" [routerLinkActiveOptions]="{ exact: true }"
-            routerLinkActive="bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
-			class="flex items-center space-x-3 p-3 transition-all text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 mx-2 rounded-lg hover:translate-x-1 duration-200"
-            >
-			<span class="font-inter text-sm font-medium">Dashboard</span>
-		</a>
-		<a routerLink="/admin/users" 
-            routerLinkActive="bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
-			class="flex items-center space-x-3 p-3 transition-all text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 mx-2 rounded-lg hover:translate-x-1 duration-200"
-		>
-			<span class="font-inter text-sm font-medium">Users</span>
-		</a>
-		<a routerLink="/admin/products" 
-            routerLinkActive="bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
-			class="flex items-center space-x-3 p-3 transition-all text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 mx-2 rounded-lg hover:translate-x-1 duration-200"
-		>
-			<span class="font-inter text-sm font-medium">Products</span>
-		</a>
-	</nav>
-	<!-- No add product button for admin sidebar -->
-	<div class="mt-auto border-t border-slate-200 dark:border-slate-800 pt-4">
-		<a class="flex items-center space-x-3 p-3 transition-all text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 mx-2 rounded-lg" href="/logout">
-			<span class="font-inter text-sm font-medium">Logout</span>
-		</a>
-	</div>
+<aside
+  class="admin-sidebar fixed left-0 top-0 z-40 flex h-screen border-r border-slate-200 bg-slate-50 py-6 transition-all duration-300 dark:border-slate-800 dark:bg-slate-950"
+  [class.collapsed]="collapsed()"
+  [class.mobile-open]="mobileOpen()"
+>
+  <div class="flex h-full w-full flex-col">
+    <div class="mb-6 flex items-center justify-between px-6" [class.px-2]="collapsed()">
+      <div [class.hidden]="collapsed()">
+        <h2 class="truncate text-lg font-bold text-slate-900 dark:text-slate-100">E-Commerce</h2>
+        <p class="text-xs font-medium text-slate-500">Admin Portal</p>
+      </div>
+      <button
+        type="button"
+        (click)="toggleCollapse.emit()"
+        class="rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+        aria-label="Toggle sidebar"
+      >
+        <span class="material-symbols-outlined">left_panel_open</span>
+      </button>
+    </div>
+
+    <nav class="space-y-1 px-2">
+      <a
+        routerLink="/admin"
+        [routerLinkActiveOptions]="{ exact: true }"
+        routerLinkActive="bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+        (click)="handleMenuClick()"
+        class="group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-500 transition-all duration-200 hover:translate-x-1 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-900"
+      >
+        <span class="material-symbols-outlined text-[20px]">space_dashboard</span>
+        @if (!collapsed()) {
+          <span>Dashboard</span>
+        }
+      </a>
+
+      <a
+        routerLink="/admin/users"
+        routerLinkActive="bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+        (click)="handleMenuClick()"
+        class="group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-500 transition-all duration-200 hover:translate-x-1 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-900"
+      >
+        <span class="material-symbols-outlined text-[20px]">groups</span>
+        @if (!collapsed()) {
+          <span>Users</span>
+        }
+      </a>
+
+      <a
+        routerLink="/admin/products"
+        routerLinkActive="bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+        (click)="handleMenuClick()"
+        class="group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-500 transition-all duration-200 hover:translate-x-1 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-900"
+      >
+        <span class="material-symbols-outlined text-[20px]">shopping_bag</span>
+        @if (!collapsed()) {
+          <span>Products</span>
+        }
+      </a>
+
+      <a
+        routerLink="/admin/categories"
+        routerLinkActive="bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+        (click)="handleMenuClick()"
+        class="group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-500 transition-all duration-200 hover:translate-x-1 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-900"
+      >
+        <span class="material-symbols-outlined text-[20px]">category</span>
+        @if (!collapsed()) {
+          <span>Categories</span>
+        }
+      </a>
+    </nav>
+
+    <div class="mt-auto border-t border-slate-200 px-2 pt-4 dark:border-slate-800">
+      <button
+        type="button"
+        (click)="logout()"
+        class="flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-500 transition-all hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-900"
+      >
+        <span class="material-symbols-outlined text-[18px]">logout</span>
+        @if (!collapsed()) {
+          <span>Logout</span>
+        }
+      </button>
+    </div>
+  </div>
 </aside>

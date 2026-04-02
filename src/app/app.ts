@@ -1,13 +1,12 @@
 import { Component, signal, OnInit, ChangeDetectorRef  } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
-import { AdminLayout } from "./components/admin/layout/layout";
-
 import { AuthApi } from "./services/auth/auth-api";
+import { UserNavbar } from "./components/user/user-navbar/user-navbar";
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, AdminLayout],
+  imports: [RouterOutlet],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
