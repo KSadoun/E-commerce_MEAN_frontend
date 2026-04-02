@@ -24,16 +24,21 @@ export class SellerSales {
     this.orders().filter((order) => {
       const statusMatch = this.status() === 'All' || order.status === this.status();
       const orderDate = new Date(order.date);
-      const today = new Date('2026-03-31');
+      const now = new Date();
+
+      if (Number.isNaN(orderDate.getTime())) {
+        return statusMatch;
+      }
 
       let dateMatch = true;
       if (this.dateRange() === 'Today') {
-        dateMatch = order.date === '2026-03-31';
+        dateMatch = orderDate.toDateString() === now.toDateString();
       } else if (this.dateRange() === 'This Week') {
-        const diff = (today.getTime() - orderDate.getTime()) / (1000 * 60 * 60 * 24);
-        dateMatch = diff <= 7;
+        const diff = (now.getTime() - orderDate.getTime()) / (1000 * 60 * 60 * 24);
+        dateMatch = diff <= 7 && diff >= 0;
       } else if (this.dateRange() === 'This Month') {
-        dateMatch = orderDate.getMonth() === 2;
+        dateMatch =
+          orderDate.getMonth() === now.getMonth() && orderDate.getFullYear() === now.getFullYear();
       }
 
       return statusMatch && dateMatch;

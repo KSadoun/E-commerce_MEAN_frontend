@@ -65,13 +65,13 @@
           <label class="space-y-1 text-sm font-medium text-slate-700 dark:text-slate-200">
             <span>Category</span>
             <select
-              formControlName="category"
+              formControlName="categoryId"
               class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 outline-none focus:border-blue-400 dark:border-slate-700 dark:bg-slate-800"
-              [class.ring-2]="changedFields().has('category')"
-              [class.ring-blue-200]="changedFields().has('category')"
+              [class.ring-2]="changedFields().has('categoryId')"
+              [class.ring-blue-200]="changedFields().has('categoryId')"
             >
               @for (category of categories(); track category.id) {
-                <option [value]="category.name">{{ category.name }}</option>
+                <option [value]="category.id">{{ category.name }}</option>
               }
             </select>
           </label>

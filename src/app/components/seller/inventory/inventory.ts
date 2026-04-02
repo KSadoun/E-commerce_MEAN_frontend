@@ -32,6 +32,7 @@ export class SellerInventory {
   readonly pageSize = 6;
   readonly products = signal<SellerProduct[]>([]);
   readonly categories = signal<Category[]>([]);
+  readonly categoryNames = computed(() => this.categories().map((item) => item.name));
 
   readonly modalOpen = signal(false);
   readonly modalMode = signal<'add' | 'edit' | 'delete'>('add');
@@ -116,7 +117,14 @@ export class SellerInventory {
   onSaveProduct(product: SellerProduct): void {
     if (this.modalMode() === 'add') {
       const payload: Omit<SellerProduct, 'id'> = {
-        ...product,
+        image: product.image,
+        images: product.images,
+        name: product.name,
+        category: product.category,
+        categoryId: product.categoryId,
+        price: product.price,
+        stock: product.stock,
+        description: product.description,
         status: product.status ?? 'Active',
       };
       this.inventoryService

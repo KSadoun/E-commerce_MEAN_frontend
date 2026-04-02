@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AuthApi } from '../../../services/auth/auth-api';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -15,12 +15,15 @@ export class UserRegister {
   phone: string = '';
   password: string = '';
   confirmPassword: string = '';
-  private readonly role: string = 'customer';
+  private readonly role: 'customer' = 'customer';
   isSubmitting = false;
   successMessage = '';
   errorMessage = '';
 
-  constructor(private authApi: AuthApi) {}
+  constructor(
+    private authApi: AuthApi,
+    private router: Router,
+  ) {}
 
   get passwordsMismatch(): boolean {
     return this.confirmPassword.length > 0 && this.password !== this.confirmPassword;
@@ -42,13 +45,15 @@ export class UserRegister {
       email: this.email,
       phone: this.phone,
       password: this.password,
+      confirmPassword: this.confirmPassword,
       role: this.role,
     };
 
     this.authApi.registerUser(user).subscribe({
       next: (response: any) => {
         console.log('Registration successful:', response);
-        this.successMessage = 'Verify Email Message Sent';
+        this.successMessage = 'Verification code sent to your email.';
+        this.router.navigate(['/verify-email'], { queryParams: { email: this.email } });
         this.isSubmitting = false;
       },
       error: (error: any) => {

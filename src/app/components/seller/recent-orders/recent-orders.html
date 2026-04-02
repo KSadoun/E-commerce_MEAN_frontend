@@ -55,6 +55,10 @@
                 [class.text-blue-700]="order.status === 'Shipped'"
                 [class.dark:bg-blue-900/40]="order.status === 'Shipped'"
                 [class.dark:text-blue-300]="order.status === 'Shipped'"
+                [class.bg-rose-100]="order.status === 'Cancelled'"
+                [class.text-rose-700]="order.status === 'Cancelled'"
+                [class.dark:bg-rose-900/40]="order.status === 'Cancelled'"
+                [class.dark:text-rose-300]="order.status === 'Cancelled'"
               >
                 {{ order.status }}
               </span>
