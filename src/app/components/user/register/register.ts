@@ -52,13 +52,9 @@ export class UserRegister {
     this.authApi.registerUser(user).subscribe({
       next: (response: any) => {
         console.log('Registration successful:', response);
+        this.successMessage = 'Verification code sent to your email.';
         this.router.navigate(['/verify-email'], { queryParams: { email: this.email } });
-        if (response.token) {
-          localStorage.setItem('token', response.token);
-        }
-        this.successMessage = 'Verify Email Message Sent';
         this.isSubmitting = false;
-        this.router.navigate(['/users/dashboard']);
       },
       error: (error: any) => {
         console.error('Registration failed:', error);

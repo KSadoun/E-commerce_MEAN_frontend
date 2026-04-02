@@ -178,7 +178,6 @@ export class InventoryService {
       price: product.price,
       stock: product.stock,
       categoryId: product.categoryId,
-      isActive: product.status === 'Active',
       images: product.images.length > 0 ? product.images : product.image ? [product.image] : [],
     };
 

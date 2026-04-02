@@ -1,117 +1,84 @@
-<div class="space-y-6 max-w-7xl mx-auto">
+<div class="category-products-container">
   <!-- Page Header -->
-  <div class="mb-8 border-b border-slate-200 pb-4 dark:border-slate-800">
-    <div class="flex items-center gap-4 mb-4">
-      <button
-        type="button"
-        (click)="goBack()"
-        class="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 transition-all hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-        title="Go back to categories"
-      >
-        <span class="material-symbols-outlined text-[18px]">arrow_back</span>
-        Back to Categories
+  <div class="page-header">
+    <div class="header-content">
+      <button class="btn-back" (click)="goBack()" title="Go back to categories">
+        ← Back to Categories
       </button>
-    </div>
-    <h1 class="text-2xl font-black tracking-tight text-slate-900 dark:text-slate-100">Category Products</h1>
-    <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">All products in this category</p>
-  </div>
-
-  <!-- Stats Cards -->
-  <div class="grid gap-4 grid-cols-1 sm:grid-cols-3">
-    <div class="rounded-2xl border border-slate-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-6 shadow-lg dark:border-slate-800 dark:from-blue-950/30 dark:to-indigo-950/30">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">Total Products</p>
-          <p class="mt-2 text-3xl font-black text-slate-900 dark:text-slate-100">{{ products.length }}</p>
-        </div>
-        <div class="rounded-lg bg-blue-100 p-3 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
-          <span class="material-symbols-outlined text-[28px]">shopping_bag</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="rounded-2xl border border-slate-200 bg-gradient-to-br from-emerald-50 to-teal-50 p-6 shadow-lg dark:border-slate-800 dark:from-emerald-950/30 dark:to-teal-950/30">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">In Stock</p>
-          <p class="mt-2 text-3xl font-black text-slate-900 dark:text-slate-100">{{ inStockCount }}</p>
-        </div>
-        <div class="rounded-lg bg-emerald-100 p-3 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
-          <span class="material-symbols-outlined text-[28px]">inventory_2</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="rounded-2xl border border-slate-200 bg-gradient-to-br from-red-50 to-pink-50 p-6 shadow-lg dark:border-slate-800 dark:from-red-950/30 dark:to-pink-950/30">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">Out of Stock</p>
-          <p class="mt-2 text-3xl font-black text-slate-900 dark:text-slate-100">{{ outOfStockCount }}</p>
-        </div>
-        <div class="rounded-lg bg-red-100 p-3 text-red-600 dark:bg-red-900/30 dark:text-red-400">
-          <span class="material-symbols-outlined text-[28px]">warning</span>
-        </div>
-      </div>
+      <h1>Category Products</h1>
+      <p class="subtitle">All products in this category</p>
     </div>
   </div>
 
-  <!-- Loading State -->
-  @if (isLoading) {
-    <div class="flex justify-center items-center py-12">
-      <div class="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-blue-500 dark:border-slate-700 dark:border-t-blue-400"></div>
+  <!-- Stats Section -->
+  <div class="stats-section">
+    <div class="stat-card">
+      <div class="stat-value">{{ products.length }}</div>
+      <div class="stat-label">Total Products</div>
     </div>
-  } @else {
-    <!-- Table Section -->
-    <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-lg dark:border-slate-800">
-      <table class="w-full bg-white dark:bg-slate-900">
-        <thead>
-          <tr class="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/70">
-            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">ID</th>
-            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">Name</th>
-            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">Description</th>
-            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">Price</th>
-            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">Stock</th>
-            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">Seller</th>
-            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">Images</th>
-          </tr>
-        </thead>
-        <tbody>
-          @if (products.length > 0) {
-            @for (product of products; track product.id) {
-              <tr class="border-b border-slate-200 transition-colors hover:bg-blue-50/40 dark:border-slate-800 dark:hover:bg-blue-900/10">
-                <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-700 dark:text-slate-300">{{ product.id }}</td>
-                <td class="whitespace-nowrap px-6 py-4 text-sm font-semibold text-slate-900 dark:text-slate-100">{{ product.name }}</td>
-                <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 truncate max-w-xs">{{ product.description }}</td>
-                <td class="whitespace-nowrap px-6 py-4 text-sm font-semibold text-slate-900 dark:text-slate-100">{{ product.price | currency }}</td>
-                <td class="whitespace-nowrap px-6 py-4 text-sm">
-                  <span
-                    [class]="product.stock > 0
-                      ? 'inline-flex items-center gap-1.5 rounded-full bg-emerald-100/80 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
-                      : 'inline-flex items-center gap-1.5 rounded-full bg-red-100/80 px-3 py-1 text-xs font-semibold text-red-700 dark:bg-red-900/30 dark:text-red-300'"
-                  >
-                    <span class="h-1.5 w-1.5 rounded-full" [class.bg-emerald-500]="product.stock > 0" [class.bg-red-500]="product.stock === 0"></span>
-                    {{ product.stock }}
-                  </span>
-                </td>
-                <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-600 dark:text-slate-400">Seller #{{ product.sellerId }}</td>
-                <td class="whitespace-nowrap px-6 py-4 text-sm">
-                  @if (product.image && product.image.length > 0) {
-                    <span class="inline-block rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-300">{{ product.image.length }} image(s)</span>
-                  } @else {
-                    <span class="text-xs text-slate-500 dark:text-slate-500">No image</span>
-                  }
-                </td>
-              </tr>
-            }
-          } @else {
+    <div class="stat-card">
+      <div class="stat-value">{{ inStockCount }}</div>
+      <div class="stat-label">In Stock</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ outOfStockCount }}</div>
+      <div class="stat-label">Out of Stock</div>
+    </div>
+  </div>
+
+  <!-- Table Section -->
+  <div [class.blur-content]="isLoading" class="table-wrapper">
+    <table class="products-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Price</th>
+          <th>Stock</th>
+          <th>Seller</th>
+          <th>Images</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (products.length > 0) {
+          @for (product of products; track product.id) {
             <tr>
-              <td colspan="7" class="px-6 py-12 text-center">
-                <p class="text-slate-500 dark:text-slate-400">No products found in this category</p>
+              <td>{{ product.id }}</td>
+              <td class="font-semibold">{{ product.name }}</td>
+              <td class="text-truncate">{{ product.description }}</td>
+              <td class="price-cell">{{ product.price | currency }}</td>
+              <td>
+                <span class="stock-badge" [class]="product.stock > 0 ? 'stock-available' : 'stock-out'">
+                  {{ product.stock }}
+                </span>
+              </td>
+              <td>Seller #{{ product.sellerId }}</td>
+              <td>
+                @if (product.image && product.image.length > 0) {
+                  <span class="image-badge">{{ product.image.length }} image(s)</span>
+                }
+                @else {
+                  <span class="text-gray-500 text-xs">No image</span>
+                }
               </td>
             </tr>
           }
-        </tbody>
-      </table>
+        } @else {
+          <tr>
+            <td colspan="7" class="empty-state">
+              <p>No products found in this category</p>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Loading Spinner Overlay -->
+  @if (isLoading) {
+    <div class="loading-overlay">
+      <div class="spinner"></div>
     </div>
   }
 </div>

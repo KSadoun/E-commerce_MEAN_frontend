@@ -40,7 +40,7 @@ export class ProductModal {
     categoryId: [0, [Validators.required, Validators.min(1)]],
     price: [0, [Validators.required, Validators.min(1)]],
     stock: [0, [Validators.required, Validators.min(0)]],
-    description: ['', [Validators.required, Validators.minLength(10)]],
+    description: ['', [Validators.required]],
   });
 
   readonly changedFields = computed(() => {
@@ -93,6 +93,25 @@ export class ProductModal {
 
       this.selectedImage.set(null);
       this.submitted.set(false);
+    });
+
+    effect(() => {
+      // Categories may arrive after the modal opens; keep add mode category valid.
+      if (this.mode() !== 'add' || this.productData()) {
+        return;
+      }
+
+      const categories = this.categories();
+      if (!categories.length) {
+        return;
+      }
+
+      const currentCategoryId = Number(this.form.controls.categoryId.value ?? 0);
+      const hasCurrentCategory = categories.some((category) => category.id === currentCategoryId);
+
+      if (!hasCurrentCategory || currentCategoryId < 1) {
+        this.form.patchValue({ categoryId: categories[0].id });
+      }
     });
   }
 
