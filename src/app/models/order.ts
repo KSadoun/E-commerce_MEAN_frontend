@@ -1,3 +1,4 @@
+import { CartItem } from './cart';
 export interface OrderItem {
   productId: number;
   sellerId: number;
@@ -13,12 +14,11 @@ export interface OrderItem {
   paymentStatus?: string;
 }
 
-import { CartItem } from './cart';
-
 export interface ShippingAddress {
+  fullName?: string;         
   street: string;
   city: string;
-  state: string;
+  state?: string;           
   governorate: string;
   postalCode: string;
   country: string;
@@ -55,12 +55,6 @@ export interface OrderListResponse {
 
 export interface CheckoutRequest {
   paymentMethod: string;
-  shippingAddress: {
-    street: string;
-    city: string;
-    governorate: string;
-    postalCode: string;
-    country: string;
-  };
+  shippingAddress: ShippingAddress;
   guestInfo?: any;
 }

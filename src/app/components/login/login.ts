@@ -3,7 +3,8 @@ import { Router } from '@angular/router';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthApi } from '../../services/auth/auth-api';
-
+import { CartService } from '../../services/cart/cart.service';                 
+import { CartStateService } from '../../services/cart-state/cart-state.service'; 
 @Component({
   selector: 'app-login',
   imports: [FormsModule, RouterLink],
@@ -14,6 +15,8 @@ export class Login {
   constructor(
     private authApi: AuthApi,
     private router: Router,
+    private cartService: CartService,       
+    private cartState: CartStateService,    
   ) {}
 
   email: string = '';
@@ -27,16 +30,15 @@ export class Login {
 
     this.authApi.login(this.email, this.password).subscribe({
       next: (response: any) => {
-        // store token in localStorage
         localStorage.setItem('token', response.token);
+
+        this.handlePostLoginCart();
 
         const role = response.user.role;
         if (role === 'admin') {
           this.router.navigate(['/admin']);
         } else if (role === 'customer') {
-
           this.router.navigate(['/']);
-
         } else if (role === 'seller') {
           this.router.navigate(['/seller']);
         } else {
@@ -58,6 +60,19 @@ export class Login {
           this.errorMessage = error?.error?.message || 'Invalid email or password.';
         }
         this.isSubmitting = false;
+      },
+    });
+  }
+
+  private handlePostLoginCart(): void {
+    localStorage.removeItem('guestId');
+
+    this.cartService.getCart().subscribe({
+      next: (res) => {
+        console.log('User cart loaded after login:', res.items?.length ?? 0, 'items');
+      },
+      error: () => {
+        this.cartState.clear();
       },
     });
   }

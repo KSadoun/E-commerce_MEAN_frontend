@@ -1,7 +1,16 @@
-import { ChangeDetectionStrategy, Component, computed, effect, input, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 
 import { CatalogProduct } from '../home/home.models';
+import { CartService } from '../../../services/cart/cart.service';
 
 @Component({
   selector: 'app-products-grid-section',
@@ -10,12 +19,17 @@ import { CatalogProduct } from '../home/home.models';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductsGridSection {
+  private readonly cartService = inject(CartService);
+
   readonly products = input.required<ReadonlyArray<CatalogProduct>>();
   readonly materialOptions = input.required<ReadonlyArray<string>>();
 
   readonly visibleCount = signal(8);
   readonly maxSelectedPrice = signal(6000);
   readonly selectedMaterials = signal<Set<string>>(new Set());
+
+  readonly addingToCart = signal<Record<string, boolean>>({});
+  readonly cartMessage = signal('');
 
   readonly highestPrice = computed(() =>
     Math.max(...this.products().map((product) => product.price), 6000),
@@ -60,5 +74,37 @@ export class ProductsGridSection {
       return next;
     });
     this.visibleCount.set(8);
+  }
+
+  addToCart(product: CatalogProduct, event: Event): void {
+    event.stopPropagation();
+
+    if (!product.backendId || product.backendId <= 0) {
+      this.cartMessage.set('This product is not available for purchase');
+      setTimeout(() => this.cartMessage.set(''), 3000);
+      return;
+    }
+
+    if (product.stock <= 0) {
+      this.cartMessage.set('This product is out of stock');
+      setTimeout(() => this.cartMessage.set(''), 3000);
+      return;
+    }
+
+    this.addingToCart.update((state) => ({ ...state, [product.id]: true }));
+    this.cartMessage.set('');
+
+    this.cartService.addItem(product.backendId, 1).subscribe({
+      next: () => {
+        this.addingToCart.update((state) => ({ ...state, [product.id]: false }));
+        this.cartMessage.set(`${product.title} added to cart!`);
+        setTimeout(() => this.cartMessage.set(''), 2000);
+      },
+      error: (err) => {
+        this.addingToCart.update((state) => ({ ...state, [product.id]: false }));
+        this.cartMessage.set(err.error?.message || 'Failed to add to cart');
+        setTimeout(() => this.cartMessage.set(''), 3000);
+      },
+    });
   }
 }

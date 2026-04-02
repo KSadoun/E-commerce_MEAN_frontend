@@ -21,15 +21,22 @@
       >
         <span class="material-symbols-outlined text-[22px]">favorite</span>
       </button>
-      <button
-        type="button"
+      <a
+        routerLink="/cart"
         aria-label="Cart"
         class="rounded-full p-2 transition hover:bg-white/70 hover:text-stone-950"
       >
         <span class="material-symbols-outlined text-[22px]">shopping_bag</span>
-      </button>
+      </a>
 
       @if (isAuthenticated()) {
+        <a
+          routerLink="/orders"
+          aria-label="Orders"
+          class="rounded-full p-2 transition hover:bg-white/70 hover:text-stone-950"
+        >
+          <span class="material-symbols-outlined text-[22px]">receipt_long</span>
+        </a>
         <a
           routerLink="/users/dashboard"
           aria-label="Profile"
@@ -72,6 +79,14 @@
           class="shrink-0 rounded-full border border-stone-300 px-3 py-1.5 font-medium text-stone-700"
         >
           {{ link.label }}
+        </a>
+      }
+      @if (isAuthenticated()) {
+        <a
+          routerLink="/orders"
+          class="shrink-0 rounded-full border border-stone-300 px-3 py-1.5 font-medium text-stone-700"
+        >
+          Orders
         </a>
       }
     </div>

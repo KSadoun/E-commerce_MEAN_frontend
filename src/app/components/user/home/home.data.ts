@@ -44,99 +44,120 @@ export const HOME_CATEGORIES: ReadonlyArray<RealmCategory> = [
   },
 ];
 
+
 export const CATALOG_PRODUCTS: ReadonlyArray<CatalogProduct> = [
   {
     id: 'prod-01',
+    backendId: 0,
     title: 'Cantilever Lounge Chair',
     category: 'Axiom Series',
     material: 'Powdered Steel',
     price: 1450,
+    stock: 0,
     imageUrl:
       'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=900&q=80',
     label: 'Premium',
   },
   {
     id: 'prod-02',
+    backendId: 0,
     title: 'Monolith Marble Console',
     category: 'Noir Atelier',
     material: 'Ceramic',
     price: 2280,
+    stock: 0,
     imageUrl:
       'https://images.unsplash.com/photo-1617104551722-3b2d5136641f?auto=format&fit=crop&w=900&q=80',
     label: 'Staff Pick',
   },
   {
     id: 'prod-03',
+    backendId: 0,
     title: 'Linear Oak Dining Table',
     category: 'Forma Collection',
     material: 'Brushed Walnut',
     price: 3120,
+    stock: 0,
     imageUrl:
       'https://images.unsplash.com/photo-1616486029423-aaa4789e8c9a?auto=format&fit=crop&w=900&q=80',
   },
   {
     id: 'prod-04',
+    backendId: 0,
     title: 'Contour Bedframe',
     category: 'Serenity Suite',
     material: 'Brushed Walnut',
     price: 2780,
+    stock: 0,
     imageUrl:
       'https://images.unsplash.com/photo-1600210492493-0946911123ea?auto=format&fit=crop&w=900&q=80',
     label: 'Limited Stock',
   },
   {
     id: 'prod-05',
+    backendId: 0,
     title: 'Sculpt Vessel Lamp',
     category: 'Lumen Studio',
     material: 'Ceramic',
     price: 780,
+    stock: 0,
     imageUrl:
       'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80',
   },
   {
     id: 'prod-06',
+    backendId: 0,
     title: 'Helix Modular Sofa',
     category: 'Modern Living',
     material: 'Powdered Steel',
     price: 3640,
+    stock: 0,
     imageUrl:
       'https://images.unsplash.com/photo-1493666438817-866a91353ca9?auto=format&fit=crop&w=900&q=80',
     label: 'Premium',
   },
   {
     id: 'prod-07',
+    backendId: 0,
     title: 'Grid Storage Credenza',
     category: 'Atelier Kitchen',
     material: 'Brushed Walnut',
     price: 1960,
+    stock: 0,
     imageUrl:
       'https://images.unsplash.com/photo-1616627547584-bf28cee262db?auto=format&fit=crop&w=900&q=80',
   },
   {
     id: 'prod-08',
+    backendId: 0,
     title: 'Obsidian Accent Mirror',
     category: 'Accents',
     material: 'Powdered Steel',
     price: 920,
+    stock: 0,
     imageUrl:
       'https://images.unsplash.com/photo-1616593969747-4797dc75033e?auto=format&fit=crop&w=900&q=80',
     label: 'Staff Pick',
   },
   {
     id: 'prod-09',
+    backendId: 0,
     title: 'Arc Floor Shelf',
     category: 'Forma Collection',
     material: 'Powdered Steel',
     price: 1320,
+    stock: 0,
     imageUrl:
       'https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=900&q=80',
   },
   {
     id: 'prod-10',
+    backendId: 0,
     title: 'Halo Side Table',
     category: 'Noir Atelier',
     material: 'Ceramic',
     price: 640,
+    stock: 0,
     imageUrl:
       'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=900&q=80',
     label: 'Limited Stock',

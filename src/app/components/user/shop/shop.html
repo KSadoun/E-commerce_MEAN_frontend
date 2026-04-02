@@ -1,10 +1,19 @@
-<div class="min-h-screen bg-[#f7f3ee] text-stone-900">
-  <app-home-header [navLinks]="navLinks" [isAuthenticated]="isAuthenticated()" />
+<app-home-header [navLinks]="navLinks" [isAuthenticated]="isAuthenticated()" />
 
-  <main>
-    <app-products-grid-section [products]="products" [materialOptions]="materialOptions" />
-    <app-highlights-section [highlights]="highlights" />
-  </main>
+@if (loading()) {
+  <div class="flex items-center justify-center py-32">
+    <p class="text-stone-500 text-lg">Loading products...</p>
+  </div>
+} @else if (products().length === 0) {
+  <div class="flex items-center justify-center py-32">
+    <p class="text-stone-500 text-lg">No products available</p>
+  </div>
+} @else {
+  <app-products-grid-section
+    [products]="products()"
+    [materialOptions]="materialOptions()"
+  />
+}
 
-  <app-home-footer [companyDescription]="companyDescription" [linkGroups]="footerLinks" />
-</div>
+<app-highlights-section [highlights]="highlights" />
+<app-home-footer [linkGroups]="footerLinks" [companyDescription]="companyDescription" />

@@ -48,13 +48,16 @@
                 </div>
             </div>
 
-            @if (order.shippingAddress) {
+            @if (order!.shippingAddress) {
                 <div class="bg-white p-6 rounded-xl shadow-sm">
                     <h3 class="font-bold text-sm text-gray-500 uppercase mb-3">Shipping Address</h3>
                     <div class="text-sm text-gray-700 space-y-1">
-                        <p>{{ order.shippingAddress.street }}</p>
-                        <p>{{ order.shippingAddress.city }}, {{ order.shippingAddress.governorate }} {{ order.shippingAddress.postalCode }}</p>
-                        <p>{{ order.shippingAddress.country }}</p>
+                        @if (order!.shippingAddress!.fullName) {
+                            <p class="font-bold">{{ order!.shippingAddress!.fullName }}</p>
+                        }
+                        <p>{{ order!.shippingAddress!.street }}</p>
+                        <p>{{ order!.shippingAddress!.city }}, {{ order!.shippingAddress!.governorate }} {{ order!.shippingAddress!.postalCode }}</p>
+                        <p>{{ order!.shippingAddress!.country }}</p>
                     </div>
                 </div>
             }
