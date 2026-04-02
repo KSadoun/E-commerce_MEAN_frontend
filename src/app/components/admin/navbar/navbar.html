@@ -22,6 +22,19 @@
     <div class="flex items-center gap-3">
       <button
         type="button"
+        (click)="toggleDarkMode()"
+        class="rounded-full p-2 text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+        aria-label="Toggle dark mode"
+      >
+        @if (isDarkMode()) {
+          <span class="material-symbols-outlined">light_mode</span>
+        } @else {
+          <span class="material-symbols-outlined">dark_mode</span>
+        }
+      </button>
+
+      <button
+        type="button"
         class="relative rounded-full p-2 text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
         aria-label="Notifications"
       >
