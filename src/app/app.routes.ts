@@ -35,7 +35,6 @@ import { SellerInventory } from './components/seller/inventory/inventory';
 import { SellerSales } from './components/seller/sales/sales';
 import { SellerCustomers } from './components/seller/customers/customers';
 import { SellerRegister } from './components/seller/register/register';
-import { SellerProfile } from './components/seller/profile/profile';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -90,7 +89,6 @@ export const routes: Routes = [
       { path: 'inventory', component: SellerInventory },
       { path: 'sales', component: SellerSales },
       { path: 'customers', component: SellerCustomers },
-      { path: 'profile', component: SellerProfile },
     ],
   },
 

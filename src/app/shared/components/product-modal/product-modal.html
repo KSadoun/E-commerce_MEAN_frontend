@@ -71,7 +71,7 @@
               [class.ring-blue-200]="changedFields().has('categoryId')"
             >
               @for (category of categories(); track category.id) {
-                <option [value]="category.id">{{ category.name }}</option>
+                <option [ngValue]="category.id">{{ category.name }}</option>
               }
             </select>
           </label>
