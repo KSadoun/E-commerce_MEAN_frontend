@@ -18,6 +18,7 @@ import { Users } from './components/admin/users/users';
 import { Products } from './components/admin/products/product-list/products';
 import { Categories } from './components/admin/categories/categories';
 import { CategoryProducts } from './components/admin/categories/category-products/category-products';
+import { Orders } from './components/admin/orders/orders';
 
 // User
 import { UserDashboard } from './components/user/dashboard/dashboard';
@@ -73,6 +74,7 @@ export const routes: Routes = [
       { path: '', component: AdminDashboard },
       { path: 'users', component: Users },
       { path: 'products', component: Products },
+      { path: 'orders', component: Orders },
       { path: 'categories', component: Categories },
       { path: 'categories/:categoryId/products', component: CategoryProducts },
     ],
