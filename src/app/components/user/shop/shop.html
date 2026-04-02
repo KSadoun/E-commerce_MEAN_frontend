@@ -2,7 +2,11 @@
   <app-home-header [navLinks]="navLinks" [isAuthenticated]="isAuthenticated()" />
 
   <main>
-    <app-products-grid-section [products]="products" [materialOptions]="materialOptions" />
+    <app-products-grid-section
+      [products]="products()"
+      [materialOptions]="materialOptions()"
+      [preselectedMaterial]="preselectedMaterial()"
+    />
     <app-highlights-section [highlights]="highlights" />
   </main>
 
