@@ -1,0 +1,17 @@
+:host {
+  display: block;
+}
+
+.admin-content {
+  padding-left: 0;
+}
+
+@media (min-width: 1024px) {
+  .admin-content {
+    padding-left: 16rem;
+  }
+
+  .admin-content.is-collapsed {
+    padding-left: 5rem;
+  }
+}

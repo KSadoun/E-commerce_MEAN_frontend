@@ -1,91 +1,84 @@
-<div class="dashboard-container">
+<div class="py-8 max-w-7xl mx-auto">
   <!-- Page Header -->
-  <div class="page-header">
-    <div class="header-content">
-      <h1>Admin Dashboard</h1>
-      <p class="subtitle">Overview of your e-commerce platform</p>
+  <div class="mb-8 border-b border-slate-200 pb-6 dark:border-slate-800">
+    <div class="">
+      <h1 class="text-3xl font-black tracking-tight text-slate-900 dark:text-slate-100">Admin Dashboard</h1>
+      <p class="mt-2 text-sm text-slate-600 dark:text-slate-400\">Overview of your e-commerce platform</p>
     </div>
   </div>
 
   <!-- Loading State -->
   @if (isLoading) {
-    <div class="loading-state">
-      <div class="spinner"></div>
-      <p>Loading dashboard...</p>
+    <div class="flex min-h-96 flex-col items-center justify-center gap-8">
+      <div
+        class="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-blue-500 dark:border-slate-700 dark:border-t-blue-400"
+      ></div>
+      <p class="text-slate-600 dark:text-slate-400">Loading dashboard...</p>
     </div>
   } @else if (stats) {
     <!-- Stats Cards Section -->
-    <div class="stats-grid">
+    <div
+      class="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+    >
       <!-- Users Card -->
-      <div class="stat-card">
-        <div class="card-header">
-          <h3 class="card-title">Total Users</h3>
-          <div class="card-icon users-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-              <circle cx="9" cy="7" r="4"></circle>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-            </svg>
+      <div
+        class="group rounded-2xl border border-slate-200 bg-gradient-to-br from-emerald-50 to-teal-50 p-6 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-emerald-600/20 dark:border-slate-800 dark:from-emerald-950/30 dark:to-teal-950/30"
+      >
+        <div class="mb-4 flex items-start justify-between">
+          <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">Total Users</h3>
+          <div class="rounded-lg bg-emerald-100 p-2.5 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
+            <span class="material-symbols-outlined text-[20px]">groups</span>
           </div>
         </div>
-        <div class="card-value">{{ stats.users }}</div>
-        <p class="card-description">Registered users</p>
+        <div class="mb-2 text-3xl font-black text-slate-900 dark:text-slate-100">{{ stats.users }}</div>
+        <p class="text-sm text-slate-600 dark:text-slate-400">Registered users</p>
       </div>
 
       <!-- Products Card -->
-      <div class="stat-card">
-        <div class="card-header">
-          <h3 class="card-title">Total Products</h3>
-          <div class="card-icon products-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="9" cy="21" r="1"></circle>
-              <circle cx="20" cy="21" r="1"></circle>
-              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-            </svg>
+      <div
+        class="group rounded-2xl border border-slate-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-6 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-blue-600/20 dark:border-slate-800 dark:from-blue-950/30 dark:to-indigo-950/30"
+      >
+        <div class="mb-4 flex items-start justify-between">
+          <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">Total Products</h3>
+          <div class="rounded-lg bg-blue-100 p-2.5 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+            <span class="material-symbols-outlined text-[20px]">shopping_bag</span>
           </div>
         </div>
-        <div class="card-value">{{ stats.products }}</div>
-        <p class="card-description">Active products</p>
+        <div class="mb-2 text-3xl font-black text-slate-900 dark:text-slate-100">{{ stats.products }}</div>
+        <p class="text-sm text-slate-600 dark:text-slate-400">Active products</p>
       </div>
 
       <!-- Orders Card -->
-      <div class="stat-card">
-        <div class="card-header">
-          <h3 class="card-title">Total Orders</h3>
-          <div class="card-icon orders-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="8" y1="6" x2="21" y2="6"></line>
-              <line x1="8" y1="12" x2="21" y2="12"></line>
-              <line x1="8" y1="18" x2="21" y2="18"></line>
-              <line x1="3" y1="6" x2="3.01" y2="6"></line>
-              <line x1="3" y1="12" x2="3.01" y2="12"></line>
-              <line x1="3" y1="18" x2="3.01" y2="18"></line>
-            </svg>
+      <div
+        class="group rounded-2xl border border-slate-200 bg-gradient-to-br from-violet-50 to-purple-50 p-6 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-violet-600/20 dark:border-slate-800 dark:from-violet-950/30 dark:to-purple-950/30"
+      >
+        <div class="mb-4 flex items-start justify-between">
+          <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">Total Orders</h3>
+          <div class="rounded-lg bg-violet-100 p-2.5 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400">
+            <span class="material-symbols-outlined text-[20px]">list_alt</span>
           </div>
         </div>
-        <div class="card-value">{{ stats.orders }}</div>
-        <p class="card-description">Orders placed</p>
+        <div class="mb-2 text-3xl font-black text-slate-900 dark:text-slate-100">{{ stats.orders }}</div>
+        <p class="text-sm text-slate-600 dark:text-slate-400">Orders placed</p>
       </div>
 
       <!-- Categories Card -->
-      <div class="stat-card">
-        <div class="card-header">
-          <h3 class="card-title">Total Categories</h3>
-          <div class="card-icon categories-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 2v20"></path>
-              <path d="M2 12h20"></path>
-            </svg>
+      <div
+        class="group rounded-2xl border border-slate-200 bg-gradient-to-br from-amber-50 to-orange-50 p-6 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-amber-600/20 dark:border-slate-800 dark:from-amber-950/30 dark:to-orange-950/30"
+      >
+        <div class="mb-4 flex items-start justify-between">
+          <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">Total Categories</h3>
+          <div class="rounded-lg bg-amber-100 p-2.5 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
+            <span class="material-symbols-outlined text-[20px]">category</span>
           </div>
         </div>
-        <div class="card-value">{{ stats.categories }}</div>
-        <p class="card-description">Product categories</p>
+        <div class="mb-2 text-3xl font-black text-slate-900 dark:text-slate-100">{{ stats.categories }}</div>
+        <p class="text-sm text-slate-600 dark:text-slate-400">Product categories</p>
       </div>
     </div>
   } @else {
-    <div class="empty-state">
-      <p>No data available</p>
+    <div class="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 py-12 text-center dark:border-slate-800 dark:bg-slate-900/50">
+      <p class="text-slate-500 dark:text-slate-400">No data available</p>
     </div>
   }
 </div>
