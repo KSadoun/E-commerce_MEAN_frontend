@@ -30,10 +30,6 @@ export class Categories implements OnInit {
     );
   }
 
-  get restrictedCount(): number {
-    return this.categories.filter(cat => cat.isRestricted).length;
-  }
-
   ngOnInit() {
     this.isLoading = true;
     this.categoryService.getAllCategories().subscribe((response: any) => {
