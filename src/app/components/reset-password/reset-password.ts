@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { AuthApi } from '../../services/auth/auth-api';
 
@@ -10,41 +10,54 @@ import { AuthApi } from '../../services/auth/auth-api';
   templateUrl: './reset-password.html',
 })
 export class ResetPassword {
-  oldPassword = '';
-  newPassword = '';
-  confirmNewPassword = '';
+  token = '';
+  password = '';
+  confirmPassword = '';
 
   isSubmitting = false;
   successMessage = '';
   errorMessage = '';
 
-  constructor(private authApi: AuthApi) {}
+  constructor(
+    private authApi: AuthApi,
+    private route: ActivatedRoute,
+    private router: Router,
+  ) {
+    this.route.queryParamMap.subscribe((params) => {
+      this.token = params.get('token') || '';
+    });
+  }
 
   get passwordsMismatch(): boolean {
-    return this.confirmNewPassword.length > 0 && this.newPassword !== this.confirmNewPassword;
+    return this.confirmPassword.length > 0 && this.password !== this.confirmPassword;
   }
 
   onSubmit(): void {
     this.successMessage = '';
     this.errorMessage = '';
 
+    if (!this.token) {
+      this.errorMessage = 'Missing reset token. Please use the link sent to your email.';
+      return;
+    }
+
     if (this.passwordsMismatch) {
-      this.errorMessage = 'New password and confirm password must match.';
+      this.errorMessage = 'Password and confirm password must match.';
       return;
     }
 
     this.isSubmitting = true;
 
-    this.authApi.resetPassword(this.oldPassword, this.newPassword).subscribe({
+    this.authApi.resetPassword(this.token, this.password, this.confirmPassword).subscribe({
       next: () => {
-        this.successMessage = 'Password updated successfully.';
-        this.oldPassword = '';
-        this.newPassword = '';
-        this.confirmNewPassword = '';
+        this.successMessage = 'Password reset successfully. Redirecting to login...';
+        this.password = '';
+        this.confirmPassword = '';
         this.isSubmitting = false;
+        setTimeout(() => this.router.navigate(['/login']), 1000);
       },
       error: (error) => {
-        this.errorMessage = error?.error?.message || 'Unable to update password. Please try again.';
+        this.errorMessage = error?.error?.message || 'Unable to reset password. Please try again.';
         this.isSubmitting = false;
       },
     });

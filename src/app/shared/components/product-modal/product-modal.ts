@@ -37,7 +37,7 @@ export class ProductModal {
 
   readonly form = this.formBuilder.group({
     name: ['', [Validators.required, Validators.minLength(3)]],
-    category: ['', [Validators.required]],
+    categoryId: [0, [Validators.required, Validators.min(1)]],
     price: [0, [Validators.required, Validators.min(1)]],
     stock: [0, [Validators.required, Validators.min(0)]],
     description: ['', [Validators.required, Validators.minLength(10)]],
@@ -53,7 +53,7 @@ export class ProductModal {
     const values = this.form.getRawValue();
 
     if (values.name !== product.name) changed.add('name');
-    if (values.category !== product.category) changed.add('category');
+    if (Number(values.categoryId) !== product.categoryId) changed.add('categoryId');
     if (Number(values.price) !== product.price) changed.add('price');
     if (Number(values.stock) !== product.stock) changed.add('stock');
     if (values.description !== product.description) changed.add('description');
@@ -74,7 +74,7 @@ export class ProductModal {
       if (product) {
         this.form.patchValue({
           name: product.name,
-          category: product.category,
+          categoryId: product.categoryId,
           price: product.price,
           stock: product.stock,
           description: product.description,
@@ -83,7 +83,7 @@ export class ProductModal {
       } else {
         this.form.reset({
           name: '',
-          category: this.categories().at(0)?.name ?? '',
+          categoryId: this.categories().at(0)?.id ?? 0,
           price: 0,
           stock: 0,
           description: '',
@@ -142,15 +142,24 @@ export class ProductModal {
 
     const values = this.form.getRawValue();
     const current = this.productData();
+    const selectedImage = this.selectedImage();
+    const selectedCategoryId = Number(values.categoryId ?? 0);
+    const selectedCategory = this.categories().find(
+      (category) => category.id === selectedCategoryId,
+    );
 
     const payload: SellerProduct = {
       id: current?.id ?? 0,
       name: values.name ?? '',
-      category: (values.category as SellerProduct['category']) ?? 'Electronics',
+      category: selectedCategory?.name ?? current?.category ?? 'Uncategorized',
+      categoryId: selectedCategoryId || current?.categoryId || 0,
       price: Number(values.price ?? 0),
       stock: Number(values.stock ?? 0),
       description: values.description ?? '',
-      image: this.selectedImage() ?? current?.image ?? '',
+      image: selectedImage ?? current?.image ?? '',
+      images: selectedImage
+        ? [selectedImage]
+        : (current?.images ?? (current?.image ? [current.image] : [])),
       status: current?.status ?? 'Active',
     };
 

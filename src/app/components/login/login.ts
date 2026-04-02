@@ -34,7 +34,9 @@ export class Login {
         if (role === 'admin') {
           this.router.navigate(['/admin']);
         } else if (role === 'customer') {
-          this.router.navigate(['/users/dashboard']);
+
+          this.router.navigate(['/']);
+
         } else if (role === 'seller') {
           this.router.navigate(['/seller']);
         } else {
@@ -46,7 +48,15 @@ export class Login {
       },
       error: (error) => {
         console.error('Login failed:', error);
-        this.errorMessage = error?.error?.message || 'Invalid email or password.';
+        if (error?.error?.requiresEmailVerification) {
+          this.errorMessage =
+            error?.error?.message || 'Please verify your email before logging in.';
+          this.router.navigate(['/verify-email'], {
+            queryParams: { email: error?.error?.email || this.email },
+          });
+        } else {
+          this.errorMessage = error?.error?.message || 'Invalid email or password.';
+        }
         this.isSubmitting = false;
       },
     });
