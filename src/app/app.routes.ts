@@ -2,6 +2,8 @@ import { Routes } from '@angular/router';
 
 // Auth
 import { Login } from './components/login/login';
+import { ForgotPassword } from './components/forgot-password/forgot-password';
+import { ResetPassword } from './components/reset-password/reset-password';
 
 // Guards
 import { AdminGuard } from './core/guards/admin.guard';
@@ -42,6 +44,8 @@ export const routes: Routes = [
 
   // ===== Auth =====
   { path: 'login', component: Login },
+  { path: 'forgot-password', component: ForgotPassword },
+  { path: 'reset-password', component: ResetPassword },
   { path: 'users/register', component: UserRegister },
   { path: 'seller/register', component: SellerRegister },
 
