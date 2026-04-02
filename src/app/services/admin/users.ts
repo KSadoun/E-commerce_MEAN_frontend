@@ -15,10 +15,6 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
-  getAllUsers() {
-    return this.http.get<User[]>(`${this.apiUrl}/users/all`);
-  }
-
   getUserRoles() {
     return this.http.get<string[]>(`${this.apiUrl}/users/roles`);
   }
