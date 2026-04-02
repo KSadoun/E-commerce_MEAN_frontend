@@ -19,6 +19,7 @@ import { Users } from './components/admin/users/users';
 import { Products } from './components/admin/products/product-list/products';
 import { Categories } from './components/admin/categories/categories';
 import { CategoryProducts } from './components/admin/categories/category-products/category-products';
+import { Orders } from './components/admin/orders/orders';
 
 // User
 import { UserDashboard } from './components/user/dashboard/dashboard';
@@ -27,6 +28,13 @@ import { Home } from './components/user/home/home';
 import { Shop } from './components/user/shop/shop';
 import { CategoriesPage } from './components/user/categories/categories-page';
 import { ContactPage } from './components/user/contact/contact-page';
+
+// User — Cart, Checkout, Orders, Payments
+import { Cart } from './components/user/cart/cart';
+import { CheckoutComponent } from './components/user/checkout/checkout.component';
+import { PaymentResultComponent } from './components/user/payment-result/payment-result.component';
+import { OrdersComponent } from './components/user/orders/orders.component';
+import { OrderDetailComponent } from './components/user/order-detail/order-detail.component';
 
 // Seller
 import { SellerDashboard } from './components/seller/dashboard/dashboard';
@@ -52,8 +60,14 @@ export const routes: Routes = [
   { path: 'users/register', component: UserRegister },
   { path: 'seller/register', component: SellerRegister },
 
-  // ===== Admin Routes =====
+  // ===== Cart, Checkout, Orders, Payments =====
+  { path: 'cart', component: Cart },
+  { path: 'checkout', component: CheckoutComponent },
+  { path: 'payment/result', component: PaymentResultComponent },
+  { path: 'orders', component: OrdersComponent },
+  { path: 'orders/:id', component: OrderDetailComponent },
 
+  // ===== Admin Routes =====
   {
     path: 'admin',
     component: AdminLayout,
@@ -63,6 +77,7 @@ export const routes: Routes = [
       { path: '', component: AdminDashboard },
       { path: 'users', component: Users },
       { path: 'products', component: Products },
+      { path: 'orders', component: Orders },
       { path: 'categories', component: Categories },
       { path: 'categories/:categoryId/products', component: CategoryProducts },
     ],

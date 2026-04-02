@@ -1,0 +1,45 @@
+<main class="pt-24 pb-20 px-4 md:px-8 max-w-5xl mx-auto">
+    <h1 class="text-3xl font-extrabold tracking-tight mb-8">My Orders</h1>
+
+    @if (loading) {
+        <div class="text-center py-20 text-gray-500">Loading orders...</div>
+    }
+
+    @if (error) {
+        <div class="bg-red-50 text-red-700 p-4 rounded-lg mb-6">{{ error }}</div>
+    }
+
+    @if (!loading && orders.length === 0) {
+        <div class="text-center py-20">
+            <span class="material-symbols-outlined text-6xl text-gray-300 mb-4">receipt_long</span>
+            <p class="text-gray-500 text-lg">No orders yet</p>
+        </div>
+    }
+
+    @if (!loading && orders.length > 0) {
+        <div class="space-y-4">
+            @for (order of orders; track order.id) {
+                <div (click)="viewOrder(order.id)" class="bg-white p-6 rounded-xl shadow-sm cursor-pointer hover:shadow-md transition-all">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h3 class="font-bold text-lg">Order #{{ order.id }}</h3>
+                            <p class="text-sm text-gray-500 mt-1">{{ order.createdAt | date:'medium' }}</p>
+                            <p class="text-sm text-gray-500">{{ order.items.length }} item(s)</p>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="text-xs font-bold px-3 py-1 rounded-full" [ngClass]="getStatusColor(order.status)">
+                                {{ order.status | uppercase }}
+                            </span>
+                            <span class="text-xs font-bold px-3 py-1 rounded-full"
+                                  [ngClass]="order.paymentStatus === 'paid' ? 'bg-green-100 text-green-700' : order.paymentStatus === 'failed' ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'">
+                                {{ order.paymentStatus | uppercase }}
+                            </span>
+                            <span class="font-extrabold text-blue-700 text-lg">{{ order.total }} {{ order.currency }}</span>
+                            <span class="material-symbols-outlined text-gray-400">chevron_right</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</main>
