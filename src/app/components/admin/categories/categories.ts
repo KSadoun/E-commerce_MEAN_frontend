@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
@@ -18,7 +18,7 @@ export class Categories implements OnInit {
   isLoading = false;
   searchTerm: string = '';
 
-  constructor(private categoryService: CategoryService, private cdr: ChangeDetectorRef, private router: Router) {}
+  constructor(@Inject(CategoryService) private categoryService: CategoryService, private cdr: ChangeDetectorRef, private router: Router) {}
 
   get filteredCategories(): Category[] {
     if (!this.searchTerm) {

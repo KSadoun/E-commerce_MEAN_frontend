@@ -2,7 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment.development';
 import { Product } from '../../models/product';
-import { Observable } from 'rxjs';
+
+// remove after setting the API
+import { SAMPLE_PRODUCTS } from '../../data/sample-products';
+
+import { Observable, of } from 'rxjs';
 import { shareReplay } from 'rxjs/operators';
 
 @Injectable({
@@ -16,8 +20,9 @@ export class ProductService {
 
   getAllProducts(): Observable<{ products: Product[] }> {
     if (!this.productsCache$) {
-      this.productsCache$ = this.http.get<{ products: Product[] }>(`${environment.apiUrl}/products`)
-        .pipe(shareReplay(1));
+      this.productsCache$ = of({ products: SAMPLE_PRODUCTS }).pipe(shareReplay(1));
+      // this.productsCache$ = this.http.get<{ products: Product[] }>(`${environment.apiUrl}/products`)
+      //   .pipe(shareReplay(1));
     }
     
     return this.productsCache$;

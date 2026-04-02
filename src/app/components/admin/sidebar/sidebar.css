@@ -1,0 +1,22 @@
+:host {
+  display: block;
+}
+
+.admin-sidebar {
+  width: 16rem;
+  transform: translateX(-100%);
+}
+
+.admin-sidebar.mobile-open {
+  transform: translateX(0);
+}
+
+@media (min-width: 1024px) {
+  .admin-sidebar {
+    transform: translateX(0);
+  }
+
+  .admin-sidebar.collapsed {
+    width: 5rem;
+  }
+}

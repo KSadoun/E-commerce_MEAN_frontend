@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
@@ -10,13 +10,14 @@ import { ProductService } from '../../../../services/admin/products';
   imports: [CommonModule, FormsModule, HttpClientModule],
   templateUrl: './products.html',
   styleUrl: './products.css',
+  providers: [],
 })
 export class Products implements OnInit {
   products: Product[] = [];
   isLoading = false;
   selectedCategory: string = '';
 
-  constructor(private productService: ProductService, private cdr: ChangeDetectorRef) {}
+  constructor(@Inject(ProductService) private productService: ProductService, private cdr: ChangeDetectorRef) {}
 
   get uniqueCategories(): string[] {
     const categories = this.products.map(product => product.categoryId.toString());
