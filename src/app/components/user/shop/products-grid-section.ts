@@ -23,6 +23,7 @@ export class ProductsGridSection {
 
   readonly products = input.required<ReadonlyArray<CatalogProduct>>();
   readonly materialOptions = input.required<ReadonlyArray<string>>();
+  readonly preselectedMaterial = input<string | null>(null);
 
   readonly visibleCount = signal(8);
   readonly maxSelectedPrice = signal(6000);
@@ -51,6 +52,14 @@ export class ProductsGridSection {
     effect(() => {
       const topPrice = this.highestPrice();
       this.maxSelectedPrice.set(topPrice);
+    });
+
+    effect(() => {
+      const material = this.preselectedMaterial();
+      if (material) {
+        this.selectedMaterials.set(new Set([material]));
+      }
+      this.visibleCount.set(8);
     });
   }
 
