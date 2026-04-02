@@ -9,10 +9,10 @@ import { CartItem } from '../../../models/cart';
 @Component({
     selector: 'app-checkout',
     imports: [CommonModule, FormsModule],
-    templateUrl: './checkout.html',
-    styleUrl: './checkout.css',
+templateUrl: './checkout.component.html',
+styleUrl: './checkout.component.css',
 })
-export class Checkout implements OnInit {
+export class CheckoutComponent implements OnInit {
     step = 1;
     items: CartItem[] = [];
     subtotal = 0;
