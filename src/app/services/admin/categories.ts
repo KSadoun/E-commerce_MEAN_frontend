@@ -33,12 +33,12 @@ export class CategoryService {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
-    // return this.http.get<{ products: Product[] }>(
-    //   `${environment.apiUrl}/admin/categories/${categoryId}/products`,
-    //   { headers }
-    // );
-    const filteredProducts = SAMPLE_PRODUCTS.filter(p => p.categoryId === categoryId);
-    return of({ products: filteredProducts }).pipe(shareReplay(1));
+    return this.http.get<{ products: Product[] }>(
+      `${environment.apiUrl}/products?categoryId=${categoryId}`,
+      { headers }
+    );
+    // const filteredProducts = SAMPLE_PRODUCTS.filter(p => p.categoryId === categoryId);
+    // return of({ products: filteredProducts }).pipe(shareReplay(1));
   }
 
   restrictCategory(categoryId: number): Observable<void> {

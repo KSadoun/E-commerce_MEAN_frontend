@@ -1,21 +1,22 @@
-import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { User } from '../../../models/user';
 
 import { UserService } from '../../../services/admin/users';
+import { LoadingService } from '../../../core/services/loading.service';
 
 @Component({
   selector: 'app-users',
   imports: [CommonModule],
   templateUrl: './users.html',
   styleUrl: './users.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Users implements OnInit {
 
-  users: User[] = []
-  isLoading = false;
+  users: User[] = [];
 
-  constructor(private usersService: UserService, private cdr: ChangeDetectorRef) {}
+  constructor(private usersService: UserService, private cdr: ChangeDetectorRef, private loadingService: LoadingService) {}
 
   ngOnInit() {
     // Fetch users from the backend API and assign to this.users
@@ -31,7 +32,7 @@ export class Users implements OnInit {
   }
 
   restrictUser(userId: number) {
-    this.isLoading = true;
+    this.loadingService.show();
     this.usersService.restrictUser(userId).subscribe(() => {
       this.users = this.users.map(user => {
         if (user.id === userId) {
@@ -40,15 +41,13 @@ export class Users implements OnInit {
         return user;
       });
       this.usersService.clearCache();
-      setTimeout(() => {
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      }, 0);
+      this.loadingService.hide();
+      this.cdr.detectChanges();
     });
   }
 
   unrestrictUser(userId: number) {
-    this.isLoading = true;
+    this.loadingService.show();
     this.usersService.unrestrictUser(userId).subscribe(() => {
       this.users = this.users.map(user => {
         if (user.id === userId) {
@@ -57,22 +56,18 @@ export class Users implements OnInit {
         return user;
       });
       this.usersService.clearCache();
-      setTimeout(() => {
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      }, 0);
+      this.loadingService.hide();
+      this.cdr.detectChanges();
     });
   }
 
   deleteUser(userId: number) {
-    this.isLoading = true;
+    this.loadingService.show();
     this.usersService.deleteUser(userId).subscribe(() => {
       this.users = this.users.filter(user => user.id !== userId);
       this.usersService.clearCache();
-      setTimeout(() => {
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      }, 0);
+      this.loadingService.hide();
+      this.cdr.detectChanges();
     });
   }
 }

@@ -34,7 +34,9 @@ export class Login {
         if (role === 'admin') {
           this.router.navigate(['/admin']);
         } else if (role === 'customer') {
+
           this.router.navigate(['/']);
+
         } else if (role === 'seller') {
           this.router.navigate(['/seller']);
         } else {
