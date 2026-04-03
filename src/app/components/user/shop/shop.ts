@@ -7,8 +7,6 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute } from '@angular/router';
-
 
 import {
   COMPANY_DESCRIPTION,
@@ -23,8 +21,6 @@ import { HighlightsSection } from '../home/highlights-section';
 import { HomeFooter } from '../home/home-footer';
 import { HomeHeader } from '../home/home-header';
 import { ProductsGridSection } from './products-grid-section';
-import { CatalogProduct } from '../home/home.models';
-import { HomeCatalogService } from '../../../services/user/home-catalog.service';
 
 @Component({
   selector: 'app-shop',
@@ -34,13 +30,10 @@ import { HomeCatalogService } from '../../../services/user/home-catalog.service'
 })
 export class Shop {
   private readonly authService = inject(AuthService);
-  private readonly route = inject(ActivatedRoute);
   private readonly catalogService = inject(HomeCatalogService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly isAuthenticated = signal(this.authService.isAuthenticated());
-  readonly products = signal<ReadonlyArray<CatalogProduct>>([]);
-  readonly preselectedMaterial = signal<string | null>(null);
 
   readonly products = signal<ReadonlyArray<CatalogProduct>>([]);
   readonly loading = signal(true);
@@ -56,15 +49,6 @@ export class Shop {
   readonly companyDescription = COMPANY_DESCRIPTION;
 
   constructor() {
-    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
-      this.preselectedMaterial.set(params.get('material'));
-    });
-
-    this.catalogService
-      .getCatalogProducts()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (products) => this.products.set(products),
     this.catalogService
       .getCatalogProducts()
       .pipe(takeUntilDestroyed(this.destroyRef))

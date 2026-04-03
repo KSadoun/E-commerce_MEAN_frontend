@@ -1,16 +1,5 @@
 <app-home-header [navLinks]="navLinks" [isAuthenticated]="isAuthenticated()" />
 
-  <main>
-    <app-products-grid-section
-      [products]="products()"
-      [materialOptions]="materialOptions()"
-      [preselectedMaterial]="preselectedMaterial()"
-    />
-    <app-highlights-section [highlights]="highlights" />
-  </main>
-
-  <app-home-footer [companyDescription]="companyDescription" [linkGroups]="footerLinks" />
-</div>
 @if (loading()) {
   <div class="flex items-center justify-center py-32">
     <p class="text-stone-500 text-lg">Loading products...</p>
