@@ -17,6 +17,9 @@ export class Products implements OnInit {
   products: Product[] = [];
   isLoading = false;
   selectedCategory: string = '';
+  isDeleteModalOpen = false;
+  deletingProductId: number | null = null;
+  deletingProductName = '';
 
   constructor(
     @Inject(ProductService) private productService: ProductService,
@@ -80,18 +83,38 @@ export class Products implements OnInit {
     });
   }
 
-  deleteProduct(productId: number) {
-    if (!confirm('Are you sure you want to delete this product?')) {
+  promptDeleteProduct(product: Product) {
+    this.deletingProductId = product.id;
+    this.deletingProductName = product.name;
+    this.isDeleteModalOpen = true;
+    this.cdr.detectChanges();
+  }
+
+  cancelDeleteProduct() {
+    this.isDeleteModalOpen = false;
+    this.deletingProductId = null;
+    this.deletingProductName = '';
+    this.cdr.detectChanges();
+  }
+
+  deleteProduct() {
+    if (this.deletingProductId === null) {
       return;
     }
+
+    const productId = this.deletingProductId;
     this.isLoading = true;
     this.productService.deleteProduct(productId).subscribe(() => {
       this.products = this.products.filter(product => product.id !== productId);
       this.productService.clearCache();
       this.isLoading = false;
+      this.cancelDeleteProduct();
       setTimeout(() => {
         this.cdr.detectChanges();
       }, 0);
+    }, () => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
     });
   }
 

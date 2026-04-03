@@ -15,6 +15,10 @@ import { LoadingService } from '../../../core/services/loading.service';
 export class Users implements OnInit {
 
   users: User[] = [];
+  isDeleteModalOpen = false;
+  deletingUserId: number | null = null;
+  deletingUserName = '';
+  isDeleting = false;
 
   constructor(private usersService: UserService, private cdr: ChangeDetectorRef, private loadingService: LoadingService) {}
 
@@ -61,11 +65,37 @@ export class Users implements OnInit {
     });
   }
 
-  deleteUser(userId: number) {
+  promptDeleteUser(user: User) {
+    this.deletingUserId = user.id;
+    this.deletingUserName = user.name;
+    this.isDeleteModalOpen = true;
+    this.cdr.detectChanges();
+  }
+
+  cancelDeleteUser() {
+    this.isDeleteModalOpen = false;
+    this.deletingUserId = null;
+    this.deletingUserName = '';
+    this.cdr.detectChanges();
+  }
+
+  deleteUser() {
+    if (this.deletingUserId === null) {
+      return;
+    }
+
+    const userId = this.deletingUserId;
+    this.isDeleting = true;
     this.loadingService.show();
     this.usersService.deleteUser(userId).subscribe(() => {
       this.users = this.users.filter(user => user.id !== userId);
       this.usersService.clearCache();
+      this.cancelDeleteUser();
+      this.isDeleting = false;
+      this.loadingService.hide();
+      this.cdr.detectChanges();
+    }, () => {
+      this.isDeleting = false;
       this.loadingService.hide();
       this.cdr.detectChanges();
     });
