@@ -2,6 +2,7 @@ import { Component, ChangeDetectorRef, OnInit, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { Product } from '../../../../models/product';
 import { ProductService } from '../../../../services/admin/products';
 
@@ -17,7 +18,11 @@ export class Products implements OnInit {
   isLoading = false;
   selectedCategory: string = '';
 
-  constructor(@Inject(ProductService) private productService: ProductService, private cdr: ChangeDetectorRef) {}
+  constructor(
+    @Inject(ProductService) private productService: ProductService,
+    private cdr: ChangeDetectorRef,
+    private router: Router,
+  ) {}
 
   get uniqueCategories(): string[] {
     const categories = this.products.map(product => product.categoryId.toString());
@@ -29,6 +34,19 @@ export class Products implements OnInit {
       return this.products;
     }
     return this.products.filter(product => product.categoryId.toString() === this.selectedCategory);
+  }
+
+  getPrimaryImage(product: Product): string {
+    return Array.isArray(product.image) && product.image.length > 0 ? product.image[0] : '';
+  }
+
+  getAverageRating(product: Product): number {
+    if (!product.reviews || product.reviews.length === 0) {
+      return 0;
+    }
+
+    const total = product.reviews.reduce((sum, review) => sum + review.rating, 0);
+    return total / product.reviews.length;
   }
 
   ngOnInit() {
@@ -75,5 +93,9 @@ export class Products implements OnInit {
         this.cdr.detectChanges();
       }, 0);
     });
+  }
+
+  goToProductReviews(productId: number) {
+    this.router.navigate(['/admin/products', productId, 'reviews']);
   }
 }
