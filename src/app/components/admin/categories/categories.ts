@@ -4,12 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Category } from '../../../models/category';
-import { Product } from '../../../models/product';
 import { CategoryService } from '../../../services/admin/categories';
+import { DeleteConfirmModalComponent } from '../../../shared/components/delete-confirm-modal/delete-confirm-modal';
 
 @Component({
   selector: 'app-categories',
-  imports: [CommonModule, FormsModule, HttpClientModule],
+  imports: [CommonModule, FormsModule, HttpClientModule, DeleteConfirmModalComponent],
   templateUrl: './categories.html',
   styleUrl: './categories.css',
 })
@@ -17,6 +17,10 @@ export class Categories implements OnInit {
   categories: Category[] = [];
   isLoading = false;
   searchTerm: string = '';
+  isDeleteModalOpen = false;
+  deletingCategoryId: number | null = null;
+  deletingCategoryName = '';
+  isDeleting = false;
 
   constructor(@Inject(CategoryService) private categoryService: CategoryService, private cdr: ChangeDetectorRef, private router: Router) {}
 
@@ -76,6 +80,39 @@ export class Categories implements OnInit {
       setTimeout(() => {
         this.cdr.detectChanges();
       }, 0);
+    });
+  }
+
+  promptDeleteCategory(category: Category): void {
+    this.deletingCategoryId = category.id;
+    this.deletingCategoryName = category.name;
+    this.isDeleteModalOpen = true;
+    this.cdr.detectChanges();
+  }
+
+  cancelDeleteCategory(): void {
+    this.isDeleteModalOpen = false;
+    this.deletingCategoryId = null;
+    this.deletingCategoryName = '';
+    this.cdr.detectChanges();
+  }
+
+  deleteCategory(): void {
+    if (this.deletingCategoryId === null) {
+      return;
+    }
+
+    const categoryId = this.deletingCategoryId;
+    this.isDeleting = true;
+    this.categoryService.deleteCategory(categoryId).subscribe(() => {
+      this.categories = this.categories.filter(category => category.id !== categoryId);
+      this.categoryService.clearCache();
+      this.isDeleting = false;
+      this.cancelDeleteCategory();
+      this.cdr.detectChanges();
+    }, () => {
+      this.isDeleting = false;
+      this.cdr.detectChanges();
     });
   }
 }

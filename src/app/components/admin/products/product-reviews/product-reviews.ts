@@ -4,10 +4,11 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Product } from '../../../../models/product';
 import { Review } from '../../../../models/review';
 import { ReviewService } from '../../../../services/admin/reviews';
+import { DeleteConfirmModalComponent } from '../../../../shared/components/delete-confirm-modal/delete-confirm-modal';
 
 @Component({
   selector: 'app-product-reviews',
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, DeleteConfirmModalComponent],
   templateUrl: './product-reviews.html',
   styleUrl: './product-reviews.css',
 })
@@ -16,6 +17,10 @@ export class ProductReviews implements OnInit {
   product: Product | null = null;
   reviews: Review[] = [];
   isLoading = false;
+  isDeleteModalOpen = false;
+  deletingReviewId: number | null = null;
+  deletingReviewName = '';
+  isDeleting = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -59,5 +64,38 @@ export class ProductReviews implements OnInit {
   getStars(rating: number): string {
     const rounded = Math.max(1, Math.min(5, Math.round(rating)));
     return '★'.repeat(rounded) + '☆'.repeat(5 - rounded);
+  }
+
+  promptDeleteReview(review: Review): void {
+    this.deletingReviewId = review.id;
+    this.deletingReviewName = `Review #${review.id}`;
+    this.isDeleteModalOpen = true;
+    this.cdr.detectChanges();
+  }
+
+  cancelDeleteReview(): void {
+    this.isDeleteModalOpen = false;
+    this.deletingReviewId = null;
+    this.deletingReviewName = '';
+    this.cdr.detectChanges();
+  }
+
+  deleteReview(): void {
+    if (this.deletingReviewId === null) {
+      return;
+    }
+
+    const reviewId = this.deletingReviewId;
+    this.isDeleting = true;
+    this.reviewService.deleteReview(reviewId).subscribe(() => {
+      this.reviews = this.reviews.filter(review => review.id !== reviewId);
+      this.reviewService.clearProductCache();
+      this.isDeleting = false;
+      this.cancelDeleteReview();
+      this.cdr.detectChanges();
+    }, () => {
+      this.isDeleting = false;
+      this.cdr.detectChanges();
+    });
   }
 }

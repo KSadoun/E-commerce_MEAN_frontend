@@ -4,10 +4,11 @@ import { User } from '../../../models/user';
 
 import { UserService } from '../../../services/admin/users';
 import { LoadingService } from '../../../core/services/loading.service';
+import { DeleteConfirmModalComponent } from '../../../shared/components/delete-confirm-modal/delete-confirm-modal';
 
 @Component({
   selector: 'app-users',
-  imports: [CommonModule],
+  imports: [CommonModule, DeleteConfirmModalComponent],
   templateUrl: './users.html',
   styleUrl: './users.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

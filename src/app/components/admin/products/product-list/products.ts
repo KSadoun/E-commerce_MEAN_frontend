@@ -5,10 +5,11 @@ import { HttpClientModule } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Product } from '../../../../models/product';
 import { ProductService } from '../../../../services/admin/products';
+import { DeleteConfirmModalComponent } from '../../../../shared/components/delete-confirm-modal/delete-confirm-modal';
 
 @Component({
   selector: 'app-products',
-  imports: [CommonModule, FormsModule, HttpClientModule],
+  imports: [CommonModule, FormsModule, HttpClientModule, DeleteConfirmModalComponent],
   templateUrl: './products.html',
   styleUrl: './products.css',
   providers: [],

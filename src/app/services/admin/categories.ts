@@ -63,6 +63,16 @@ export class CategoryService {
     );
   }
 
+  deleteCategory(categoryId: number): Observable<void> {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    });
+    return this.http.delete<void>(
+      `${environment.apiUrl}/admin/categories/${categoryId}`,
+      { headers }
+    );
+  }
+
   clearCache(): void {
     this.categoriesCache$ = null;
   }

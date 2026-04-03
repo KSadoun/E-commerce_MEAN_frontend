@@ -64,6 +64,23 @@ export class CategoryProducts implements OnInit {
     return this.products.filter(p => p.stock === 0).length;
   }
 
+  getPrimaryImage(product: Product): string {
+    return Array.isArray(product.image) && product.image.length > 0 ? product.image[0] : '';
+  }
+
+  getAverageRating(product: Product): number {
+    if (!product.reviews || product.reviews.length === 0) {
+      return 0;
+    }
+
+    const total = product.reviews.reduce((sum, review) => sum + review.rating, 0);
+    return total / product.reviews.length;
+  }
+
+  goToProductReviews(productId: number): void {
+    this.router.navigate(['/admin/products', productId, 'reviews']);
+  }
+
   goBack(): void {
     this.router.navigate(['/admin/categories']);
   }
