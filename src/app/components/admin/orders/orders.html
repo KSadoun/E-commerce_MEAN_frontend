@@ -19,7 +19,7 @@
           <option [value]="seller">Seller {{ seller }}</option>
         }
       </select>
-      <span class="whitespace-nowrap rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">{{ filteredOrderItems.length }} {{ filteredOrderItems.length === 1 ? 'item' : 'items' }}</span>
+      <span class="whitespace-nowrap rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">{{ filteredOrders.length }} {{ filteredOrders.length === 1 ? 'order' : 'orders' }}</span>
     </div>
   </div>
 
@@ -28,47 +28,108 @@
     <table class="w-full bg-white dark:bg-slate-900">
       <thead>
         <tr class="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/70">
-          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">ID</th>
-          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">Product</th>
+          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">Order ID</th>
           <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">User</th>
-          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">Seller</th>
-          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">Quantity</th>
-          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">Unit Price</th>
-          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">Line Total</th>
+          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">Sellers</th>
+          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">Items</th>
+          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">Total</th>
           <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">Status</th>
+          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">Actions</th>
+          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">Details</th>
         </tr>
       </thead>
       <tbody>
-        @if (filteredOrderItems.length > 0) {
-          @for (item of filteredOrderItems; track item.productId) {
+        @if (filteredOrders.length > 0) {
+          @for (order of filteredOrders; track order.orderId) {
             <tr class="border-b border-slate-200 transition-colors hover:bg-blue-50/40 dark:border-slate-800 dark:hover:bg-blue-900/10">
-              <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-700 dark:text-slate-300">{{ item.productId }}</td>
-              <td class="whitespace-nowrap px-6 py-4 text-sm font-semibold text-slate-900 dark:text-slate-100">{{ item.name }}</td>
-              <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-600 dark:text-slate-400">User {{ item._userId }}</td>
-              <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-600 dark:text-slate-400">Seller {{ item.sellerId }}</td>
+              <td class="whitespace-nowrap px-6 py-4 text-sm font-semibold text-slate-900 dark:text-slate-100">#{{ order.orderId }}</td>
+              <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-600 dark:text-slate-400">User {{ order.userId ?? '-' }}</td>
+              <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{{ order.sellerIds.join(', ') }}</td>
               <td class="whitespace-nowrap px-6 py-4 text-sm">
                 <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-300">
-                  {{ item.quantity }}
+                  {{ order.totalQuantity }}
                 </span>
               </td>
-              <td class="whitespace-nowrap px-6 py-4 text-sm font-semibold text-slate-900 dark:text-slate-100">{{ item.unitPrice | currency }}</td>
-              <td class="whitespace-nowrap px-6 py-4 text-sm font-semibold text-blue-600 dark:text-blue-400">{{ item.lineTotal | currency }}</td>
-              
+              <td class="whitespace-nowrap px-6 py-4 text-sm font-semibold text-blue-600 dark:text-blue-400">{{ order.totalAmount | currency }}</td>
               <td class="whitespace-nowrap px-6 py-4 text-sm">
-                <span class="inline-block rounded-lg px-3 py-1 text-xs font-semibold" [class]="getOrderStatusClass(item.orderStatus)">
-                  {{ item.orderStatus }}
+                <span class="inline-block rounded-lg px-3 py-1 text-xs font-semibold" [class]="getOrderStatusClass(order.status)">
+                  {{ order.status }}
                 </span>
+              </td>
+              <td class="whitespace-nowrap px-6 py-4 text-sm">
+                <button
+                  type="button"
+                  (click)="promptConfirmDelivery(order)"
+                  [disabled]="order.status === 'delivered' || order.status === 'cancelled' || isConfirmingDelivery"
+                  class="inline-flex items-center gap-1 rounded-lg bg-emerald-100 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-200 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-emerald-900/30 dark:text-emerald-300 dark:hover:bg-emerald-900/50"
+                >
+                  <span class="material-symbols-outlined text-[16px]">task_alt</span>
+                  Confirm Delivery
+                </button>
+              </td>
+              <td class="whitespace-nowrap px-6 py-4 text-sm">
+                <button
+                  type="button"
+                  (click)="toggleOrderDetails(order.orderId)"
+                  class="inline-flex items-center gap-1 rounded-lg bg-indigo-100 px-3 py-1.5 text-xs font-semibold text-indigo-700 transition-colors hover:bg-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300 dark:hover:bg-indigo-900/50"
+                >
+                  <span class="material-symbols-outlined text-[16px]">{{ isOrderExpanded(order.orderId) ? 'expand_less' : 'expand_more' }}</span>
+                  {{ isOrderExpanded(order.orderId) ? 'Hide' : 'View' }}
+                </button>
               </td>
             </tr>
+
+            @if (isOrderExpanded(order.orderId)) {
+              <tr class="border-b border-slate-200 bg-slate-50/70 dark:border-slate-800 dark:bg-slate-800/30">
+                <td colspan="8" class="px-6 pb-5 pt-2">
+                  <div class="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700">
+                    <table class="w-full bg-white dark:bg-slate-900">
+                      <thead>
+                        <tr class="border-b border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/70">
+                          <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Product</th>
+                          <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quantity</th>
+                          <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Unit Price</th>
+                          <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Line Total</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (item of order.items; track item.productId) {
+                          <tr class="border-b border-slate-100 last:border-b-0 dark:border-slate-800">
+                            <td class="px-4 py-2 text-sm text-slate-700 dark:text-slate-300">{{ item.name }}</td>
+                            <td class="px-4 py-2 text-sm text-slate-700 dark:text-slate-300">{{ item.quantity }}</td>
+                            <td class="px-4 py-2 text-sm text-slate-700 dark:text-slate-300">{{ item.unitPrice | currency }}</td>
+                            <td class="px-4 py-2 text-sm font-semibold text-slate-900 dark:text-slate-100">{{ item.lineTotal | currency }}</td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                </td>
+              </tr>
+            }
           }
         } @else {
           <tr>
-            <td colspan="9" class="px-6 py-12 text-center">
-              <p class="text-slate-500 dark:text-slate-400">No order items found</p>
+            <td colspan="8" class="px-6 py-12 text-center">
+              <p class="text-slate-500 dark:text-slate-400">No orders found</p>
             </td>
           </tr>
         }
       </tbody>
     </table>
   </div>
+
+  <app-delete-confirm-modal
+    [isOpen]="isDeliveryModalOpen"
+    title="Confirm Delivery"
+    [itemName]="deliveryOrderLabel"
+    prompt="Confirm this order delivery?"
+    actionText="You are about to mark"
+    warningText="as delivered and paid cash on delivery."
+    confirmText="Confirm Delivery"
+    variant="success"
+    [loading]="isConfirmingDelivery"
+    (cancel)="cancelConfirmDelivery()"
+    (confirm)="confirmDelivery()"
+  ></app-delete-confirm-modal>
 </div>

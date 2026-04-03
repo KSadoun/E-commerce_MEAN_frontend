@@ -13,13 +13,45 @@
         </button>
       </div>
 
-      <div class="mt-6 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 dark:border-rose-900/40 dark:bg-rose-950/20">
+      <div
+        class="mt-6 rounded-2xl px-5 py-4"
+        [class]="
+          variant === 'success'
+            ? 'mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 dark:border-emerald-900/40 dark:bg-emerald-950/20'
+            : 'mt-6 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 dark:border-rose-900/40 dark:bg-rose-950/20'
+        "
+      >
         <div class="flex items-start gap-3">
-          <span class="material-symbols-outlined text-rose-600 dark:text-rose-400">warning</span>
+          <span
+            class="material-symbols-outlined"
+            [class]="
+              variant === 'success'
+                ? 'text-emerald-600 dark:text-emerald-400'
+                : 'text-rose-600 dark:text-rose-400'
+            "
+          >
+            {{ variant === 'success' ? 'check_circle' : 'warning' }}
+          </span>
           <div>
-            <p class="text-2xl font-bold text-rose-700 dark:text-rose-300">{{ prompt }}</p>
-            <p class="mt-1 text-xl text-rose-700/90 dark:text-rose-300/90">
-              You are about to delete <span class="font-bold">{{ itemName }}</span>. {{ warningText }}
+            <p
+              class="text-2xl font-bold"
+              [class]="
+                variant === 'success'
+                  ? 'text-emerald-700 dark:text-emerald-300'
+                  : 'text-rose-700 dark:text-rose-300'
+              "
+            >
+              {{ prompt }}
+            </p>
+            <p
+              class="mt-1 text-xl"
+              [class]="
+                variant === 'success'
+                  ? 'text-emerald-700/90 dark:text-emerald-300/90'
+                  : 'text-rose-700/90 dark:text-rose-300/90'
+              "
+            >
+              {{ actionText }} <span class="font-bold">{{ itemName }}</span>. {{ warningText }}
             </p>
           </div>
         </div>
@@ -37,7 +69,11 @@
           type="button"
           (click)="onConfirm()"
           [disabled]="loading"
-          class="rounded-xl bg-rose-600 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-70"
+          [class]="
+            variant === 'success'
+              ? 'rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-70'
+              : 'rounded-xl bg-rose-600 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-70'
+          "
         >
           {{ confirmText }}
         </button>

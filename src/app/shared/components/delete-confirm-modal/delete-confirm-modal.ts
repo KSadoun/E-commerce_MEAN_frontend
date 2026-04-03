@@ -13,8 +13,10 @@ export class DeleteConfirmModalComponent {
   @Input() title = 'Delete Item';
   @Input() itemName = '';
   @Input() prompt = 'Delete this item?';
+  @Input() actionText = 'You are about to delete';
   @Input() warningText = 'This action cannot be undone.';
   @Input() confirmText = 'Delete';
+  @Input() variant: 'danger' | 'success' = 'danger';
   @Input() loading = false;
 
   @Output() cancel = new EventEmitter<void>();
