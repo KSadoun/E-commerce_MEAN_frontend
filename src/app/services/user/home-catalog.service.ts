@@ -5,7 +5,9 @@ import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment.development';
 import {
   CatalogProduct,
+  ProductDetails,
   ProductLabel,
+  ProductReview,
   RealmCategory,
 } from '../../components/user/home/home.models';
 
@@ -18,11 +20,37 @@ interface CategoryApi {
 interface ProductApi {
   id: number;
   name: string;
+  description?: string;
   price: number;
+  currency?: string;
   stock: number;
+  status?: string;
+  categoryId?: number;
+  sellerId?: number;
   categoryName?: string;
   images?: string[];
   rating?: number | null;
+  reviewCount?: number;
+  reviews?: ProductReviewApi[];
+  seller?: {
+    id: number;
+    name: string;
+    email?: string;
+    phone?: string;
+    storeName?: string | null;
+    isApproved?: boolean | null;
+  } | null;
+}
+
+interface ProductReviewApi {
+  id: number;
+  productId: number;
+  userId: number;
+  userName?: string;
+  rating: number;
+  comment?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface CategoriesResponse {
@@ -30,11 +58,17 @@ interface CategoriesResponse {
 }
 
 interface TopProductsResponse {
+  count?: number;
   products: ProductApi[];
 }
 
 interface CatalogProductsResponse {
   products: ProductApi[];
+}
+
+interface ProductReviewsResponse {
+  count: number;
+  reviews: ProductReviewApi[];
 }
 
 @Injectable({
@@ -58,6 +92,18 @@ export class HomeCatalogService {
   ];
 
   constructor(private readonly http: HttpClient) {}
+
+  private mapReview(review: ProductReviewApi): ProductReview {
+    return {
+      id: Number(review.id),
+      userId: Number(review.userId),
+      userName: review.userName || 'Unknown',
+      rating: Number(review.rating),
+      comment: review.comment || '',
+      createdAt: review.createdAt,
+      updatedAt: review.updatedAt,
+    };
+  }
 
   getCategories(limit = 4): Observable<RealmCategory[]> {
     return this.http.get<CategoriesResponse>(`${this.apiUrl}/products/categories`).pipe(
@@ -103,14 +149,16 @@ export class HomeCatalogService {
       )
       .pipe(
         map((response) =>
-          response.products.map((product, index) => ({
+          (response.products || []).map((product, index) => ({
             id: String(product.id),
-            backendId: product.id,                   
+            backendId: product.id,
             title: product.name,
             category: product.categoryName || 'Featured',
             material: product.categoryName || 'Curated Selection',
             price: Number(product.price),
-            stock: product.stock ?? 0,                
+            stock: product.stock ?? 0,
+            rating: product.rating ?? null,
+            reviewCount: product.reviewCount ?? 0,
             imageUrl:
               product.images?.[0] ||
               this.fallbackProductImages[index % this.fallbackProductImages.length] ||
@@ -130,12 +178,14 @@ export class HomeCatalogService {
             const category = product.categoryName || 'General';
             return {
               id: String(product.id),
-              backendId: product.id,                  
+              backendId: product.id,
               title: product.name,
               category,
               material: category,
               price: Number(product.price),
-              stock: product.stock ?? 0,              
+              stock: product.stock ?? 0,
+              rating: product.rating ?? null,
+              reviewCount: product.reviewCount ?? 0,
               imageUrl:
                 product.images?.[0] ||
                 this.fallbackProductImages[index % this.fallbackProductImages.length] ||
@@ -145,6 +195,61 @@ export class HomeCatalogService {
           }),
         ),
       );
+  }
+
+  getProductDetails(productId: number): Observable<ProductDetails> {
+    return this.http.get<ProductApi>(`${this.apiUrl}/products/${productId}`).pipe(
+      map((product) => {
+        const fallbackImage =
+          this.fallbackProductImages[productId % this.fallbackProductImages.length] ||
+          this.fallbackProductImages[0];
+        const images =
+          Array.isArray(product.images) && product.images.length > 0
+            ? product.images
+            : [fallbackImage];
+
+        return {
+          id: product.id,
+          title: product.name,
+          description: product.description || 'No description available.',
+          category: product.categoryName || 'General',
+          price: Number(product.price),
+          currency: product.currency || 'USD',
+          stock: Number(product.stock ?? 0),
+          status: product.status || 'active',
+          images,
+          rating: product.rating ?? null,
+          reviewCount: product.reviewCount ?? (product.reviews?.length || 0),
+          reviews: (product.reviews || []).map((review) => this.mapReview(review)),
+          seller: product.seller || null,
+        };
+      }),
+    );
+  }
+
+  getProductReviews(productId: number): Observable<ProductReview[]> {
+    return this.http
+      .get<ProductReviewsResponse>(`${this.apiUrl}/products/${productId}/reviews`)
+      .pipe(map((response) => (response.reviews || []).map((review) => this.mapReview(review))));
+  }
+
+  createProductReview(
+    productId: number,
+    payload: { rating: number; comment: string },
+  ): Observable<any> {
+    return this.http.post(`${this.apiUrl}/products/${productId}/reviews`, payload);
+  }
+
+  updateProductReview(
+    productId: number,
+    reviewId: number,
+    payload: { rating?: number; comment?: string },
+  ): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/products/${productId}/reviews/${reviewId}`, payload);
+  }
+
+  deleteProductReview(productId: number, reviewId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/products/${productId}/reviews/${reviewId}`);
   }
 
   private resolveLabel(product: ProductApi): ProductLabel | undefined {

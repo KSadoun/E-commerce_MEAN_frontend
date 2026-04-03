@@ -30,11 +30,17 @@
       </button>
 
       <div class="flex items-center gap-3 border-l border-slate-200 pl-3 dark:border-slate-700">
-        <img
-          [src]="sellerAvatar()"
-          [alt]="sellerName()"
-          class="h-10 w-10 rounded-full border-2 border-blue-500/40 object-cover"
-        />
+        <a
+          routerLink="/seller/profile"
+          class="inline-flex rounded-full ring-offset-2 transition hover:ring-2 hover:ring-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-300"
+          aria-label="Open seller profile"
+        >
+          <img
+            [src]="sellerAvatar()"
+            [alt]="sellerName()"
+            class="h-10 w-10 rounded-full border-2 border-blue-500/40 object-cover"
+          />
+        </a>
         <div class="hidden sm:block">
           <p class="text-sm font-bold text-slate-800 dark:text-slate-100">{{ sellerName() }}</p>
           <p class="text-xs text-slate-500 dark:text-slate-400">Seller account</p>

@@ -3,11 +3,15 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OrderService } from '../../../services/order/order.service';
 import { Order } from '../../../models/order';
+import { HomeHeader } from '../home/home-header';
+import { HomeFooter } from '../home/home-footer';
+import { COMPANY_DESCRIPTION, FOOTER_LINK_GROUPS, HOME_NAV_LINKS } from '../home/home.data';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-order-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, HomeHeader, HomeFooter],
   templateUrl: './order-detail.component.html',
   styleUrl: './order-detail.component.css',
 })
@@ -17,12 +21,21 @@ export class OrderDetailComponent implements OnInit {
   error = '';
   cancelling = false;
 
+  readonly navLinks = HOME_NAV_LINKS;
+  readonly footerLinks = FOOTER_LINK_GROUPS;
+  readonly companyDescription = COMPANY_DESCRIPTION;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private orderService: OrderService,
-    private cdr: ChangeDetectorRef   
+    private cdr: ChangeDetectorRef,
+    private authService: AuthService,
   ) {}
+
+  isAuthenticated(): boolean {
+    return this.authService.isAuthenticated();
+  }
 
   ngOnInit() {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -35,12 +48,12 @@ export class OrderDetailComponent implements OnInit {
       next: (order) => {
         this.order = order;
         this.loading = false;
-        this.cdr.detectChanges();    
+        this.cdr.detectChanges();
       },
       error: () => {
         this.error = 'Order not found';
         this.loading = false;
-        this.cdr.detectChanges();    
+        this.cdr.detectChanges();
       },
     });
   }
@@ -58,26 +71,34 @@ export class OrderDetailComponent implements OnInit {
       next: (res: any) => {
         this.order = res.order;
         this.cancelling = false;
-        this.cdr.detectChanges();    
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.error = err.error?.message || 'Failed to cancel order';
         this.cancelling = false;
-        this.cdr.detectChanges();    
+        this.cdr.detectChanges();
       },
     });
   }
 
   getStatusColor(status: string): string {
     switch (status) {
-      case 'placed': return 'bg-blue-100 text-blue-700';
-      case 'confirmed': return 'bg-indigo-100 text-indigo-700';
-      case 'processing': return 'bg-yellow-100 text-yellow-700';
-      case 'shipped': return 'bg-purple-100 text-purple-700';
-      case 'delivered': return 'bg-green-100 text-green-700';
-      case 'cancelled': return 'bg-red-100 text-red-700';
-      case 'pending_payment': return 'bg-orange-100 text-orange-700';
-      default: return 'bg-gray-100 text-gray-700';
+      case 'placed':
+        return 'bg-blue-100 text-blue-700';
+      case 'confirmed':
+        return 'bg-indigo-100 text-indigo-700';
+      case 'processing':
+        return 'bg-yellow-100 text-yellow-700';
+      case 'shipped':
+        return 'bg-purple-100 text-purple-700';
+      case 'delivered':
+        return 'bg-green-100 text-green-700';
+      case 'cancelled':
+        return 'bg-red-100 text-red-700';
+      case 'pending_payment':
+        return 'bg-orange-100 text-orange-700';
+      default:
+        return 'bg-gray-100 text-gray-700';
     }
   }
 

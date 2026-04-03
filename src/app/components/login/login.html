@@ -13,6 +13,15 @@
       </div>
     }
 
+    @if (pendingApprovalNotice) {
+      <div
+        class="mt-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"
+      >
+        <p class="font-semibold">Seller Approval Pending</p>
+        <p class="mt-1">{{ pendingApprovalNotice }}</p>
+      </div>
+    }
+
     <form #loginForm="ngForm" (ngSubmit)="onSubmit()" class="mt-7 space-y-5">
       <div>
         <label for="email" class="mb-2 block text-sm font-medium text-stone-700">Email</label>

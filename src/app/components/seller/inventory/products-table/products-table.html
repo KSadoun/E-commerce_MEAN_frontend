@@ -43,8 +43,10 @@
                 class="rounded-full px-2.5 py-1 text-xs font-semibold"
                 [class.bg-emerald-100]="product.status === 'Active'"
                 [class.text-emerald-700]="product.status === 'Active'"
-                [class.bg-rose-100]="product.status === 'Inactive'"
-                [class.text-rose-700]="product.status === 'Inactive'"
+                [class.bg-amber-100]="product.status === 'Pending'"
+                [class.text-amber-700]="product.status === 'Pending'"
+                [class.bg-rose-100]="product.status === 'Rejected'"
+                [class.text-rose-700]="product.status === 'Rejected'"
               >
                 {{ product.status }}
               </span>
@@ -65,13 +67,15 @@
                 >
                   Delete
                 </button>
-                <button
-                  type="button"
-                  (click)="toggleStatus.emit(product.id)"
-                  class="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-100"
-                >
-                  Toggle
-                </button>
+                @if (product.status === 'Rejected') {
+                  <button
+                    type="button"
+                    (click)="toggleStatus.emit(product.id)"
+                    class="rounded-lg border border-amber-200 px-2.5 py-1.5 text-xs font-medium text-amber-700 transition hover:bg-amber-50"
+                  >
+                    Resubmit
+                  </button>
+                }
               </div>
             </td>
           </tr>

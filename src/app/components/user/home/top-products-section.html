@@ -16,33 +16,23 @@
 
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
       @for (product of products(); track product.id) {
-        <article
-          class="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm shadow-stone-100/70 transition hover:-translate-y-1 hover:shadow-lg hover:shadow-stone-200/50"
-        >
-          <div class="relative h-56 overflow-hidden">
-            <img
-              [src]="product.imageUrl"
-              [alt]="product.title"
-              class="h-full w-full object-cover"
-              loading="lazy"
-            />
-            @if (product.label) {
-              <span
-                class="absolute left-3 top-3 rounded-full border border-stone-300 bg-white/90 px-3 py-1 text-xs font-semibold text-stone-700"
-              >
-                {{ product.label }}
-              </span>
-            }
-          </div>
-          <div class="space-y-2 px-4 py-4">
-            <h3 class="text-base font-semibold text-stone-900">{{ product.title }}</h3>
-            <p class="text-sm text-stone-500">{{ product.category }}</p>
-            <p class="pt-1 text-lg font-semibold text-stone-900">
-              ${{ product.price | number: '1.0-0' }}
-            </p>
-          </div>
-        </article>
+        <app-product-card
+          [product]="product"
+          [addingToCart]="addingToCart()[product.id] || false"
+          [wishlisted]="isWishlisted(product)"
+          [wishlistLoading]="wishlistLoading()[product.id] || false"
+          (addToCart)="addToCart(product)"
+          (toggleWishlist)="toggleWishlist(product)"
+        />
       }
     </div>
   </div>
+
+  @if (feedbackMessage()) {
+    <div
+      class="fixed bottom-6 right-6 z-50 rounded-xl bg-stone-900 px-5 py-3 text-sm font-medium text-white shadow-lg"
+    >
+      {{ feedbackMessage() }}
+    </div>
+  }
 </section>

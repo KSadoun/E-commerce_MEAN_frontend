@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { InventoryFilters } from './inventory-filters/inventory-filters';
 import { ProductsTable } from './products-table/products-table';
 import {
@@ -24,6 +31,7 @@ export class SellerInventory {
   private readonly toastService = inject(ToastService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly search = signal('');
   readonly category = signal('All');
@@ -56,18 +64,29 @@ export class SellerInventory {
     return this.filteredProducts().slice(start, start + this.pageSize);
   });
 
+  private getApiErrorMessage(error: any, fallback: string): string {
+    const details = error?.error?.errors;
+    if (Array.isArray(details) && details.length > 0) {
+      const first = details[0];
+      const path = first?.path ? `${first.path}: ` : '';
+      return `${path}${first?.message || fallback}`;
+    }
+
+    return error?.error?.message || fallback;
+  }
+
   constructor() {
     this.inventoryService
       .getProducts()
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((products) => this.products.set(products));
 
     this.inventoryService
       .getCategories()
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((categories) => this.categories.set(categories));
 
-    this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
+    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       const mode = params.get('modal');
       if (mode === 'add') {
         this.openModal('add');
@@ -125,43 +144,55 @@ export class SellerInventory {
         price: product.price,
         stock: product.stock,
         description: product.description,
-        status: product.status ?? 'Active',
+        status: product.status ?? 'Pending',
       };
       this.inventoryService
         .addProduct(payload)
-        .pipe(takeUntilDestroyed())
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: () => {
             this.toastService.show('success', 'Product added successfully.');
             this.closeModal();
           },
-          error: () => this.toastService.show('error', 'Failed to add product.'),
+          error: (error) =>
+            this.toastService.show(
+              'error',
+              this.getApiErrorMessage(error, 'Failed to add product.'),
+            ),
         });
       return;
     }
 
     this.inventoryService
       .updateProduct(product)
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.toastService.show('success', 'Product updated successfully.');
           this.closeModal();
         },
-        error: () => this.toastService.show('error', 'Failed to update product.'),
+        error: (error) =>
+          this.toastService.show(
+            'error',
+            this.getApiErrorMessage(error, 'Failed to update product.'),
+          ),
       });
   }
 
   onDeleteProduct(productId: number): void {
     this.inventoryService
       .deleteProduct(productId)
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.toastService.show('success', 'Product deleted successfully.');
           this.closeModal();
         },
-        error: () => this.toastService.show('error', 'Failed to delete product.'),
+        error: (error) =>
+          this.toastService.show(
+            'error',
+            this.getApiErrorMessage(error, 'Failed to delete product.'),
+          ),
       });
   }
 
@@ -186,14 +217,18 @@ export class SellerInventory {
   onToggleStatus(productId: number): void {
     this.inventoryService
       .toggleProductStatus(productId)
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (product) => {
           if (product) {
-            this.toastService.show('info', `${product.name} is now ${product.status}.`);
+            this.toastService.show('info', `${product.name} has been resubmitted for review.`);
           }
         },
-        error: () => this.toastService.show('error', 'Failed to toggle product status.'),
+        error: (error) =>
+          this.toastService.show(
+            'error',
+            this.getApiErrorMessage(error, 'Failed to resubmit product.'),
+          ),
       });
   }
 }

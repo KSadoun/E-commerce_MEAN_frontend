@@ -14,98 +14,149 @@
     </nav>
 
     <div class="flex items-center gap-1 text-stone-700">
-      <button
-        type="button"
-        aria-label="Wishlist"
-        class="rounded-full p-2 transition hover:bg-white/70 hover:text-stone-950"
-      >
-        <span class="material-symbols-outlined text-[22px]">favorite</span>
-      </button>
-      <a
-        routerLink="/cart"
-        aria-label="Cart"
-        class="rounded-full p-2 transition hover:bg-white/70 hover:text-stone-950"
-      >
-        <span class="material-symbols-outlined text-[22px]">shopping_bag</span>
-      </a>
-
-      @if (isAuthenticated()) {
-        <a
-          routerLink="/orders"
-          aria-label="Orders"
-          class="rounded-full p-2 transition hover:bg-white/70 hover:text-stone-950"
-        >
-          <span class="material-symbols-outlined text-[22px]">receipt_long</span>
-        </a>
-        <a
-          routerLink="/users/dashboard"
-          aria-label="Profile"
-          class="rounded-full p-2 transition hover:bg-white/70 hover:text-stone-950"
-        >
-          <span class="material-symbols-outlined text-[22px]">account_circle</span>
-        </a>
+      <div class="hidden items-center gap-1 md:flex">
         <button
           type="button"
-          (click)="logout()"
-          class="ml-1 hidden rounded-full border border-stone-400 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-stone-700 transition hover:border-stone-800 hover:text-stone-900 md:inline-flex"
+          aria-label="Wishlist"
+          class="rounded-full p-2 transition hover:bg-white/70 hover:text-stone-950"
         >
-          Logout
+          <span class="material-symbols-outlined text-[22px]">favorite</span>
         </button>
-      } @else {
         <a
-          routerLink="/login"
-          class="ml-1 hidden rounded-full border border-stone-400 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-stone-700 transition hover:border-stone-800 hover:text-stone-900 md:inline-flex"
+          routerLink="/cart"
+          aria-label="Cart"
+          class="rounded-full p-2 transition hover:bg-white/70 hover:text-stone-950"
         >
-          Login
+          <span class="material-symbols-outlined text-[22px]">shopping_bag</span>
         </a>
+
+        @if (isAuthenticated()) {
+          <a
+            routerLink="/orders"
+            aria-label="Orders"
+            class="rounded-full p-2 transition hover:bg-white/70 hover:text-stone-950"
+          >
+            <span class="material-symbols-outlined text-[22px]">receipt_long</span>
+          </a>
+          <a
+            [routerLink]="profileRoute"
+            aria-label="Profile"
+            class="rounded-full p-2 transition hover:bg-white/70 hover:text-stone-950"
+          >
+            <span class="material-symbols-outlined text-[22px]">account_circle</span>
+          </a>
+          <button
+            type="button"
+            (click)="logout()"
+            class="ml-1 rounded-full border border-stone-400 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-stone-700 transition hover:border-stone-800 hover:text-stone-900"
+          >
+            Logout
+          </button>
+        } @else {
+          <a
+            routerLink="/login"
+            class="ml-1 rounded-full border border-stone-400 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-stone-700 transition hover:border-stone-800 hover:text-stone-900"
+          >
+            Login
+          </a>
+          <a
+            routerLink="/users/register"
+            class="rounded-full bg-stone-900 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-stone-100 transition hover:bg-stone-700"
+          >
+            Register
+          </a>
+        }
+      </div>
+
+      <div class="flex items-center gap-1 md:hidden">
         <a
-          routerLink="/users/register"
-          class="hidden rounded-full bg-stone-900 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-stone-100 transition hover:bg-stone-700 md:inline-flex"
+          routerLink="/cart"
+          (click)="closeMobileMenu()"
+          aria-label="Cart"
+          class="rounded-full p-2 transition hover:bg-white/70 hover:text-stone-950"
         >
-          Register
+          <span class="material-symbols-outlined text-[22px]">shopping_bag</span>
         </a>
-      }
+        @if (isAuthenticated()) {
+          <a
+            routerLink="/orders"
+            (click)="closeMobileMenu()"
+            aria-label="Orders"
+            class="rounded-full p-2 transition hover:bg-white/70 hover:text-stone-950"
+          >
+            <span class="material-symbols-outlined text-[22px]">receipt_long</span>
+          </a>
+        }
+        <button
+          type="button"
+          (click)="toggleMobileMenu()"
+          aria-label="Toggle menu"
+          [attr.aria-expanded]="mobileMenuOpen()"
+          class="rounded-full p-2 transition hover:bg-white/70 hover:text-stone-950"
+        >
+          <span class="material-symbols-outlined text-[24px]">
+            {{ mobileMenuOpen() ? 'close' : 'menu' }}
+          </span>
+        </button>
+      </div>
     </div>
   </div>
 
-  <nav
-    aria-label="Mobile primary"
-    class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 pb-3 md:hidden"
-  >
-    <div class="flex items-center gap-2 overflow-x-auto text-sm">
-      @for (link of navLinks(); track link.label) {
-        <a
-          [routerLink]="link.href"
-          class="shrink-0 rounded-full border border-stone-300 px-3 py-1.5 font-medium text-stone-700"
-        >
-          {{ link.label }}
-        </a>
-      }
-      @if (isAuthenticated()) {
-        <a
-          routerLink="/orders"
-          class="shrink-0 rounded-full border border-stone-300 px-3 py-1.5 font-medium text-stone-700"
-        >
-          Orders
-        </a>
-      }
-    </div>
+  @if (mobileMenuOpen()) {
+    <nav
+      aria-label="Mobile primary"
+      class="mx-auto max-w-7xl border-t border-stone-200/70 px-4 pb-4 pt-3 md:hidden"
+    >
+      <div class="flex flex-col gap-2 text-sm">
+        @for (link of navLinks(); track link.label) {
+          <a
+            [routerLink]="link.href"
+            (click)="closeMobileMenu()"
+            class="rounded-xl border border-stone-300 px-3 py-2 font-medium text-stone-700"
+          >
+            {{ link.label }}
+          </a>
+        }
 
-    @if (!isAuthenticated()) {
-      <a
-        routerLink="/login"
-        class="shrink-0 text-xs font-semibold uppercase tracking-wide text-stone-700 underline underline-offset-4"
-      >
-        Login
-      </a>
-    } @else {
-      <button
-        type="button"
-        (click)="logout()"
-        class="shrink-0 text-xs font-semibold uppercase tracking-wide text-stone-700 underline underline-offset-4"
-      >
-        Logout
-      </button>
-    }
-  </nav>
+        @if (isAuthenticated()) {
+          <a
+            routerLink="/orders"
+            (click)="closeMobileMenu()"
+            class="rounded-xl border border-stone-300 px-3 py-2 font-medium text-stone-700"
+          >
+            Orders
+          </a>
+          <a
+            [routerLink]="profileRoute"
+            (click)="closeMobileMenu()"
+            class="rounded-xl border border-stone-300 px-3 py-2 font-medium text-stone-700"
+          >
+            Profile
+          </a>
+          <button
+            type="button"
+            (click)="logout()"
+            class="rounded-xl border border-stone-300 px-3 py-2 text-left font-medium text-stone-700"
+          >
+            Logout
+          </button>
+        } @else {
+          <a
+            routerLink="/login"
+            (click)="closeMobileMenu()"
+            class="rounded-xl border border-stone-300 px-3 py-2 font-medium text-stone-700"
+          >
+            Login
+          </a>
+          <a
+            routerLink="/users/register"
+            (click)="closeMobileMenu()"
+            class="rounded-xl bg-stone-900 px-3 py-2 font-medium text-stone-100"
+          >
+            Register
+          </a>
+        }
+      </div>
+    </nav>
+  }
 </header>

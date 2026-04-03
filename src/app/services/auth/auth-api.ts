@@ -8,7 +8,7 @@ interface RegisterPayload {
   phone?: string;
   password: string;
   confirmPassword: string;
-  role: 'customer' | 'seller' | 'admin';
+  role: 'customer' | 'seller';
 }
 
 @Injectable({
