@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { Category } from '../../../models/category';
 import { CategoryService } from '../../../services/admin/categories';
 import { DeleteConfirmModalComponent } from '../../../shared/components/delete-confirm-modal/delete-confirm-modal';
+import { LoadingService } from '../../../core/services/loading.service';
 
 @Component({
   selector: 'app-categories',
@@ -15,14 +16,18 @@ import { DeleteConfirmModalComponent } from '../../../shared/components/delete-c
 })
 export class Categories implements OnInit {
   categories: Category[] = [];
-  isLoading = false;
   searchTerm: string = '';
   isDeleteModalOpen = false;
   deletingCategoryId: number | null = null;
   deletingCategoryName = '';
   isDeleting = false;
 
-  constructor(@Inject(CategoryService) private categoryService: CategoryService, private cdr: ChangeDetectorRef, private router: Router) {}
+  constructor(
+    @Inject(CategoryService) private categoryService: CategoryService,
+    private cdr: ChangeDetectorRef,
+    private router: Router,
+    private loadingService: LoadingService,
+  ) {}
 
   get filteredCategories(): Category[] {
     if (!this.searchTerm) {
@@ -35,15 +40,18 @@ export class Categories implements OnInit {
   }
 
   ngOnInit() {
-    this.isLoading = true;
+    this.loadingService.show();
     this.categoryService.getAllCategories().subscribe((response: any) => {
       this.categories = response.categories;
       console.log('Fetched categories:', this.categories);
-      this.isLoading = false;
+      this.loadingService.hide();
       
       setTimeout(() => {
         this.cdr.detectChanges();
       }, 0);
+    }, () => {
+      this.loadingService.hide();
+      this.cdr.detectChanges();
     });
   }
 
@@ -52,34 +60,40 @@ export class Categories implements OnInit {
   }
 
   restrictCategory(categoryId: number): void {
-    this.isLoading = true;
+    this.loadingService.show();
     this.categoryService.restrictCategory(categoryId).subscribe(() => {
       const category = this.categories.find(cat => cat.id === categoryId);
       if (category) {
         category.isRestricted = true;
       }
       this.categoryService.clearCache();
-      this.isLoading = false;
+      this.loadingService.hide();
       
       setTimeout(() => {
         this.cdr.detectChanges();
       }, 0);
+    }, () => {
+      this.loadingService.hide();
+      this.cdr.detectChanges();
     });
   }
 
   unrestrictCategory(categoryId: number): void {
-    this.isLoading = true;
+    this.loadingService.show();
     this.categoryService.unrestrictCategory(categoryId).subscribe(() => {
       const category = this.categories.find(cat => cat.id === categoryId);
       if (category) {
         category.isRestricted = false;
       }
       this.categoryService.clearCache();
-      this.isLoading = false;
+      this.loadingService.hide();
       
       setTimeout(() => {
         this.cdr.detectChanges();
       }, 0);
+    }, () => {
+      this.loadingService.hide();
+      this.cdr.detectChanges();
     });
   }
 
@@ -104,14 +118,17 @@ export class Categories implements OnInit {
 
     const categoryId = this.deletingCategoryId;
     this.isDeleting = true;
+    this.loadingService.show();
     this.categoryService.deleteCategory(categoryId).subscribe(() => {
       this.categories = this.categories.filter(category => category.id !== categoryId);
       this.categoryService.clearCache();
       this.isDeleting = false;
+      this.loadingService.hide();
       this.cancelDeleteCategory();
       this.cdr.detectChanges();
     }, () => {
       this.isDeleting = false;
+      this.loadingService.hide();
       this.cdr.detectChanges();
     });
   }

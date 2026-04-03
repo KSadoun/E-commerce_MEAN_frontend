@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { Product } from '../../../../models/product';
 import { ProductService } from '../../../../services/admin/products';
 import { DeleteConfirmModalComponent } from '../../../../shared/components/delete-confirm-modal/delete-confirm-modal';
+import { LoadingService } from '../../../../core/services/loading.service';
 
 @Component({
   selector: 'app-products',
@@ -16,7 +17,7 @@ import { DeleteConfirmModalComponent } from '../../../../shared/components/delet
 })
 export class Products implements OnInit {
   products: Product[] = [];
-  isLoading = false;
+  isDeleting = false;
   selectedCategory: string = '';
   isDeleteModalOpen = false;
   deletingProductId: number | null = null;
@@ -26,6 +27,7 @@ export class Products implements OnInit {
     @Inject(ProductService) private productService: ProductService,
     private cdr: ChangeDetectorRef,
     private router: Router,
+    private loadingService: LoadingService,
   ) {}
 
   get uniqueCategories(): string[] {
@@ -54,32 +56,47 @@ export class Products implements OnInit {
   }
 
   ngOnInit() {
+    this.loadingService.show();
     this.productService.getAllProducts().subscribe((response: any) => {
       this.products = response.products;
       console.log('Fetched products:', this.products);
+      this.loadingService.hide();
       
       setTimeout(() => {
         this.cdr.detectChanges();
       }, 0);
+    }, () => {
+      this.loadingService.hide();
+      this.cdr.detectChanges();
     });
   }
 
   activateProduct(productId: number) {
+    this.loadingService.show();
     this.productService.activateProduct(productId).subscribe(() => {
       const product = this.products.find(p => p.id === productId);
       if (product) {
         product.isActive = true;
       }
+      this.loadingService.hide();
+      this.cdr.detectChanges();
+    }, () => {
+      this.loadingService.hide();
       this.cdr.detectChanges();
     });
   }
 
   deactivateProduct(productId: number) {
+    this.loadingService.show();
     this.productService.deactivateProduct(productId).subscribe(() => {
       const product = this.products.find(p => p.id === productId);
       if (product) {
         product.isActive = false;
       }
+      this.loadingService.hide();
+      this.cdr.detectChanges();
+    }, () => {
+      this.loadingService.hide();
       this.cdr.detectChanges();
     });
   }
@@ -104,17 +121,20 @@ export class Products implements OnInit {
     }
 
     const productId = this.deletingProductId;
-    this.isLoading = true;
+    this.isDeleting = true;
+    this.loadingService.show();
     this.productService.deleteProduct(productId).subscribe(() => {
       this.products = this.products.filter(product => product.id !== productId);
       this.productService.clearCache();
-      this.isLoading = false;
+      this.isDeleting = false;
+      this.loadingService.hide();
       this.cancelDeleteProduct();
       setTimeout(() => {
         this.cdr.detectChanges();
       }, 0);
     }, () => {
-      this.isLoading = false;
+      this.isDeleting = false;
+      this.loadingService.hide();
       this.cdr.detectChanges();
     });
   }

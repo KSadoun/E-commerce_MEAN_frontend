@@ -1,14 +1,15 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Product } from '../../../../models/product';
 import { Review } from '../../../../models/review';
 import { ReviewService } from '../../../../services/admin/reviews';
 import { DeleteConfirmModalComponent } from '../../../../shared/components/delete-confirm-modal/delete-confirm-modal';
+import { LoadingService } from '../../../../core/services/loading.service';
 
 @Component({
   selector: 'app-product-reviews',
-  imports: [CommonModule, RouterModule, DeleteConfirmModalComponent],
+  imports: [CommonModule, RouterLink, DeleteConfirmModalComponent],
   templateUrl: './product-reviews.html',
   styleUrl: './product-reviews.css',
 })
@@ -16,17 +17,17 @@ export class ProductReviews implements OnInit {
   productId = 0;
   product: Product | null = null;
   reviews: Review[] = [];
-  isLoading = false;
   isDeleteModalOpen = false;
   deletingReviewId: number | null = null;
   deletingReviewName = '';
   isDeleting = false;
+  private reviewService = inject(ReviewService);
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private reviewService: ReviewService,
     private cdr: ChangeDetectorRef,
+    private loadingService: LoadingService,
   ) {}
 
   get averageRating(): number {
@@ -51,12 +52,15 @@ export class ProductReviews implements OnInit {
   }
 
   loadProductReviews(): void {
-    this.isLoading = true;
+    this.loadingService.show();
 
     this.reviewService.getProductReviews(this.productId).subscribe(({ product, reviews }) => {
       this.product = product;
       this.reviews = reviews;
-      this.isLoading = false;
+      this.loadingService.hide();
+      this.cdr.detectChanges();
+    }, () => {
+      this.loadingService.hide();
       this.cdr.detectChanges();
     });
   }
@@ -87,14 +91,17 @@ export class ProductReviews implements OnInit {
 
     const reviewId = this.deletingReviewId;
     this.isDeleting = true;
+    this.loadingService.show();
     this.reviewService.deleteReview(reviewId).subscribe(() => {
       this.reviews = this.reviews.filter(review => review.id !== reviewId);
       this.reviewService.clearProductCache();
       this.isDeleting = false;
+      this.loadingService.hide();
       this.cancelDeleteReview();
       this.cdr.detectChanges();
     }, () => {
       this.isDeleting = false;
+      this.loadingService.hide();
       this.cdr.detectChanges();
     });
   }

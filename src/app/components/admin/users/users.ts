@@ -24,15 +24,20 @@ export class Users implements OnInit {
   constructor(private usersService: UserService, private cdr: ChangeDetectorRef, private loadingService: LoadingService) {}
 
   ngOnInit() {
+    this.loadingService.show();
     // Fetch users from the backend API and assign to this.users
     this.usersService.getAllUsers().subscribe((response: any) => {
       console.log('Fetched response:', response);
       this.users = response.users; 
+      this.loadingService.hide();
       
       // Ensure change detection runs
       setTimeout(() => {
         this.cdr.detectChanges();
       }, 0);
+    }, () => {
+      this.loadingService.hide();
+      this.cdr.detectChanges();
     });
   }
 
@@ -48,6 +53,9 @@ export class Users implements OnInit {
       this.usersService.clearCache();
       this.loadingService.hide();
       this.cdr.detectChanges();
+    }, () => {
+      this.loadingService.hide();
+      this.cdr.detectChanges();
     });
   }
 
@@ -61,6 +69,9 @@ export class Users implements OnInit {
         return user;
       });
       this.usersService.clearCache();
+      this.loadingService.hide();
+      this.cdr.detectChanges();
+    }, () => {
       this.loadingService.hide();
       this.cdr.detectChanges();
     });

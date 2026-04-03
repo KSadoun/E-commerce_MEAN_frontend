@@ -55,6 +55,9 @@ export class Orders implements OnInit {
       this.orders = this.buildOrders(items);
       this.loadingService.hide();
       this.cdr.detectChanges();
+    }, () => {
+      this.loadingService.hide();
+      this.cdr.detectChanges();
     });
   }
 
@@ -91,6 +94,7 @@ export class Orders implements OnInit {
 
     const orderId = this.deliveryOrderId;
     this.isConfirmingDelivery = true;
+    this.loadingService.show();
     this.orderService.confirmCashOnDelivery(orderId).subscribe(() => {
       this.orders = this.orders.map(order =>
         order.orderId === orderId
@@ -99,10 +103,12 @@ export class Orders implements OnInit {
       );
       this.orderService.clearCache();
       this.isConfirmingDelivery = false;
+      this.loadingService.hide();
       this.cancelConfirmDelivery();
       this.cdr.detectChanges();
     }, () => {
       this.isConfirmingDelivery = false;
+      this.loadingService.hide();
       this.cdr.detectChanges();
     });
   }

@@ -5,6 +5,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { Product } from '../../../../models/product';
 import { Category } from '../../../../models/category';
 import { CategoryService } from '../../../../services/admin/categories';
+import { LoadingService } from '../../../../core/services/loading.service';
 
 @Component({
   selector: 'app-category-products',
@@ -15,14 +16,14 @@ import { CategoryService } from '../../../../services/admin/categories';
 export class CategoryProducts implements OnInit {
   categoryId: number | null = null;
   products: Product[] = [];
-  isLoading = false;
   category: Category | null = null;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private categoryService: CategoryService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private loadingService: LoadingService,
   ) {}
 
   ngOnInit() {
@@ -38,12 +39,12 @@ export class CategoryProducts implements OnInit {
   loadCategoryProducts(): void {
     if (!this.categoryId) return;
 
-    this.isLoading = true;
+    this.loadingService.show();
     this.categoryService.getCategoryProducts(this.categoryId).subscribe(
       (response: any) => {
         this.products = response.products;
         console.log(`Fetched ${this.products.length} products for category ${this.categoryId}`);
-        this.isLoading = false;
+        this.loadingService.hide();
 
         setTimeout(() => {
           this.cdr.detectChanges();
@@ -51,7 +52,8 @@ export class CategoryProducts implements OnInit {
       },
       (error) => {
         console.error('Error loading category products:', error);
-        this.isLoading = false;
+        this.loadingService.hide();
+        this.cdr.detectChanges();
       }
     );
   }
