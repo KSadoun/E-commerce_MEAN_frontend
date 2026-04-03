@@ -42,7 +42,30 @@ export class Products implements OnInit {
     });
   }
 
+  activateProduct(productId: number) {
+    this.productService.activateProduct(productId).subscribe(() => {
+      const product = this.products.find(p => p.id === productId);
+      if (product) {
+        product.isActive = true;
+      }
+      this.cdr.detectChanges();
+    });
+  }
+
+  deactivateProduct(productId: number) {
+    this.productService.deactivateProduct(productId).subscribe(() => {
+      const product = this.products.find(p => p.id === productId);
+      if (product) {
+        product.isActive = false;
+      }
+      this.cdr.detectChanges();
+    });
+  }
+
   deleteProduct(productId: number) {
+    if (!confirm('Are you sure you want to delete this product?')) {
+      return;
+    }
     this.isLoading = true;
     this.productService.deleteProduct(productId).subscribe(() => {
       this.products = this.products.filter(product => product.id !== productId);

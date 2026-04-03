@@ -5,7 +5,7 @@ import { Category } from '../../models/category';
 import { Product } from '../../models/product';
 
 // remove after setting the API
-import { SAMPLE_PRODUCTS } from '../../data/sample-products';
+// import { SAMPLE_PRODUCTS } from '../../data/sample-products';
 
 import { Observable, of } from 'rxjs';
 import { shareReplay } from 'rxjs/operators';
