@@ -4,7 +4,7 @@ import { BehaviorSubject, Observable, forkJoin, of } from 'rxjs';
 import { finalize, map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment.development';
 
-export type ProductStatus = 'Active' | 'Pending' | 'Rejected';
+export type ProductStatus = 'Active' | 'Inactive';
 
 export interface Category {
   id: number;
@@ -38,7 +38,6 @@ interface BackendProduct {
   price: number;
   stock: number;
   categoryId: number;
-  status?: 'pending' | 'active' | 'rejected';
   images?: string[];
   isActive?: boolean;
 }
@@ -52,10 +51,7 @@ interface SellerProductsResponse {
 }
 
 interface SellerProductResponse {
-  product?: BackendProduct;
-  data?: BackendProduct;
-  createdProduct?: BackendProduct;
-  updatedProduct?: BackendProduct;
+  product: BackendProduct;
 }
 
 @Injectable({
@@ -73,35 +69,6 @@ export class InventoryService {
 
   constructor(private readonly http: HttpClient) {}
 
-  private isBackendProduct(value: unknown): value is BackendProduct {
-    if (!value || typeof value !== 'object') {
-      return false;
-    }
-
-    const candidate = value as Partial<BackendProduct>;
-    return typeof candidate.id === 'number' && typeof candidate.categoryId === 'number';
-  }
-
-  private resolveProductResponse(
-    response: SellerProductResponse | BackendProduct | null | undefined,
-  ): BackendProduct | undefined {
-    if (!response) {
-      return undefined;
-    }
-
-    if (this.isBackendProduct(response)) {
-      return response;
-    }
-
-    const wrappedResponse: SellerProductResponse = response;
-    return (
-      wrappedResponse.product ??
-      wrappedResponse.data ??
-      wrappedResponse.createdProduct ??
-      wrappedResponse.updatedProduct
-    );
-  }
-
   private mapCategory(category: BackendCategory): Category {
     return {
       id: category.id,
@@ -113,14 +80,6 @@ export class InventoryService {
   private mapProduct(product: BackendProduct): SellerProduct {
     const category = this.categoriesSubject.value.find((entry) => entry.id === product.categoryId);
     const images = Array.isArray(product.images) ? product.images : [];
-    const normalizedStatus =
-      product.status === 'pending'
-        ? 'Pending'
-        : product.status === 'rejected'
-          ? 'Rejected'
-          : product.isActive === false
-            ? 'Rejected'
-            : 'Active';
 
     return {
       id: product.id,
@@ -132,7 +91,7 @@ export class InventoryService {
       price: Number(product.price),
       stock: Number(product.stock),
       description: product.description || '',
-      status: normalizedStatus,
+      status: product.isActive === false ? 'Inactive' : 'Active',
     };
   }
 
@@ -190,36 +149,12 @@ export class InventoryService {
       images: product.images.length > 0 ? product.images : product.image ? [product.image] : [],
     };
 
-    return this.http
-      .post<SellerProductResponse | BackendProduct>(`${this.apiUrl}/seller/me/products`, body)
-      .pipe(
-        map((response) => {
-          const backendProduct = this.resolveProductResponse(response);
-
-          if (backendProduct) {
-            return this.mapProduct(backendProduct);
-          }
-
-          // Fall back to the sent payload if backend returns no product object.
-          const fallback: BackendProduct = {
-            id: this.productsSubject.value.reduce((max, item) => Math.max(max, item.id), 0) + 1,
-            name: product.name,
-            description: product.description,
-            price: product.price,
-            stock: product.stock,
-            categoryId: product.categoryId,
-            images:
-              product.images.length > 0 ? product.images : product.image ? [product.image] : [],
-            status: 'pending',
-            isActive: false,
-          };
-
-          return this.mapProduct(fallback);
-        }),
-        tap((createdProduct) => {
-          this.productsSubject.next([createdProduct, ...this.productsSubject.value]);
-        }),
-      );
+    return this.http.post<SellerProductResponse>(`${this.apiUrl}/seller/me/products`, body).pipe(
+      map((response) => this.mapProduct(response.product)),
+      tap((createdProduct) => {
+        this.productsSubject.next([createdProduct, ...this.productsSubject.value]);
+      }),
+    );
   }
 
   updateProduct(product: SellerProduct): Observable<SellerProduct> {
@@ -229,35 +164,14 @@ export class InventoryService {
       price: product.price,
       stock: product.stock,
       categoryId: product.categoryId,
+      isActive: product.status === 'Active',
       images: product.images.length > 0 ? product.images : product.image ? [product.image] : [],
     };
 
     return this.http
-      .patch<
-        SellerProductResponse | BackendProduct
-      >(`${this.apiUrl}/seller/me/products/${product.id}`, body)
+      .patch<SellerProductResponse>(`${this.apiUrl}/seller/me/products/${product.id}`, body)
       .pipe(
-        map((response) => {
-          const backendProduct = this.resolveProductResponse(response);
-          return this.mapProduct(
-            backendProduct ?? {
-              id: product.id,
-              name: product.name,
-              description: product.description,
-              price: product.price,
-              stock: product.stock,
-              categoryId: product.categoryId,
-              images: product.images,
-              status:
-                product.status === 'Active'
-                  ? 'active'
-                  : product.status === 'Pending'
-                    ? 'pending'
-                    : 'rejected',
-              isActive: product.status === 'Active',
-            },
-          );
-        }),
+        map((response) => this.mapProduct(response.product)),
         tap((updatedProduct) => {
           const updatedList = this.productsSubject.value.map((item) =>
             item.id === updatedProduct.id ? updatedProduct : item,
@@ -284,27 +198,14 @@ export class InventoryService {
       return of(undefined);
     }
 
+    const nextIsActive = current.status !== 'Active';
+
     return this.http
-      .patch<
-        SellerProductResponse | BackendProduct
-      >(`${this.apiUrl}/seller/me/products/${productId}/status`, {})
+      .patch<SellerProductResponse>(`${this.apiUrl}/seller/me/products/${productId}/status`, {
+        isActive: nextIsActive,
+      })
       .pipe(
-        map((response) => {
-          const backendProduct = this.resolveProductResponse(response);
-          return this.mapProduct(
-            backendProduct ?? {
-              id: current.id,
-              name: current.name,
-              description: current.description,
-              price: current.price,
-              stock: current.stock,
-              categoryId: current.categoryId,
-              images: current.images,
-              status: 'pending',
-              isActive: false,
-            },
-          );
-        }),
+        map((response) => this.mapProduct(response.product)),
         tap((toggledProduct) => {
           const updatedList = this.productsSubject.value.map((item) =>
             item.id === toggledProduct.id ? toggledProduct : item,

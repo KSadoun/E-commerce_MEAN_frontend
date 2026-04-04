@@ -23,49 +23,6 @@
 
     <form #registerForm="ngForm" (ngSubmit)="onSubmit()" class="mt-7 space-y-4">
       <div>
-        <p class="mb-2 block text-sm font-medium text-stone-700">Account Type</p>
-        <div class="grid grid-cols-2 gap-2 rounded-xl border border-stone-300 bg-stone-50 p-1">
-          <label
-            class="cursor-pointer rounded-lg px-3 py-2 text-sm text-center transition"
-            [class.bg-white]="selectedRole === 'customer'"
-            [class.font-semibold]="selectedRole === 'customer'"
-            [class.text-stone-900]="selectedRole === 'customer'"
-            [class.text-stone-600]="selectedRole !== 'customer'"
-          >
-            <input
-              type="radio"
-              name="role"
-              value="customer"
-              [(ngModel)]="selectedRole"
-              class="sr-only"
-            />
-            Customer
-          </label>
-          <label
-            class="cursor-pointer rounded-lg px-3 py-2 text-sm text-center transition"
-            [class.bg-white]="selectedRole === 'seller'"
-            [class.font-semibold]="selectedRole === 'seller'"
-            [class.text-stone-900]="selectedRole === 'seller'"
-            [class.text-stone-600]="selectedRole !== 'seller'"
-          >
-            <input
-              type="radio"
-              name="role"
-              value="seller"
-              [(ngModel)]="selectedRole"
-              class="sr-only"
-            />
-            Seller
-          </label>
-        </div>
-        @if (selectedRole === 'seller') {
-          <p class="mt-2 text-xs text-amber-700">
-            Seller accounts require admin approval before they can sign in.
-          </p>
-        }
-      </div>
-
-      <div>
         <label for="name" class="mb-2 block text-sm font-medium text-stone-700">Name</label>
         <input
           type="text"

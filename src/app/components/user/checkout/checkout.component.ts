@@ -5,15 +5,11 @@ import { Router } from '@angular/router';
 import { CartService } from '../../../services/cart/cart.service';
 import { PaymentService } from '../../../services/payment/payment.service';
 import { CartItem } from '../../../models/cart';
-import { HomeHeader } from '../home/home-header';
-import { HomeFooter } from '../home/home-footer';
-import { COMPANY_DESCRIPTION, FOOTER_LINK_GROUPS, HOME_NAV_LINKS } from '../home/home.data';
-import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-checkout',
   standalone: true,
-  imports: [CommonModule, FormsModule, HomeHeader, HomeFooter],
+  imports: [CommonModule, FormsModule],
   templateUrl: './checkout.component.html',
   styleUrl: './checkout.component.css',
 })
@@ -40,21 +36,12 @@ export class CheckoutComponent implements OnInit {
 
   paymentMethod = 'card';
 
-  readonly navLinks = HOME_NAV_LINKS;
-  readonly footerLinks = FOOTER_LINK_GROUPS;
-  readonly companyDescription = COMPANY_DESCRIPTION;
-
   constructor(
     private cartService: CartService,
     private paymentService: PaymentService,
     private router: Router,
-    private cdr: ChangeDetectorRef,
-    private authService: AuthService,
+    private cdr: ChangeDetectorRef   
   ) {}
-
-  isAuthenticated(): boolean {
-    return this.authService.isAuthenticated();
-  }
 
   ngOnInit() {
     this.loadCart();
@@ -72,7 +59,7 @@ export class CheckoutComponent implements OnInit {
         this.total = res.total;
         this.currency = res.currency;
         this.loading = false;
-        this.cdr.detectChanges();
+        this.cdr.detectChanges();   
 
         if (res.items.length === 0) {
           this.router.navigate(['/cart']);
@@ -81,7 +68,7 @@ export class CheckoutComponent implements OnInit {
       error: () => {
         this.error = 'Failed to load cart';
         this.loading = false;
-        this.cdr.detectChanges();
+        this.cdr.detectChanges();    
       },
     });
   }

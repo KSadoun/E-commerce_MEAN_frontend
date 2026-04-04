@@ -31,24 +31,16 @@ export class ProductModal {
 
   private readonly formBuilder = inject(FormBuilder);
 
-  readonly existingImages = signal<string[]>([]);
-  readonly selectedImages = signal<string[]>([]);
+  readonly imagePreview = signal<string>('');
+  readonly selectedImage = signal<string | null>(null);
   readonly submitted = signal(false);
-  readonly previewImages = computed(() => {
-    const selected = this.selectedImages();
-    if (selected.length > 0) {
-      return selected;
-    }
-
-    return this.existingImages();
-  });
 
   readonly form = this.formBuilder.group({
     name: ['', [Validators.required, Validators.minLength(3)]],
     categoryId: [0, [Validators.required, Validators.min(1)]],
     price: [0, [Validators.required, Validators.min(1)]],
     stock: [0, [Validators.required, Validators.min(0)]],
-    description: ['', [Validators.required]],
+    description: ['', [Validators.required, Validators.minLength(10)]],
   });
 
   readonly changedFields = computed(() => {
@@ -65,7 +57,7 @@ export class ProductModal {
     if (Number(values.price) !== product.price) changed.add('price');
     if (Number(values.stock) !== product.stock) changed.add('stock');
     if (values.description !== product.description) changed.add('description');
-    if (this.selectedImages().length > 0) changed.add('image');
+    if (this.selectedImage()) changed.add('image');
 
     return changed;
   });
@@ -87,13 +79,7 @@ export class ProductModal {
           stock: product.stock,
           description: product.description,
         });
-        this.existingImages.set(
-          product.images && product.images.length > 0
-            ? product.images
-            : product.image
-              ? [product.image]
-              : [],
-        );
+        this.imagePreview.set(product.image);
       } else {
         this.form.reset({
           name: '',
@@ -102,30 +88,11 @@ export class ProductModal {
           stock: 0,
           description: '',
         });
-        this.existingImages.set([]);
+        this.imagePreview.set('');
       }
 
-      this.selectedImages.set([]);
+      this.selectedImage.set(null);
       this.submitted.set(false);
-    });
-
-    effect(() => {
-      // Categories may arrive after the modal opens; keep add mode category valid.
-      if (this.mode() !== 'add' || this.productData()) {
-        return;
-      }
-
-      const categories = this.categories();
-      if (!categories.length) {
-        return;
-      }
-
-      const currentCategoryId = Number(this.form.controls.categoryId.value ?? 0);
-      const hasCurrentCategory = categories.some((category) => category.id === currentCategoryId);
-
-      if (!hasCurrentCategory || currentCategoryId < 1) {
-        this.form.patchValue({ categoryId: categories[0].id });
-      }
     });
   }
 
@@ -137,34 +104,21 @@ export class ProductModal {
   }
 
   onFileSelected(event: Event): void {
-    const files = Array.from((event.target as HTMLInputElement).files || []);
-    if (!files.length) return;
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
 
     const validTypes = ['image/jpeg', 'image/png'];
-    const validFiles = files.filter((file) => validTypes.includes(file.type));
-    if (!validFiles.length) {
+    if (!validTypes.includes(file.type)) {
       return;
     }
 
-    const readPromises = validFiles.map(
-      (file) =>
-        new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onload = () => {
-            resolve(typeof reader.result === 'string' ? reader.result : '');
-          };
-          reader.readAsDataURL(file);
-        }),
-    );
-
-    Promise.all(readPromises).then((images) => {
-      const sanitized = images.filter((img) => Boolean(img));
-      if (!sanitized.length) {
-        return;
-      }
-
-      this.selectedImages.set(sanitized);
-    });
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = typeof reader.result === 'string' ? reader.result : '';
+      this.selectedImage.set(result);
+      this.imagePreview.set(result);
+    };
+    reader.readAsDataURL(file);
   }
 
   cancel(): void {
@@ -188,16 +142,11 @@ export class ProductModal {
 
     const values = this.form.getRawValue();
     const current = this.productData();
-    const selectedImages = this.selectedImages();
+    const selectedImage = this.selectedImage();
     const selectedCategoryId = Number(values.categoryId ?? 0);
     const selectedCategory = this.categories().find(
       (category) => category.id === selectedCategoryId,
     );
-
-    const images =
-      selectedImages.length > 0
-        ? selectedImages
-        : (current?.images ?? (current?.image ? [current.image] : []));
 
     const payload: SellerProduct = {
       id: current?.id ?? 0,
@@ -207,9 +156,11 @@ export class ProductModal {
       price: Number(values.price ?? 0),
       stock: Number(values.stock ?? 0),
       description: values.description ?? '',
-      image: images[0] || current?.image || '',
-      images,
-      status: current?.status ?? 'Pending',
+      image: selectedImage ?? current?.image ?? '',
+      images: selectedImage
+        ? [selectedImage]
+        : (current?.images ?? (current?.image ? [current.image] : [])),
+      status: current?.status ?? 'Active',
     };
 
     this.onSave.emit(payload);

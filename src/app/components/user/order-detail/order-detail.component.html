@@ -1,154 +1,122 @@
-<div class="min-h-screen bg-[#f7f3ee] text-stone-900">
-  <app-home-header [navLinks]="navLinks" [isAuthenticated]="isAuthenticated()" />
-
-  <main class="pt-24 pb-20 px-4 md:px-8 max-w-4xl mx-auto">
+<main class="pt-24 pb-20 px-4 md:px-8 max-w-4xl mx-auto">
     @if (loading) {
-      <div class="text-center py-20 text-gray-500">Loading order...</div>
+        <div class="text-center py-20 text-gray-500">Loading order...</div>
     }
 
     @if (error) {
-      <div class="text-center py-20">
-        <div class="bg-red-50 text-red-700 p-4 rounded-lg mb-6">{{ error }}</div>
-        <button
-          (click)="goBack()"
-          class="text-blue-700 font-medium hover:bg-blue-50 py-2 px-6 rounded-xl transition"
-        >
-          Back to Orders
-        </button>
-      </div>
+        <div class="text-center py-20">
+            <div class="bg-red-50 text-red-700 p-4 rounded-lg mb-6">{{ error }}</div>
+            <button (click)="goBack()" class="text-blue-700 font-medium hover:bg-blue-50 py-2 px-6 rounded-xl transition">
+                Back to Orders
+            </button>
+        </div>
     }
 
     @if (!loading && order) {
-      <div class="flex items-center gap-4 mb-8">
-        <button (click)="goBack()" class="text-gray-500 hover:text-gray-700 transition">
-          <span class="material-symbols-outlined">arrow_back</span>
-        </button>
-        <h1 class="text-3xl font-extrabold tracking-tight">Order #{{ order.id }}</h1>
-        <span
-          class="text-xs font-bold px-3 py-1 rounded-full"
-          [ngClass]="getStatusColor(order.status)"
-        >
-          {{ order.status | uppercase }}
-        </span>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div class="bg-white p-6 rounded-xl shadow-sm">
-          <h3 class="font-bold text-sm text-gray-500 uppercase mb-3">Order Info</h3>
-          <div class="space-y-2 text-sm">
-            <div class="flex justify-between">
-              <span class="text-gray-500">Date</span>
-              <span>{{ order.createdAt | date: 'medium' }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-500">Payment Method</span>
-              <span class="capitalize">{{ order.paymentMethod }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-500">Payment Status</span>
-              <span
-                class="font-bold"
-                [ngClass]="
-                  order.paymentStatus === 'paid'
-                    ? 'text-green-600'
-                    : order.paymentStatus === 'failed'
-                      ? 'text-red-600'
-                      : 'text-orange-600'
-                "
-              >
-                {{ order.paymentStatus | uppercase }}
-              </span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-500">Shipping Status</span>
-              <span class="capitalize">{{ order.shippingStatus }}</span>
-            </div>
-          </div>
+        <div class="flex items-center gap-4 mb-8">
+            <button (click)="goBack()" class="text-gray-500 hover:text-gray-700 transition">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </button>
+            <h1 class="text-3xl font-extrabold tracking-tight">Order #{{ order.id }}</h1>
+            <span class="text-xs font-bold px-3 py-1 rounded-full" [ngClass]="getStatusColor(order.status)">
+                {{ order.status | uppercase }}
+            </span>
         </div>
 
-        @if (order!.shippingAddress) {
-          <div class="bg-white p-6 rounded-xl shadow-sm">
-            <h3 class="font-bold text-sm text-gray-500 uppercase mb-3">Shipping Address</h3>
-            <div class="text-sm text-gray-700 space-y-1">
-              @if (order!.shippingAddress!.fullName) {
-                <p class="font-bold">{{ order!.shippingAddress!.fullName }}</p>
-              }
-              <p>{{ order!.shippingAddress!.street }}</p>
-              <p>
-                {{ order!.shippingAddress!.city }}, {{ order!.shippingAddress!.governorate }}
-                {{ order!.shippingAddress!.postalCode }}
-              </p>
-              <p>{{ order!.shippingAddress!.country }}</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow-sm">
+                <h3 class="font-bold text-sm text-gray-500 uppercase mb-3">Order Info</h3>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Date</span>
+                        <span>{{ order.createdAt | date:'medium' }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Payment Method</span>
+                        <span class="capitalize">{{ order.paymentMethod }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Payment Status</span>
+                        <span class="font-bold" [ngClass]="order.paymentStatus === 'paid' ? 'text-green-600' : order.paymentStatus === 'failed' ? 'text-red-600' : 'text-orange-600'">
+                            {{ order.paymentStatus | uppercase }}
+                        </span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Shipping Status</span>
+                        <span class="capitalize">{{ order.shippingStatus }}</span>
+                    </div>
+                </div>
             </div>
-          </div>
-        }
-      </div>
 
-      <div class="bg-white rounded-xl shadow-sm mb-8">
-        <div class="p-6 border-b border-gray-100">
-          <h3 class="font-bold text-sm text-gray-500 uppercase">
-            Items ({{ order.items.length }})
-          </h3>
-        </div>
-        @for (item of order.items; track item.productId) {
-          <div class="flex items-center gap-4 p-6 border-b border-gray-50">
-            <div class="w-14 h-14 bg-gray-100 rounded-lg flex items-center justify-center">
-              <span class="material-symbols-outlined text-2xl text-gray-400">inventory_2</span>
-            </div>
-            <div class="flex-1">
-              <h4 class="font-bold text-sm">{{ item.name }}</h4>
-              <p class="text-xs text-gray-500">
-                Qty: {{ item.quantity }} x {{ item.unitPrice }} {{ order.currency }}
-              </p>
-            </div>
-            <span class="font-bold text-blue-700">{{ item.lineTotal }} {{ order.currency }}</span>
-          </div>
-        }
-      </div>
-
-      <div class="bg-white p-6 rounded-xl shadow-sm mb-8 max-w-sm ml-auto">
-        <div class="space-y-2 text-sm">
-          <div class="flex justify-between">
-            <span class="text-gray-500">Subtotal</span>
-            <span>{{ order.subtotal }} {{ order.currency }}</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-gray-500">Discount</span>
-            <span>-{{ order.discount }} {{ order.currency }}</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-gray-500">Tax</span>
-            <span>{{ order.tax }} {{ order.currency }}</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-gray-500">Shipping</span>
-            <span>{{ order.shipping }} {{ order.currency }}</span>
-          </div>
-          <div class="flex justify-between text-lg font-extrabold pt-3 border-t border-gray-200">
-            <span>Total</span>
-            <span class="text-blue-700">{{ order.total }} {{ order.currency }}</span>
-          </div>
-        </div>
-      </div>
-
-      @if (canCancel()) {
-        <div class="flex justify-end">
-          <button
-            (click)="cancelOrder()"
-            [disabled]="cancelling"
-            class="bg-red-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-red-700 transition disabled:opacity-50 flex items-center gap-2"
-          >
-            @if (cancelling) {
-              <span>Cancelling...</span>
-            } @else {
-              <span class="material-symbols-outlined">close</span>
-              <span>Cancel Order</span>
+            @if (order!.shippingAddress) {
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <h3 class="font-bold text-sm text-gray-500 uppercase mb-3">Shipping Address</h3>
+                    <div class="text-sm text-gray-700 space-y-1">
+                        @if (order!.shippingAddress!.fullName) {
+                            <p class="font-bold">{{ order!.shippingAddress!.fullName }}</p>
+                        }
+                        <p>{{ order!.shippingAddress!.street }}</p>
+                        <p>{{ order!.shippingAddress!.city }}, {{ order!.shippingAddress!.governorate }} {{ order!.shippingAddress!.postalCode }}</p>
+                        <p>{{ order!.shippingAddress!.country }}</p>
+                    </div>
+                </div>
             }
-          </button>
         </div>
-      }
-    }
-  </main>
 
-  <app-home-footer [companyDescription]="companyDescription" [linkGroups]="footerLinks" />
-</div>
+        <div class="bg-white rounded-xl shadow-sm mb-8">
+            <div class="p-6 border-b border-gray-100">
+                <h3 class="font-bold text-sm text-gray-500 uppercase">Items ({{ order.items.length }})</h3>
+            </div>
+            @for (item of order.items; track item.productId) {
+                <div class="flex items-center gap-4 p-6 border-b border-gray-50">
+                    <div class="w-14 h-14 bg-gray-100 rounded-lg flex items-center justify-center">
+                        <span class="material-symbols-outlined text-2xl text-gray-400">inventory_2</span>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-sm">{{ item.name }}</h4>
+                        <p class="text-xs text-gray-500">Qty: {{ item.quantity }} x {{ item.unitPrice }} {{ order.currency }}</p>
+                    </div>
+                    <span class="font-bold text-blue-700">{{ item.lineTotal }} {{ order.currency }}</span>
+                </div>
+            }
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm mb-8 max-w-sm ml-auto">
+            <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                    <span class="text-gray-500">Subtotal</span>
+                    <span>{{ order.subtotal }} {{ order.currency }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-500">Discount</span>
+                    <span>-{{ order.discount }} {{ order.currency }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-500">Tax</span>
+                    <span>{{ order.tax }} {{ order.currency }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-500">Shipping</span>
+                    <span>{{ order.shipping }} {{ order.currency }}</span>
+                </div>
+                <div class="flex justify-between text-lg font-extrabold pt-3 border-t border-gray-200">
+                    <span>Total</span>
+                    <span class="text-blue-700">{{ order.total }} {{ order.currency }}</span>
+                </div>
+            </div>
+        </div>
+
+        @if (canCancel()) {
+            <div class="flex justify-end">
+                <button (click)="cancelOrder()" [disabled]="cancelling" class="bg-red-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-red-700 transition disabled:opacity-50 flex items-center gap-2">
+                    @if (cancelling) {
+                        <span>Cancelling...</span>
+                    } @else {
+                        <span class="material-symbols-outlined">close</span>
+                        <span>Cancel Order</span>
+                    }
+                </button>
+            </div>
+        }
+    }
+</main>

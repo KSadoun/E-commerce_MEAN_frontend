@@ -2,15 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PaymentService } from '../../../services/payment/payment.service';
-import { HomeHeader } from '../home/home-header';
-import { HomeFooter } from '../home/home-footer';
-import { COMPANY_DESCRIPTION, FOOTER_LINK_GROUPS, HOME_NAV_LINKS } from '../home/home.data';
-import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-payment-result',
   standalone: true,
-  imports: [CommonModule, HomeHeader, HomeFooter],
+  imports: [CommonModule],
   templateUrl: './payment-result.component.html',
   styleUrl: './payment-result.component.css',
 })
@@ -21,24 +17,16 @@ export class PaymentResultComponent implements OnInit {
   orderStatus = '';
   error = '';
 
-  readonly navLinks = HOME_NAV_LINKS;
-  readonly footerLinks = FOOTER_LINK_GROUPS;
-  readonly companyDescription = COMPANY_DESCRIPTION;
-
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private paymentService: PaymentService,
-    private authService: AuthService,
+    private paymentService: PaymentService
   ) {}
-
-  isAuthenticated(): boolean {
-    return this.authService.isAuthenticated();
-  }
 
   ngOnInit() {
     const params = this.route.snapshot.queryParams;
 
+   
     this.orderId = this.extractOrderId(params);
 
     if (this.orderId) {

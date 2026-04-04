@@ -15,7 +15,7 @@ export class UserRegister {
   phone: string = '';
   password: string = '';
   confirmPassword: string = '';
-  selectedRole: 'customer' | 'seller' = 'customer';
+  private readonly role: 'customer' = 'customer';
   isSubmitting = false;
   successMessage = '';
   errorMessage = '';
@@ -46,20 +46,19 @@ export class UserRegister {
       phone: this.phone,
       password: this.password,
       confirmPassword: this.confirmPassword,
-      role: this.selectedRole,
+      role: this.role,
     };
 
     this.authApi.registerUser(user).subscribe({
       next: (response: any) => {
         console.log('Registration successful:', response);
-        this.successMessage =
-          this.selectedRole === 'seller'
-            ? 'Account created. Verify your email, then wait for admin approval before login.'
-            : 'Account created. Please verify your email to continue.';
+        this.router.navigate(['/verify-email'], { queryParams: { email: this.email } });
+        if (response.token) {
+          localStorage.setItem('token', response.token);
+        }
+        this.successMessage = 'Verify Email Message Sent';
         this.isSubmitting = false;
-        this.router.navigate(['/verify-email'], {
-          queryParams: { email: this.email },
-        });
+        this.router.navigate(['/users/dashboard']);
       },
       error: (error: any) => {
         console.error('Registration failed:', error);
