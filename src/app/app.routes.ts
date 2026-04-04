@@ -20,6 +20,7 @@ import { Products } from './components/admin/products/product-list/products';
 import { Categories } from './components/admin/categories/categories';
 import { CategoryProducts } from './components/admin/categories/category-products/category-products';
 import { Orders } from './components/admin/orders/orders';
+import { ProductReviews } from './components/admin/products/product-reviews/product-reviews';
 
 // User
 import { UserDashboard } from './components/user/dashboard/dashboard';
@@ -77,6 +78,7 @@ export const routes: Routes = [
       { path: '', component: AdminDashboard },
       { path: 'users', component: Users },
       { path: 'products', component: Products },
+      { path: 'products/:id/reviews', component: ProductReviews },
       { path: 'orders', component: Orders },
       { path: 'categories', component: Categories },
       { path: 'categories/:categoryId/products', component: CategoryProducts },

@@ -5,6 +5,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { Product } from '../../../../models/product';
 import { Category } from '../../../../models/category';
 import { CategoryService } from '../../../../services/admin/categories';
+import { LoadingService } from '../../../../core/services/loading.service';
 
 @Component({
   selector: 'app-category-products',
@@ -15,14 +16,16 @@ import { CategoryService } from '../../../../services/admin/categories';
 export class CategoryProducts implements OnInit {
   categoryId: number | null = null;
   products: Product[] = [];
-  isLoading = false;
   category: Category | null = null;
+  page = 1;
+  readonly pageSize = 6;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private categoryService: CategoryService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private loadingService: LoadingService,
   ) {}
 
   ngOnInit() {
@@ -38,12 +41,13 @@ export class CategoryProducts implements OnInit {
   loadCategoryProducts(): void {
     if (!this.categoryId) return;
 
-    this.isLoading = true;
+    this.loadingService.show();
     this.categoryService.getCategoryProducts(this.categoryId).subscribe(
       (response: any) => {
         this.products = response.products;
+        this.page = 1;
         console.log(`Fetched ${this.products.length} products for category ${this.categoryId}`);
-        this.isLoading = false;
+        this.loadingService.hide();
 
         setTimeout(() => {
           this.cdr.detectChanges();
@@ -51,7 +55,8 @@ export class CategoryProducts implements OnInit {
       },
       (error) => {
         console.error('Error loading category products:', error);
-        this.isLoading = false;
+        this.loadingService.hide();
+        this.cdr.detectChanges();
       }
     );
   }
@@ -64,7 +69,45 @@ export class CategoryProducts implements OnInit {
     return this.products.filter(p => p.stock === 0).length;
   }
 
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.products.length / this.pageSize));
+  }
+
+  get paginatedProducts(): Product[] {
+    const start = (this.page - 1) * this.pageSize;
+    return this.products.slice(start, start + this.pageSize);
+  }
+
+  getPrimaryImage(product: Product): string {
+    return Array.isArray(product.image) && product.image.length > 0 ? product.image[0] : '';
+  }
+
+  getAverageRating(product: Product): number {
+    if (!product.reviews || product.reviews.length === 0) {
+      return 0;
+    }
+
+    const total = product.reviews.reduce((sum, review) => sum + review.rating, 0);
+    return total / product.reviews.length;
+  }
+
+  goToProductReviews(productId: number): void {
+    this.router.navigate(['/admin/products', productId, 'reviews']);
+  }
+
   goBack(): void {
     this.router.navigate(['/admin/categories']);
+  }
+
+  prevPage(): void {
+    if (this.page > 1) {
+      this.page--;
+    }
+  }
+
+  nextPage(): void {
+    if (this.page < this.totalPages) {
+      this.page++;
+    }
   }
 }
