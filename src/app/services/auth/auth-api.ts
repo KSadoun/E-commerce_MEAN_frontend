@@ -2,6 +2,15 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment.development';
 
+interface RegisterPayload {
+  name: string;
+  email: string;
+  phone?: string;
+  password: string;
+  confirmPassword: string;
+  role: 'customer' | 'seller' | 'admin';
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -17,20 +26,24 @@ export class AuthApi {
     return this.http.post(`${this.apiUrl}/auth/forgot-password`, { email });
   }
 
-  resetPassword(oldPassword: string, newPassword: string) {
-    return this.http.patch(
-      `${this.apiUrl}/auth/reset-password`,
-      { oldPassword, newPassword },
-      { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } },
-    );
+  resetPassword(token: string, password: string, confirmPassword: string) {
+    return this.http.put(`${this.apiUrl}/auth/reset-password`, {
+      token,
+      password,
+      confirmPassword,
+    });
   }
 
-  registerUser(user: any) {
+  registerUser(user: RegisterPayload) {
     return this.http.post(`${this.apiUrl}/auth/register`, user);
   }
 
-  registerSeller(seller: any) {
+  registerSeller(seller: RegisterPayload) {
     return this.http.post(`${this.apiUrl}/auth/register`, seller);
+  }
+
+  verifyEmail(email: string, code: string) {
+    return this.http.post(`${this.apiUrl}/auth/verify-email`, { email, code });
   }
 
   // Get current user role (from backend)

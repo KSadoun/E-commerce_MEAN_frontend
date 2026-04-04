@@ -30,7 +30,14 @@ export class SellerCustomers {
       }
 
       if (this.segment() === 'Recent') {
-        return searchMatch && customer.lastOrderDate >= '2026-03-29';
+        const lastOrder = new Date(customer.lastOrderDate);
+        if (Number.isNaN(lastOrder.getTime())) {
+          return false;
+        }
+
+        const now = new Date();
+        const diffDays = (now.getTime() - lastOrder.getTime()) / (1000 * 60 * 60 * 24);
+        return searchMatch && diffDays <= 7 && diffDays >= 0;
       }
 
       return searchMatch;

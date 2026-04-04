@@ -14,10 +14,12 @@ export type ProductLabel = 'Premium' | 'Limited Stock' | 'Staff Pick';
 
 export interface CatalogProduct {
   id: string;
+  backendId: number;     
   title: string;
   category: string;
   material: string;
   price: number;
+  stock: number;         
   imageUrl: string;
   label?: ProductLabel;
 }

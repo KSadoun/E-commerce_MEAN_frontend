@@ -11,6 +11,7 @@ export class InventoryFilters {
   readonly search = input('');
   readonly category = input('All');
   readonly status = input('All');
+  readonly categories = input<ReadonlyArray<string>>([]);
 
   readonly searchChange = output<string>();
   readonly categoryChange = output<string>();

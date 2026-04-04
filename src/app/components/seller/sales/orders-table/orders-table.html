@@ -37,6 +37,8 @@
                 [class.text-emerald-700]="order.status === 'Completed'"
                 [class.bg-blue-100]="order.status === 'Shipped'"
                 [class.text-blue-700]="order.status === 'Shipped'"
+                [class.bg-rose-100]="order.status === 'Cancelled'"
+                [class.text-rose-700]="order.status === 'Cancelled'"
                 >{{ order.status }}</span
               >
             </td>

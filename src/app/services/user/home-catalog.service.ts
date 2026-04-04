@@ -1,0 +1,162 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { environment } from '../../../environments/environment.development';
+import {
+  CatalogProduct,
+  ProductLabel,
+  RealmCategory,
+} from '../../components/user/home/home.models';
+
+interface CategoryApi {
+  id: number;
+  name: string;
+  itemCount?: number;
+}
+
+interface ProductApi {
+  id: number;
+  name: string;
+  price: number;
+  stock: number;
+  categoryName?: string;
+  images?: string[];
+  rating?: number | null;
+}
+
+interface CategoriesResponse {
+  categories: CategoryApi[];
+}
+
+interface TopProductsResponse {
+  products: ProductApi[];
+}
+
+interface CatalogProductsResponse {
+  products: ProductApi[];
+}
+
+@Injectable({
+  providedIn: 'root',
+})
+export class HomeCatalogService {
+  private readonly apiUrl = environment.apiUrl;
+
+  private readonly fallbackCategoryImages = [
+    'https://images.unsplash.com/photo-1615529328331-f8917597711f?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1517705008128-361805f42e86?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1616594039964-3cc4f0f3f3f8?auto=format&fit=crop&w=900&q=80',
+  ];
+
+  private readonly fallbackProductImages = [
+    'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1617104551722-3b2d5136641f?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1616486029423-aaa4789e8c9a?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1600210492493-0946911123ea?auto=format&fit=crop&w=900&q=80',
+  ];
+
+  constructor(private readonly http: HttpClient) {}
+
+  getCategories(limit = 4): Observable<RealmCategory[]> {
+    return this.http.get<CategoriesResponse>(`${this.apiUrl}/products/categories`).pipe(
+      map((response) =>
+        response.categories
+          .slice()
+          .sort((a, b) => (b.itemCount ?? 0) - (a.itemCount ?? 0))
+          .slice(0, limit)
+          .map((category, index) => ({
+            id: String(category.id),
+            name: category.name,
+            itemCount: category.itemCount ?? 0,
+            imageUrl:
+              this.fallbackCategoryImages[index % this.fallbackCategoryImages.length] ||
+              this.fallbackCategoryImages[0],
+          })),
+      ),
+    );
+  }
+
+  getAllCategories(): Observable<RealmCategory[]> {
+    return this.http.get<CategoriesResponse>(`${this.apiUrl}/products/categories`).pipe(
+      map((response) =>
+        response.categories
+          .slice()
+          .sort((a, b) => (b.itemCount ?? 0) - (a.itemCount ?? 0))
+          .map((category, index) => ({
+            id: String(category.id),
+            name: category.name,
+            itemCount: category.itemCount ?? 0,
+            imageUrl:
+              this.fallbackCategoryImages[index % this.fallbackCategoryImages.length] ||
+              this.fallbackCategoryImages[0],
+          })),
+      ),
+    );
+  }
+
+  getTopProducts(limit = 4): Observable<CatalogProduct[]> {
+    return this.http
+      .get<TopProductsResponse>(
+        `${this.apiUrl}/products/top?limit=${encodeURIComponent(String(limit))}`,
+      )
+      .pipe(
+        map((response) =>
+          response.products.map((product, index) => ({
+            id: String(product.id),
+            backendId: product.id,                   
+            title: product.name,
+            category: product.categoryName || 'Featured',
+            material: product.categoryName || 'Curated Selection',
+            price: Number(product.price),
+            stock: product.stock ?? 0,                
+            imageUrl:
+              product.images?.[0] ||
+              this.fallbackProductImages[index % this.fallbackProductImages.length] ||
+              this.fallbackProductImages[0],
+            label: this.resolveLabel(product),
+          })),
+        ),
+      );
+  }
+
+  getCatalogProducts(): Observable<CatalogProduct[]> {
+    return this.http
+      .get<CatalogProductsResponse>(`${this.apiUrl}/products?sort=name-asc&limit=100`)
+      .pipe(
+        map((response) =>
+          response.products.map((product, index) => {
+            const category = product.categoryName || 'General';
+            return {
+              id: String(product.id),
+              backendId: product.id,                  
+              title: product.name,
+              category,
+              material: category,
+              price: Number(product.price),
+              stock: product.stock ?? 0,              
+              imageUrl:
+                product.images?.[0] ||
+                this.fallbackProductImages[index % this.fallbackProductImages.length] ||
+                this.fallbackProductImages[0],
+              label: this.resolveLabel(product),
+            };
+          }),
+        ),
+      );
+  }
+
+  private resolveLabel(product: ProductApi): ProductLabel | undefined {
+    if (product.stock <= 5) {
+      return 'Limited Stock';
+    }
+    if ((product.rating ?? 0) >= 4.5) {
+      return 'Staff Pick';
+    }
+    if (product.price >= 1000) {
+      return 'Premium';
+    }
+    return undefined;
+  }
+}

@@ -4,6 +4,7 @@ import { Routes } from '@angular/router';
 import { Login } from './components/login/login';
 import { ForgotPassword } from './components/forgot-password/forgot-password';
 import { ResetPassword } from './components/reset-password/reset-password';
+import { VerifyEmail } from './components/verify-email/verify-email';
 
 // Guards
 import { AdminGuard } from './core/guards/admin.guard';
@@ -43,6 +44,7 @@ import { SellerInventory } from './components/seller/inventory/inventory';
 import { SellerSales } from './components/seller/sales/sales';
 import { SellerCustomers } from './components/seller/customers/customers';
 import { SellerRegister } from './components/seller/register/register';
+import { SellerProfile } from './components/seller/profile/profile';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -55,6 +57,7 @@ export const routes: Routes = [
   { path: 'login', component: Login },
   { path: 'forgot-password', component: ForgotPassword },
   { path: 'reset-password', component: ResetPassword },
+  { path: 'verify-email', component: VerifyEmail },
   { path: 'users/register', component: UserRegister },
   { path: 'seller/register', component: SellerRegister },
 
@@ -104,6 +107,7 @@ export const routes: Routes = [
       { path: 'inventory', component: SellerInventory },
       { path: 'sales', component: SellerSales },
       { path: 'customers', component: SellerCustomers },
+      { path: 'profile', component: SellerProfile },
     ],
   },
 

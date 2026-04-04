@@ -21,10 +21,9 @@
       class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
     >
       <option value="All">All Categories</option>
-      <option value="Electronics">Electronics</option>
-      <option value="Fashion">Fashion</option>
-      <option value="Home">Home</option>
-      <option value="Beauty">Beauty</option>
+      @for (item of categories(); track item) {
+        <option [value]="item">{{ item }}</option>
+      }
     </select>
 
     <select
