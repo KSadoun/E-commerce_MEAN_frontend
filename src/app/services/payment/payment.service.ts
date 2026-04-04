@@ -23,4 +23,8 @@ export class PaymentService {
   getPaymentStatus(orderId: number): Observable<PaymentStatus> {
     return this.http.get<PaymentStatus>(`${this.apiUrl}/status/${orderId}`);
   }
+
+  confirmWallet(orderId: number, walletPhone: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/wallet/confirm`, { orderId, walletPhone });
+  }
 }
