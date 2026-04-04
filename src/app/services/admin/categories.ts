@@ -10,31 +10,32 @@ import { Product } from '../../models/product';
 import { Observable, of } from 'rxjs';
 import { shareReplay } from 'rxjs/operators';
 
+
 @Injectable({
   providedIn: 'root',
 })
 export class CategoryService {
+
   private categoriesCache$: Observable<{ categories: Category[] }> | null = null;
 
   constructor(private http: HttpClient) {}
 
   getAllCategories(): Observable<{ categories: Category[] }> {
     if (!this.categoriesCache$) {
-      this.categoriesCache$ = this.http
-        .get<{ categories: Category[] }>(`${environment.apiUrl}/products/categories`)
+      this.categoriesCache$ = this.http.get<{ categories: Category[] }>(`${environment.apiUrl}/products/categories`)
         .pipe(shareReplay(1));
     }
-
+    
     return this.categoriesCache$;
   }
 
   getCategoryProducts(categoryId: number): Observable<{ products: Product[] }> {
     const headers = new HttpHeaders({
-      Authorization: `Bearer ${localStorage.getItem('token')}`,
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
     return this.http.get<{ products: Product[] }>(
-      `${environment.apiUrl}/products?categoryId=${categoryId}&includeInactive=true&limit=100`,
-      { headers },
+      `${environment.apiUrl}/products?categoryId=${categoryId}`,
+      { headers }
     );
     // const filteredProducts = SAMPLE_PRODUCTS.filter(p => p.categoryId === categoryId);
     // return of({ products: filteredProducts }).pipe(shareReplay(1));
@@ -42,23 +43,23 @@ export class CategoryService {
 
   restrictCategory(categoryId: number): Observable<void> {
     const headers = new HttpHeaders({
-      Authorization: `Bearer ${localStorage.getItem('token')}`,
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
     return this.http.patch<void>(
       `${environment.apiUrl}/admin/categories/${categoryId}/restrict`,
       {},
-      { headers },
+      { headers }
     );
   }
 
   unrestrictCategory(categoryId: number): Observable<void> {
     const headers = new HttpHeaders({
-      Authorization: `Bearer ${localStorage.getItem('token')}`,
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
     return this.http.patch<void>(
       `${environment.apiUrl}/admin/categories/${categoryId}/unrestrict`,
       {},
-      { headers },
+      { headers }
     );
   }
 

@@ -7,7 +7,15 @@ export interface PaymentIntentResponse {
     message: string;
     kashierOrderId: string;
     sessionUrl: string | null;
-    sessionData: any;
+    sessionData: {
+        sessionUrl?: string;
+        paymentUrl?: string;
+        response?: {
+            sessionUrl?: string;
+            url?: string;
+        };
+        [key: string]: any;
+    };
     order: any;
 }
 
