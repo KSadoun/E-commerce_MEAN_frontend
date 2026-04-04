@@ -16,12 +16,23 @@ import { DeleteConfirmModalComponent } from '../../../shared/components/delete-c
 export class Users implements OnInit {
 
   users: User[] = [];
+  page = 1;
+  readonly pageSize = 6;
   isDeleteModalOpen = false;
   deletingUserId: number | null = null;
   deletingUserName = '';
   isDeleting = false;
 
   constructor(private usersService: UserService, private cdr: ChangeDetectorRef, private loadingService: LoadingService) {}
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.users.length / this.pageSize));
+  }
+
+  get paginatedUsers(): User[] {
+    const start = (this.page - 1) * this.pageSize;
+    return this.users.slice(start, start + this.pageSize);
+  }
 
   ngOnInit() {
     this.loadingService.show();
@@ -101,6 +112,9 @@ export class Users implements OnInit {
     this.loadingService.show();
     this.usersService.deleteUser(userId).subscribe(() => {
       this.users = this.users.filter(user => user.id !== userId);
+      if (this.page > this.totalPages) {
+        this.page = this.totalPages;
+      }
       this.usersService.clearCache();
       this.cancelDeleteUser();
       this.isDeleting = false;
@@ -111,6 +125,18 @@ export class Users implements OnInit {
       this.loadingService.hide();
       this.cdr.detectChanges();
     });
+  }
+
+  prevPage() {
+    if (this.page > 1) {
+      this.page--;
+    }
+  }
+
+  nextPage() {
+    if (this.page < this.totalPages) {
+      this.page++;
+    }
   }
 }
 

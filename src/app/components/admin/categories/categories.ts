@@ -17,6 +17,8 @@ import { LoadingService } from '../../../core/services/loading.service';
 export class Categories implements OnInit {
   categories: Category[] = [];
   searchTerm: string = '';
+  page = 1;
+  readonly pageSize = 6;
   isDeleteModalOpen = false;
   deletingCategoryId: number | null = null;
   deletingCategoryName = '';
@@ -37,6 +39,15 @@ export class Categories implements OnInit {
       category.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
       category.description.toLowerCase().includes(this.searchTerm.toLowerCase())
     );
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredCategories.length / this.pageSize));
+  }
+
+  get paginatedCategories(): Category[] {
+    const start = (this.page - 1) * this.pageSize;
+    return this.filteredCategories.slice(start, start + this.pageSize);
   }
 
   ngOnInit() {
@@ -121,6 +132,9 @@ export class Categories implements OnInit {
     this.loadingService.show();
     this.categoryService.deleteCategory(categoryId).subscribe(() => {
       this.categories = this.categories.filter(category => category.id !== categoryId);
+      if (this.page > this.totalPages) {
+        this.page = this.totalPages;
+      }
       this.categoryService.clearCache();
       this.isDeleting = false;
       this.loadingService.hide();
@@ -131,5 +145,21 @@ export class Categories implements OnInit {
       this.loadingService.hide();
       this.cdr.detectChanges();
     });
+  }
+
+  onSearchChange(): void {
+    this.page = 1;
+  }
+
+  prevPage(): void {
+    if (this.page > 1) {
+      this.page--;
+    }
+  }
+
+  nextPage(): void {
+    if (this.page < this.totalPages) {
+      this.page++;
+    }
   }
 }

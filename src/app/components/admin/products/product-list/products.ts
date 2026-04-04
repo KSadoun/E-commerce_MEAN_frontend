@@ -19,6 +19,8 @@ export class Products implements OnInit {
   products: Product[] = [];
   isDeleting = false;
   selectedCategory: string = '';
+  page = 1;
+  readonly pageSize = 6;
   isDeleteModalOpen = false;
   deletingProductId: number | null = null;
   deletingProductName = '';
@@ -40,6 +42,15 @@ export class Products implements OnInit {
       return this.products;
     }
     return this.products.filter(product => product.categoryId.toString() === this.selectedCategory);
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredProducts.length / this.pageSize));
+  }
+
+  get paginatedProducts(): Product[] {
+    const start = (this.page - 1) * this.pageSize;
+    return this.filteredProducts.slice(start, start + this.pageSize);
   }
 
   getPrimaryImage(product: Product): string {
@@ -125,6 +136,9 @@ export class Products implements OnInit {
     this.loadingService.show();
     this.productService.deleteProduct(productId).subscribe(() => {
       this.products = this.products.filter(product => product.id !== productId);
+      if (this.page > this.totalPages) {
+        this.page = this.totalPages;
+      }
       this.productService.clearCache();
       this.isDeleting = false;
       this.loadingService.hide();
@@ -141,5 +155,21 @@ export class Products implements OnInit {
 
   goToProductReviews(productId: number) {
     this.router.navigate(['/admin/products', productId, 'reviews']);
+  }
+
+  onCategoryChange() {
+    this.page = 1;
+  }
+
+  prevPage() {
+    if (this.page > 1) {
+      this.page--;
+    }
+  }
+
+  nextPage() {
+    if (this.page < this.totalPages) {
+      this.page++;
+    }
   }
 }

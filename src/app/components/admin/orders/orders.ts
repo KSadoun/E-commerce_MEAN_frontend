@@ -28,6 +28,8 @@ export class Orders implements OnInit {
   orderItems: OrderItem[] = [];
   orders: AdminOrderRow[] = [];
   selectedSeller: string = '';
+  page = 1;
+  readonly pageSize = 6;
   expandedOrderIds = new Set<number>();
   isConfirmingDelivery = false;
   isDeliveryModalOpen = false;
@@ -48,11 +50,27 @@ export class Orders implements OnInit {
     return this.orders.filter(order => order.sellerIds.some(sellerId => sellerId.toString() === this.selectedSeller));
   }
 
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredOrders.length / this.pageSize));
+  }
+
+  get paginatedOrders(): AdminOrderRow[] {
+    const start = (this.page - 1) * this.pageSize;
+    return this.filteredOrders.slice(start, start + this.pageSize);
+  }
+
   ngOnInit() {
+    this.loadOrders();
+  }
+
+  private loadOrders() {
     this.loadingService.show();
     this.orderService.getAllOrderItems().subscribe((items: OrderItem[]) => {
       this.orderItems = items;
       this.orders = this.buildOrders(items);
+      if (this.page > this.totalPages) {
+        this.page = this.totalPages;
+      }
       this.loadingService.hide();
       this.cdr.detectChanges();
     }, () => {
@@ -96,16 +114,22 @@ export class Orders implements OnInit {
     this.isConfirmingDelivery = true;
     this.loadingService.show();
     this.orderService.confirmCashOnDelivery(orderId).subscribe(() => {
-      this.orders = this.orders.map(order =>
-        order.orderId === orderId
-          ? { ...order, status: 'delivered', paymentStatus: 'paid' }
-          : order
-      );
       this.orderService.clearCache();
-      this.isConfirmingDelivery = false;
-      this.loadingService.hide();
-      this.cancelConfirmDelivery();
-      this.cdr.detectChanges();
+      this.orderService.getAllOrderItems().subscribe((items: OrderItem[]) => {
+        this.orderItems = items;
+        this.orders = this.buildOrders(items);
+        if (this.page > this.totalPages) {
+          this.page = this.totalPages;
+        }
+        this.isConfirmingDelivery = false;
+        this.loadingService.hide();
+        this.cancelConfirmDelivery();
+        this.cdr.detectChanges();
+      }, () => {
+        this.isConfirmingDelivery = false;
+        this.loadingService.hide();
+        this.cdr.detectChanges();
+      });
     }, () => {
       this.isConfirmingDelivery = false;
       this.loadingService.hide();
@@ -165,6 +189,25 @@ export class Orders implements OnInit {
         return `${baseClass} bg-red-100/80 text-red-700 dark:bg-red-900/30 dark:text-red-300`;
       default:
         return `${baseClass} bg-slate-100/80 text-slate-700 dark:bg-slate-800 dark:text-slate-300`;
+    }
+  }
+
+  onSellerChange() {
+    this.page = 1;
+    this.expandedOrderIds.clear();
+  }
+
+  prevPage() {
+    if (this.page > 1) {
+      this.page--;
+      this.expandedOrderIds.clear();
+    }
+  }
+
+  nextPage() {
+    if (this.page < this.totalPages) {
+      this.page++;
+      this.expandedOrderIds.clear();
     }
   }
 }

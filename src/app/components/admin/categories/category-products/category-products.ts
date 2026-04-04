@@ -17,6 +17,8 @@ export class CategoryProducts implements OnInit {
   categoryId: number | null = null;
   products: Product[] = [];
   category: Category | null = null;
+  page = 1;
+  readonly pageSize = 6;
 
   constructor(
     private route: ActivatedRoute,
@@ -43,6 +45,7 @@ export class CategoryProducts implements OnInit {
     this.categoryService.getCategoryProducts(this.categoryId).subscribe(
       (response: any) => {
         this.products = response.products;
+        this.page = 1;
         console.log(`Fetched ${this.products.length} products for category ${this.categoryId}`);
         this.loadingService.hide();
 
@@ -66,6 +69,15 @@ export class CategoryProducts implements OnInit {
     return this.products.filter(p => p.stock === 0).length;
   }
 
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.products.length / this.pageSize));
+  }
+
+  get paginatedProducts(): Product[] {
+    const start = (this.page - 1) * this.pageSize;
+    return this.products.slice(start, start + this.pageSize);
+  }
+
   getPrimaryImage(product: Product): string {
     return Array.isArray(product.image) && product.image.length > 0 ? product.image[0] : '';
   }
@@ -85,5 +97,17 @@ export class CategoryProducts implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/admin/categories']);
+  }
+
+  prevPage(): void {
+    if (this.page > 1) {
+      this.page--;
+    }
+  }
+
+  nextPage(): void {
+    if (this.page < this.totalPages) {
+      this.page++;
+    }
   }
 }

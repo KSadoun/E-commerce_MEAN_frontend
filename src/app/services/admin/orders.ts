@@ -39,7 +39,9 @@ export class OrderService {
   }
 
   confirmCashOnDelivery(orderId: number): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/admin/orders/${orderId}/shipping`, {});
+    return this.http.patch(`${this.apiUrl}/admin/orders/${orderId}/shipping`, {
+      shippingStatus: 'delivered'
+    });
   }
 
   clearCache(): void {
