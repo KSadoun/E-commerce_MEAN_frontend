@@ -25,10 +25,11 @@ export class ReviewService {
     return this.productService.getAllProducts().pipe(
       map(({ products }) => {
         const product = products.find((item) => item.id === productId) ?? null;
+        const productWithReviews = product as (Product & { reviews?: Review[] }) | null;
 
         return {
           product,
-          reviews: product?.reviews ?? [],
+          reviews: productWithReviews?.reviews ?? [],
         };
       }),
     );

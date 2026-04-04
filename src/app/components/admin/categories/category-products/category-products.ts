@@ -20,6 +20,10 @@ export class CategoryProducts implements OnInit {
   page = 1;
   readonly pageSize = 6;
 
+  get isLoading(): boolean {
+    return this.loadingService.isLoading();
+  }
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -57,16 +61,16 @@ export class CategoryProducts implements OnInit {
         console.error('Error loading category products:', error);
         this.loadingService.hide();
         this.cdr.detectChanges();
-      }
+      },
     );
   }
 
   get inStockCount(): number {
-    return this.products.filter(p => p.stock > 0).length;
+    return this.products.filter((p) => p.stock > 0).length;
   }
 
   get outOfStockCount(): number {
-    return this.products.filter(p => p.stock === 0).length;
+    return this.products.filter((p) => p.stock === 0).length;
   }
 
   get totalPages(): number {
@@ -80,15 +84,6 @@ export class CategoryProducts implements OnInit {
 
   getPrimaryImage(product: Product): string {
     return Array.isArray(product.image) && product.image.length > 0 ? product.image[0] : '';
-  }
-
-  getAverageRating(product: Product): number {
-    if (!product.reviews || product.reviews.length === 0) {
-      return 0;
-    }
-
-    const total = product.reviews.reduce((sum, review) => sum + review.rating, 0);
-    return total / product.reviews.length;
   }
 
   goToProductReviews(productId: number): void {
