@@ -5,10 +5,11 @@ import { Product } from '../../../../models/product';
 import { Review } from '../../../../models/review';
 import { ReviewService } from '../../../../services/admin/reviews';
 import { LoadingService } from '../../../../core/services/loading.service';
+import { DeleteConfirmModalComponent } from '../../../../shared/components/delete-confirm-modal/delete-confirm-modal';
 
 @Component({
   selector: 'app-product-reviews',
-  imports: [CommonModule],
+  imports: [CommonModule, DeleteConfirmModalComponent],
   templateUrl: './product-reviews.html',
   styleUrl: './product-reviews.css',
 })

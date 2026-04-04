@@ -63,7 +63,7 @@
               <td class="px-3 py-4 text-sm">
                 <button
                   type="button"
-                  (click)="confirmDeleteReview(review)"
+                  (click)="promptDeleteReview(review)"
                   class="rounded-lg bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-700 transition-all hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50"
                 >
                   <span class="material-symbols-outlined text-[14px] inline mr-1">delete</span>
@@ -102,5 +102,17 @@
       Next
     </button>
   </div>
+
+  <app-delete-confirm-modal
+    [isOpen]="isDeleteModalOpen"
+    title="Delete Review"
+    [itemName]="deletingReviewName"
+    prompt="Delete this review?"
+    warningText="This action cannot be undone."
+    confirmText="Delete Review"
+    [loading]="isDeleting"
+    (cancel)="cancelDeleteReview()"
+    (confirm)="deleteReview()"
+  ></app-delete-confirm-modal>
 
 </div>
