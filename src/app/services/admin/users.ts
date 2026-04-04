@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment.development';
-import { User } from '../../models/user';
+import { User, PaymentMethod } from '../../models/user';
 import { Observable } from 'rxjs';
 import { shareReplay } from 'rxjs/operators';
 
@@ -27,7 +27,7 @@ export class UserService {
     name?: string;
     address?: string;
     phone?: string;
-    paymentDetails?: { type: string; last4: string }[];
+    paymentDetails?: PaymentMethod[];
   }) {
     return this.http.patch<User>(`${this.apiUrl}/users/me`, data);
   }
