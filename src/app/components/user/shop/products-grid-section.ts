@@ -8,14 +8,15 @@ import {
   signal,
   untracked
 } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { CatalogProduct } from '../home/home.models';
 import { CartService } from '../../../services/cart/cart.service';
 
 @Component({
   selector: 'app-products-grid-section',
   standalone: true,
-  imports: [DecimalPipe],
+  imports: [DecimalPipe, RouterLink, CommonModule],
   templateUrl: './products-grid-section.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -33,6 +34,7 @@ export class ProductsGridSection {
 
   readonly addingToCart = signal<Record<string, boolean>>({});
   readonly cartMessage = signal('');
+  readonly sortBy = signal<string>('featured');
 
   // 1. حساب أقل وأعلى سعر (للفلتر)
   readonly lowestPrice = computed(() => {
@@ -54,8 +56,21 @@ export class ProductsGridSection {
       return matchesPrice && matchesMaterial;
     }),
   );
+// 3. مصفوفة المنتجات بعد الفلترة والترتيب (قبل التقطيع لصفحات)
+readonly sortedProducts = computed(() => {
+  const items = [...this.filteredProducts()]; // ناخد نسخة عشان م نعدلش في الأصل
+  const option = this.sortBy();
 
-  // 3. تقسيم المنتجات لصفحات (Pagination Logic)
+  switch (option) {
+    case 'price-asc': return items.sort((a, b) => a.price - b.price);
+    case 'price-desc': return items.sort((a, b) => b.price - a.price);
+    case 'name-asc': return items.sort((a, b) => a.title.localeCompare(b.title));
+    case 'name-desc': return items.sort((a, b) => b.title.localeCompare(a.title));
+    default: return items; // Featured أو الأحدث (حسب ترتيب الـ API)
+  }
+});
+
+  // 4. تقسيم المنتجات لصفحات (Pagination Logic)
   readonly totalPages = computed(() => 
     Math.ceil(this.filteredProducts().length / this.itemsPerPage())
   );
@@ -63,7 +78,7 @@ export class ProductsGridSection {
   readonly visibleProducts = computed(() => {
     const startIndex = (this.currentPage() - 1) * this.itemsPerPage();
     const endIndex = startIndex + this.itemsPerPage();
-    return this.filteredProducts().slice(startIndex, endIndex);
+    return this.sortedProducts().slice(startIndex, endIndex);
   });
 
   constructor() {
@@ -100,6 +115,12 @@ export class ProductsGridSection {
       else next.delete(material);
       return next;
     });
+  }
+
+  onSortChange(event: Event): void {
+    const value = (event.target as HTMLSelectElement).value;
+    this.sortBy.set(value);
+    this.currentPage.set(1); // نرجع للصفحة الأولى لما الترتيب يتغير
   }
 
   addToCart(product: CatalogProduct, event: Event): void {
