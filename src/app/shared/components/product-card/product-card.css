@@ -1,0 +1,11 @@
+:host {
+  display: block;
+}
+
+.wishlist-icon {
+  font-variation-settings: 'FILL' 0;
+}
+
+.wishlist-icon.is-favorited {
+  font-variation-settings: 'FILL' 1;
+}

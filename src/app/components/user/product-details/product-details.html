@@ -1,0 +1,454 @@
+<div class="min-h-screen bg-[#f7f3ee] text-stone-900">
+  <app-home-header [navLinks]="navLinks" [isAuthenticated]="isAuthenticated()" />
+
+  <main class="mx-auto max-w-7xl px-4 py-8 md:px-6 lg:px-8 lg:py-12">
+    <a
+      routerLink="/shop"
+      class="inline-flex items-center gap-2 rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500 hover:text-stone-900"
+    >
+      <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+      Back to shop
+    </a>
+
+    @if (loading()) {
+      <section class="flex min-h-[50vh] items-center justify-center">
+        <div
+          class="h-10 w-10 animate-spin rounded-full border-4 border-stone-300 border-t-stone-700"
+        ></div>
+      </section>
+    } @else if (errorMessage()) {
+      <section class="mt-6 rounded-2xl border border-rose-200 bg-rose-50 p-6 text-rose-700">
+        <p class="text-sm font-medium">{{ errorMessage() }}</p>
+      </section>
+    } @else if (product(); as item) {
+      <section class="mt-6 grid gap-8 lg:grid-cols-[1.1fr_1fr]">
+        <div class="space-y-4 rounded-3xl border border-stone-200 bg-white p-4 shadow-sm md:p-6">
+          <div class="relative overflow-hidden rounded-2xl bg-stone-100">
+            <img
+              [src]="activeImage()"
+              [alt]="item.title"
+              class="h-[22rem] w-full object-cover md:h-[30rem]"
+            />
+
+            @if (hasMultipleImages()) {
+              <button
+                type="button"
+                (click)="prevImage()"
+                class="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 text-stone-700 shadow transition hover:bg-white"
+                aria-label="Previous image"
+              >
+                <span class="material-symbols-outlined text-[20px]">chevron_left</span>
+              </button>
+              <button
+                type="button"
+                (click)="nextImage()"
+                class="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 text-stone-700 shadow transition hover:bg-white"
+                aria-label="Next image"
+              >
+                <span class="material-symbols-outlined text-[20px]">chevron_right</span>
+              </button>
+            }
+          </div>
+
+          @if (item.images.length > 1) {
+            <div class="grid grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-6">
+              @for (image of item.images; track image; let i = $index) {
+                <button
+                  type="button"
+                  (click)="selectImage(i)"
+                  class="overflow-hidden rounded-xl border-2 transition"
+                  [class.border-stone-900]="i === activeImageIndex()"
+                  [class.border-stone-200]="i !== activeImageIndex()"
+                >
+                  <img
+                    [src]="image"
+                    [alt]="item.title + ' thumbnail ' + (i + 1)"
+                    class="h-16 w-full object-cover"
+                  />
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="space-y-5 rounded-3xl border border-stone-200 bg-white p-6 shadow-sm md:p-8">
+          <div class="space-y-3">
+            <span
+              class="inline-flex rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-stone-700"
+            >
+              {{ item.category }}
+            </span>
+            <h1 class="text-3xl font-semibold text-stone-900 md:text-4xl">{{ item.title }}</h1>
+            <p class="text-3xl font-bold text-stone-900">
+              {{ item.currency }} {{ item.price | number: '1.2-2' }}
+            </p>
+            <div class="flex items-center gap-2 text-amber-500">
+              @for (star of reviewStars; track star) {
+                <span
+                  class="material-symbols-outlined text-[20px]"
+                  [class.text-stone-300]="star > (item.rating || 0)"
+                >
+                  star
+                </span>
+              }
+              <span class="text-sm font-medium text-stone-600">
+                @if (item.reviewCount > 0) {
+                  {{ item.rating || 0 | number: '1.1-1' }} ({{ item.reviewCount }} review{{
+                    item.reviewCount === 1 ? '' : 's'
+                  }})
+                } @else {
+                  No ratings yet
+                }
+              </span>
+            </div>
+          </div>
+
+          <div class="rounded-2xl border border-stone-200 bg-stone-50 p-4 text-sm text-stone-700">
+            <p class="font-semibold text-stone-900">Description</p>
+            <p class="mt-2 leading-relaxed">{{ item.description }}</p>
+          </div>
+
+          <div class="grid gap-3 text-sm text-stone-700 sm:grid-cols-2">
+            <div class="rounded-xl border border-stone-200 p-3">
+              <p class="text-xs uppercase tracking-wide text-stone-500">Stock</p>
+              <p class="mt-1 font-semibold" [class.text-rose-700]="item.stock <= 0">
+                {{ item.stock > 0 ? item.stock + ' available' : 'Out of stock' }}
+              </p>
+            </div>
+            <div class="rounded-xl border border-stone-200 p-3">
+              <p class="text-xs uppercase tracking-wide text-stone-500">Status</p>
+              <p class="mt-1 font-semibold capitalize">{{ item.status }}</p>
+            </div>
+          </div>
+
+          @if (item.seller) {
+            <div class="rounded-2xl border border-stone-200 p-4">
+              <p class="text-xs uppercase tracking-wide text-stone-500">Seller</p>
+              <p class="mt-1 text-base font-semibold text-stone-900">
+                {{ item.seller.storeName || item.seller.name }}
+              </p>
+              <p class="mt-1 text-sm text-stone-600">
+                {{ item.seller.email || 'Seller email unavailable' }}
+              </p>
+            </div>
+          }
+
+          <div class="rounded-2xl border border-stone-200 bg-stone-50 p-4">
+            <p class="text-xs uppercase tracking-wide text-stone-500">Quantity</p>
+            <div class="mt-2 flex items-center gap-3">
+              <div class="inline-flex items-center rounded-xl border border-stone-300 bg-white">
+                <button
+                  type="button"
+                  (click)="decreaseQuantity()"
+                  [disabled]="selectedQuantity() <= 1 || item.stock <= 0"
+                  class="flex h-10 w-10 items-center justify-center text-stone-700 transition hover:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-50"
+                  aria-label="Decrease quantity"
+                >
+                  <span class="material-symbols-outlined text-[20px]">remove</span>
+                </button>
+                <span class="min-w-12 text-center text-sm font-semibold text-stone-900">
+                  {{ selectedQuantity() }}
+                </span>
+                <button
+                  type="button"
+                  (click)="increaseQuantity()"
+                  [disabled]="selectedQuantity() >= item.stock || item.stock <= 0"
+                  class="flex h-10 w-10 items-center justify-center text-stone-700 transition hover:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-50"
+                  aria-label="Increase quantity"
+                >
+                  <span class="material-symbols-outlined text-[20px]">add</span>
+                </button>
+              </div>
+              <p class="text-xs text-stone-500">Max: {{ item.stock }}</p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            (click)="addToCart()"
+            [disabled]="addingToCart() || item.stock <= 0"
+            class="w-full rounded-xl bg-stone-900 px-4 py-3 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            @if (addingToCart()) {
+              Adding...
+            } @else if (item.stock <= 0) {
+              Out of Stock
+            } @else {
+              Add {{ selectedQuantity() }} to Cart
+            }
+          </button>
+
+          @if (cartMessage()) {
+            <p class="rounded-xl bg-stone-900 px-4 py-2 text-sm font-medium text-white">
+              {{ cartMessage() }}
+            </p>
+          }
+        </div>
+      </section>
+
+      <section class="mt-10 space-y-6">
+        <div class="space-y-4 rounded-3xl border border-stone-200 bg-white p-6 shadow-sm md:p-8">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h2 class="text-2xl font-semibold text-stone-900">Customer Reviews</h2>
+            <span class="text-sm text-stone-500">{{ item.reviewCount }} total</span>
+          </div>
+
+          @if (item.reviews.length === 0) {
+            <p
+              class="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-600"
+            >
+              No reviews yet. Be the first to share your experience.
+            </p>
+          } @else {
+            <div class="space-y-3">
+              @for (review of item.reviews; track review.id) {
+                <article class="rounded-2xl border border-stone-200 bg-white p-4 md:p-5">
+                  <div class="flex items-start justify-between gap-4">
+                    <div class="min-w-0 flex-1 space-y-2">
+                      <div class="flex flex-wrap items-center gap-2">
+                        <p class="text-sm font-semibold text-stone-900">{{ review.userName }}</p>
+                        @if (review.createdAt) {
+                          <span class="text-xs text-stone-500">{{
+                            review.createdAt | date: 'mediumDate'
+                          }}</span>
+                        }
+                      </div>
+
+                      <div class="flex items-center gap-0.5 text-amber-500">
+                        @for (star of reviewStars; track star) {
+                          <span
+                            class="material-symbols-outlined text-[18px]"
+                            [class.text-stone-300]="star > review.rating"
+                          >
+                            star
+                          </span>
+                        }
+                      </div>
+
+                      @if (review.comment) {
+                        <p class="text-sm leading-relaxed text-stone-700">{{ review.comment }}</p>
+                      }
+                    </div>
+
+                    @if (myReviewIds().has(review.id)) {
+                      <div class="relative" (click)="$event.stopPropagation()">
+                        <button
+                          type="button"
+                          (click)="toggleReviewMenu(review.id, $event)"
+                          class="rounded-full p-2 text-stone-500 transition hover:bg-stone-100 hover:text-stone-800"
+                          aria-label="Review actions"
+                        >
+                          <span class="material-symbols-outlined text-[20px]">more_vert</span>
+                        </button>
+
+                        @if (openReviewMenuId() === review.id) {
+                          <div
+                            class="absolute right-0 top-10 z-10 min-w-36 rounded-xl border border-stone-200 bg-white p-1 shadow-lg"
+                          >
+                            <button
+                              type="button"
+                              (click)="openEditReviewModal(review, $event)"
+                              class="w-full rounded-lg px-3 py-2 text-left text-sm text-stone-700 transition hover:bg-stone-100"
+                            >
+                              Edit review
+                            </button>
+                            <button
+                              type="button"
+                              (click)="openDeleteReviewModal(review, $event)"
+                              class="w-full rounded-lg px-3 py-2 text-left text-sm text-rose-700 transition hover:bg-rose-50"
+                            >
+                              Delete review
+                            </button>
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                </article>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="space-y-4 rounded-3xl border border-stone-200 bg-white p-6 shadow-sm md:p-8">
+          <h3 class="text-xl font-semibold text-stone-900">Write a Review</h3>
+
+          @if (!isAuthenticated()) {
+            <p
+              class="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-600"
+            >
+              Please
+              <a routerLink="/login" class="font-semibold underline underline-offset-2">log in</a>
+              to submit a review.
+            </p>
+          } @else if (myReview()) {
+            <p
+              class="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-600"
+            >
+              You already reviewed this product. Use the 3-dots menu on your review to update or
+              delete it.
+            </p>
+          } @else {
+            <div class="space-y-3">
+              <p class="text-sm font-medium text-stone-700">Your Rating</p>
+              <div class="flex items-center gap-1">
+                @for (star of reviewStars; track star) {
+                  <button
+                    type="button"
+                    (click)="setReviewRating(star)"
+                    class="rounded-full p-1 text-amber-500 transition hover:bg-amber-50"
+                    [attr.aria-label]="'Rate ' + star + ' stars'"
+                  >
+                    <span
+                      class="material-symbols-outlined text-[24px]"
+                      [class.text-stone-300]="star > reviewRating()"
+                    >
+                      star
+                    </span>
+                  </button>
+                }
+              </div>
+            </div>
+
+            <label class="block text-sm font-medium text-stone-700">
+              Comment
+              <textarea
+                [ngModel]="reviewComment()"
+                (ngModelChange)="reviewComment.set($event)"
+                rows="4"
+                maxlength="2000"
+                class="mt-2 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-500 focus:ring-2 focus:ring-stone-300"
+                placeholder="Share your experience with this product"
+              ></textarea>
+            </label>
+
+            <button
+              type="button"
+              (click)="submitReview()"
+              [disabled]="reviewSubmitting()"
+              class="rounded-xl bg-stone-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {{ reviewSubmitting() ? 'Submitting...' : 'Submit Review' }}
+            </button>
+          }
+
+          @if (reviewError()) {
+            <p class="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+              {{ reviewError() }}
+            </p>
+          }
+
+          @if (reviewMessage()) {
+            <p
+              class="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700"
+            >
+              {{ reviewMessage() }}
+            </p>
+          }
+        </div>
+      </section>
+
+      @if (editModalOpen()) {
+        <div
+          class="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4"
+          (click)="closeReviewEditModal()"
+        >
+          <section
+            class="w-full max-w-lg space-y-4 rounded-2xl bg-white p-6 shadow-2xl"
+            (click)="$event.stopPropagation()"
+          >
+            <h3 class="text-lg font-semibold text-stone-900">Update your review</h3>
+
+            <div class="space-y-2">
+              <p class="text-sm font-medium text-stone-700">Rating</p>
+              <div class="flex items-center gap-1">
+                @for (star of reviewStars; track star) {
+                  <button
+                    type="button"
+                    (click)="editReviewRating.set(star)"
+                    class="rounded-full p-1 text-amber-500 transition hover:bg-amber-50"
+                    [attr.aria-label]="'Set rating to ' + star"
+                  >
+                    <span
+                      class="material-symbols-outlined text-[24px]"
+                      [class.text-stone-300]="star > editReviewRating()"
+                    >
+                      star
+                    </span>
+                  </button>
+                }
+              </div>
+            </div>
+
+            <label class="block text-sm font-medium text-stone-700">
+              Comment
+              <textarea
+                [ngModel]="editReviewComment()"
+                (ngModelChange)="editReviewComment.set($event)"
+                rows="4"
+                maxlength="2000"
+                class="mt-2 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-500 focus:ring-2 focus:ring-stone-300"
+                placeholder="Update your experience"
+              ></textarea>
+            </label>
+
+            <div class="flex items-center justify-end gap-2 pt-1">
+              <button
+                type="button"
+                (click)="closeReviewEditModal()"
+                class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700 transition hover:bg-stone-100"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                (click)="saveReviewEdit()"
+                [disabled]="reviewSubmitting()"
+                class="rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {{ reviewSubmitting() ? 'Saving...' : 'Save changes' }}
+              </button>
+            </div>
+          </section>
+        </div>
+      }
+
+      @if (deleteModalOpen()) {
+        <div
+          class="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4"
+          (click)="closeReviewDeleteModal()"
+        >
+          <section
+            class="w-full max-w-md space-y-4 rounded-2xl bg-white p-6 shadow-2xl"
+            (click)="$event.stopPropagation()"
+          >
+            <h3 class="text-lg font-semibold text-stone-900">Delete this review?</h3>
+            <p class="text-sm text-stone-600">
+              This action cannot be undone. Your rating and comment will be permanently removed.
+            </p>
+
+            <div class="flex items-center justify-end gap-2 pt-1">
+              <button
+                type="button"
+                (click)="closeReviewDeleteModal()"
+                class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700 transition hover:bg-stone-100"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                (click)="confirmReviewDelete()"
+                [disabled]="reviewSubmitting()"
+                class="rounded-xl border border-rose-300 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {{ reviewSubmitting() ? 'Deleting...' : 'Delete review' }}
+              </button>
+            </div>
+          </section>
+        </div>
+      }
+    }
+  </main>
+
+  <app-home-footer [companyDescription]="companyDescription" [linkGroups]="footerLinks" />
+</div>

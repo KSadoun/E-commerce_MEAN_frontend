@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '../../../core/services/auth.service';
@@ -17,11 +17,34 @@ export class HomeHeader {
 
   readonly navLinks = input.required<ReadonlyArray<HomeNavLink>>();
   readonly isAuthenticated = input<boolean>(false);
+  readonly mobileMenuOpen = signal(false);
+
+  get profileRoute(): string {
+    const role = this.authService.getUserRole();
+    if (role === 'seller') {
+      return '/seller/profile';
+    }
+
+    if (role === 'admin') {
+      return '/admin';
+    }
+
+    return '/users/dashboard';
+  }
 
   logout(): void {
+    this.mobileMenuOpen.set(false);
     this.authService.logout();
     // Keep existing storage listeners in page containers in sync immediately.
     window.dispatchEvent(new Event('storage'));
     this.router.navigate(['/login']);
+  }
+
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen.update((isOpen) => !isOpen);
+  }
+
+  closeMobileMenu(): void {
+    this.mobileMenuOpen.set(false);
   }
 }

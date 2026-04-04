@@ -10,16 +10,21 @@ import {
 import { DecimalPipe } from '@angular/common';
 
 import { CatalogProduct } from '../home/home.models';
+import { AuthService } from '../../../core/services/auth.service';
 import { CartService } from '../../../services/cart/cart.service';
+import { UserService } from '../../../services/admin/users';
+import { ProductCard } from '../../../shared/components/product-card/product-card';
 
 @Component({
   selector: 'app-products-grid-section',
-  imports: [DecimalPipe],
+  imports: [DecimalPipe, ProductCard],
   templateUrl: './products-grid-section.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductsGridSection {
+  private readonly authService = inject(AuthService);
   private readonly cartService = inject(CartService);
+  private readonly userService = inject(UserService);
 
   readonly products = input.required<ReadonlyArray<CatalogProduct>>();
   readonly materialOptions = input.required<ReadonlyArray<string>>();
@@ -29,6 +34,8 @@ export class ProductsGridSection {
   readonly selectedMaterials = signal<Set<string>>(new Set());
 
   readonly addingToCart = signal<Record<string, boolean>>({});
+  readonly wishlistLoading = signal<Record<string, boolean>>({});
+  readonly wishlistedProductIds = signal<Set<number>>(new Set());
   readonly cartMessage = signal('');
 
   readonly highestPrice = computed(() =>
@@ -51,6 +58,19 @@ export class ProductsGridSection {
     effect(() => {
       const topPrice = this.highestPrice();
       this.maxSelectedPrice.set(topPrice);
+    });
+
+    if (this.authService.isAuthenticated()) {
+      this.loadWishlist();
+    }
+  }
+
+  private loadWishlist(): void {
+    this.userService.getMyWishlist().subscribe({
+      next: (response: any) => {
+        const ids = new Set<number>((response?.items || []).map((item: any) => Number(item.id)));
+        this.wishlistedProductIds.set(ids);
+      },
     });
   }
 
@@ -76,9 +96,51 @@ export class ProductsGridSection {
     this.visibleCount.set(8);
   }
 
-  addToCart(product: CatalogProduct, event: Event): void {
-    event.stopPropagation();
+  isWishlisted(product: CatalogProduct): boolean {
+    return this.wishlistedProductIds().has(product.backendId);
+  }
 
+  toggleWishlist(product: CatalogProduct): void {
+    if (!this.authService.isAuthenticated()) {
+      this.cartMessage.set('Please log in to manage your wishlist');
+      setTimeout(() => this.cartMessage.set(''), 3000);
+      return;
+    }
+
+    if (!product.backendId || product.backendId <= 0) {
+      return;
+    }
+
+    const productKey = product.id;
+    const isCurrentlyWishlisted = this.isWishlisted(product);
+    this.wishlistLoading.update((state) => ({ ...state, [productKey]: true }));
+
+    const request = isCurrentlyWishlisted
+      ? this.userService.removeFromWishlist(product.backendId)
+      : this.userService.addToWishlist(product.backendId);
+
+    request.subscribe({
+      next: () => {
+        this.wishlistLoading.update((state) => ({ ...state, [productKey]: false }));
+        this.wishlistedProductIds.update((ids) => {
+          const next = new Set(ids);
+          if (isCurrentlyWishlisted) {
+            next.delete(product.backendId);
+          } else {
+            next.add(product.backendId);
+          }
+          return next;
+        });
+      },
+      error: (err) => {
+        this.wishlistLoading.update((state) => ({ ...state, [productKey]: false }));
+        this.cartMessage.set(err.error?.message || 'Failed to update wishlist');
+        setTimeout(() => this.cartMessage.set(''), 3000);
+      },
+    });
+  }
+
+  addToCart(product: CatalogProduct): void {
     if (!product.backendId || product.backendId <= 0) {
       this.cartMessage.set('This product is not available for purchase');
       setTimeout(() => this.cartMessage.set(''), 3000);

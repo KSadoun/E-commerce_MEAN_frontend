@@ -3,11 +3,15 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { CartService } from '../../../services/cart/cart.service';
 import { CartItem } from '../../../models/cart';
+import { HomeHeader } from '../home/home-header';
+import { HomeFooter } from '../home/home-footer';
+import { COMPANY_DESCRIPTION, FOOTER_LINK_GROUPS, HOME_NAV_LINKS } from '../home/home.data';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, HomeHeader, HomeFooter],
   templateUrl: './cart.html',
   styleUrl: './cart.css',
 })
@@ -22,11 +26,20 @@ export class Cart implements OnInit {
   loading = true;
   error = '';
 
+  readonly navLinks = HOME_NAV_LINKS;
+  readonly footerLinks = FOOTER_LINK_GROUPS;
+  readonly companyDescription = COMPANY_DESCRIPTION;
+
   constructor(
     private cartService: CartService,
     private router: Router,
-    private cdr: ChangeDetectorRef   
+    private cdr: ChangeDetectorRef,
+    private authService: AuthService,
   ) {}
+
+  isAuthenticated(): boolean {
+    return this.authService.isAuthenticated();
+  }
 
   ngOnInit() {
     this.loadCart();
@@ -46,18 +59,23 @@ export class Cart implements OnInit {
         this.total = res.total ?? 0;
         this.currency = res.currency ?? 'EGP';
         this.loading = false;
-        this.cdr.detectChanges();    
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.error = err.error?.message || 'Failed to load cart';
         this.loading = false;
-        this.cdr.detectChanges();    
+        this.cdr.detectChanges();
       },
     });
   }
 
   increaseQuantity(item: CartItem) {
-    if (item.quantity >= item.availableStock) return;
+    if (item.quantity >= item.availableStock) {
+      this.error = `Only ${item.availableStock} item(s) available in stock.`;
+      this.cdr.detectChanges();
+      return;
+    }
+
     this.cartService.updateItemQuantity(item.productId, item.quantity + 1).subscribe({
       next: () => this.loadCart(),
       error: (err) => {

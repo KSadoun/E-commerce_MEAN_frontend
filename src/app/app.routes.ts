@@ -27,6 +27,7 @@ import { UserDashboard } from './components/user/dashboard/dashboard';
 import { UserRegister } from './components/user/register/register';
 import { Home } from './components/user/home/home';
 import { Shop } from './components/user/shop/shop';
+import { ProductDetailsPage } from './components/user/product-details/product-details';
 import { CategoriesPage } from './components/user/categories/categories-page';
 import { ContactPage } from './components/user/contact/contact-page';
 
@@ -43,12 +44,12 @@ import { SellerLayout } from './components/seller/layout/layout';
 import { SellerInventory } from './components/seller/inventory/inventory';
 import { SellerSales } from './components/seller/sales/sales';
 import { SellerCustomers } from './components/seller/customers/customers';
-import { SellerRegister } from './components/seller/register/register';
 import { SellerProfile } from './components/seller/profile/profile';
 
 export const routes: Routes = [
   { path: '', component: Home },
   { path: 'shop', component: Shop },
+  { path: 'products/:id', component: ProductDetailsPage },
 
   { path: 'categories', component: CategoriesPage },
   { path: 'contact', component: ContactPage },
@@ -59,21 +60,25 @@ export const routes: Routes = [
   { path: 'reset-password', component: ResetPassword },
   { path: 'verify-email', component: VerifyEmail },
   { path: 'users/register', component: UserRegister },
-  { path: 'seller/register', component: SellerRegister },
+  { path: 'seller/register', redirectTo: 'users/register' },
 
   // ===== Cart, Checkout, Orders, Payments =====
-  { path: 'cart', component: Cart },
-  { path: 'checkout', component: CheckoutComponent },
-  { path: 'payment/result', component: PaymentResultComponent },
-  { path: 'orders', component: OrdersComponent },
-  { path: 'orders/:id', component: OrderDetailComponent },
+  { path: 'cart', component: Cart, canActivate: [AuthGuard, UserGuard] },
+  { path: 'checkout', component: CheckoutComponent, canActivate: [AuthGuard, UserGuard] },
+  {
+    path: 'payment/result',
+    component: PaymentResultComponent,
+    canActivate: [AuthGuard, UserGuard],
+  },
+  { path: 'orders', component: OrdersComponent, canActivate: [AuthGuard, UserGuard] },
+  { path: 'orders/:id', component: OrderDetailComponent, canActivate: [AuthGuard, UserGuard] },
 
   // ===== Admin Routes =====
   {
     path: 'admin',
     component: AdminLayout,
-    // TODO: re-enable guards after auth flow is finalized.
-    // canActivate: [AuthGuard, AdminGuard],
+    canActivate: [AuthGuard, AdminGuard],
+    canActivateChild: [AuthGuard, AdminGuard],
     children: [
       { path: '', component: AdminDashboard },
       { path: 'users', component: Users },
@@ -88,8 +93,8 @@ export const routes: Routes = [
   // ===== User Routes =====
   {
     path: 'users',
-    // TODO: re-enable guards after auth flow is finalized.
-    // canActivate: [AuthGuard, UserGuard],
+    canActivate: [AuthGuard, UserGuard],
+    canActivateChild: [AuthGuard, UserGuard],
     children: [
       { path: 'dashboard', component: UserDashboard },
       { path: 'register', component: UserRegister },
@@ -99,8 +104,8 @@ export const routes: Routes = [
   // ===== Seller Routes =====
   {
     path: 'seller',
-    // TODO: re-enable guards after auth flow is finalized.
-    // canActivate: [AuthGuard, SellerGuard],
+    canActivate: [AuthGuard, SellerGuard],
+    canActivateChild: [AuthGuard, SellerGuard],
     component: SellerLayout,
     children: [
       { path: '', component: SellerDashboard },
