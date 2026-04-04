@@ -14,6 +14,7 @@ import { CartService } from '../../../services/cart/cart.service';
 
 @Component({
   selector: 'app-products-grid-section',
+  standalone: true,
   imports: [DecimalPipe],
   templateUrl: './products-grid-section.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -31,27 +32,41 @@ export class ProductsGridSection {
   readonly addingToCart = signal<Record<string, boolean>>({});
   readonly cartMessage = signal('');
 
-  readonly highestPrice = computed(() =>
-    Math.max(...this.products().map((product) => product.price), 6000),
-  );
+  // حساب أقل سعر موجود في المنتجات المعروضة
+  readonly lowestPrice = computed(() => {
+    const prices = this.products().map((p) => p.price);
+    return prices.length > 0 ? Math.floor(Math.min(...prices)) : 0;
+  });
+
+  // حساب أعلى سعر موجود في المنتجات المعروضة
+  readonly highestPrice = computed(() => {
+    const prices = this.products().map((p) => p.price);
+    return prices.length > 0 ? Math.ceil(Math.max(...prices)) : 6000;
+  });
 
   readonly filteredProducts = computed(() =>
     this.products().filter((product) => {
       const matchesPrice = product.price <= this.maxSelectedPrice();
       const chosenMaterials = this.selectedMaterials();
-      const matchesMaterial = chosenMaterials.size === 0 || chosenMaterials.has(product.material);
+      const matchesMaterial =
+        chosenMaterials.size === 0 || chosenMaterials.has(product.material);
       return matchesPrice && matchesMaterial;
     }),
   );
 
-  readonly visibleProducts = computed(() => this.filteredProducts().slice(0, this.visibleCount()));
-  readonly canLoadMore = computed(() => this.visibleCount() < this.filteredProducts().length);
+  readonly visibleProducts = computed(() =>
+    this.filteredProducts().slice(0, this.visibleCount()),
+  );
+  readonly canLoadMore = computed(
+    () => this.visibleCount() < this.filteredProducts().length,
+  );
 
   constructor() {
+    // يجعل السلايدر يبدأ دائماً من أعلى سعر متاح عند تحميل الصفحة
     effect(() => {
       const topPrice = this.highestPrice();
       this.maxSelectedPrice.set(topPrice);
-    });
+    }, { allowSignalWrites: true });
   }
 
   loadMore(): void {
