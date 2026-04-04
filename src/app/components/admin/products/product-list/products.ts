@@ -2,24 +2,34 @@ import { Component, ChangeDetectorRef, OnInit, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { Product } from '../../../../models/product';
 import { ProductService } from '../../../../services/admin/products';
+import { DeleteConfirmModalComponent } from '../../../../shared/components/delete-confirm-modal/delete-confirm-modal';
+import { LoadingService } from '../../../../core/services/loading.service';
 
 @Component({
   selector: 'app-products',
-  imports: [CommonModule, FormsModule, HttpClientModule],
+  imports: [CommonModule, FormsModule, HttpClientModule, DeleteConfirmModalComponent],
   templateUrl: './products.html',
   styleUrl: './products.css',
   providers: [],
 })
 export class Products implements OnInit {
   products: Product[] = [];
-  isLoading = false;
+  isDeleting = false;
   selectedCategory: string = '';
+  page = 1;
+  readonly pageSize = 6;
+  isDeleteModalOpen = false;
+  deletingProductId: number | null = null;
+  deletingProductName = '';
 
   constructor(
     @Inject(ProductService) private productService: ProductService,
     private cdr: ChangeDetectorRef,
+    private router: Router,
+    private loadingService: LoadingService,
   ) {}
 
   get uniqueCategories(): string[] {
@@ -36,14 +46,41 @@ export class Products implements OnInit {
     );
   }
 
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredProducts.length / this.pageSize));
+  }
+
+  get paginatedProducts(): Product[] {
+    const start = (this.page - 1) * this.pageSize;
+    return this.filteredProducts.slice(start, start + this.pageSize);
+  }
+
+  getPrimaryImage(product: Product): string {
+    return Array.isArray(product.image) && product.image.length > 0 ? product.image[0] : '';
+  }
+
+  getAverageRating(product: Product): number {
+    if (!product.reviews || product.reviews.length === 0) {
+      return 0;
+    }
+
+    const total = product.reviews.reduce((sum, review) => sum + review.rating, 0);
+    return total / product.reviews.length;
+  }
+
   ngOnInit() {
-    this.productService.getAllProducts(true).subscribe((response: any) => {
+    this.loadingService.show();
+    this.productService.getAllProducts().subscribe((response: any) => {
       this.products = response.products;
       console.log('Fetched products:', this.products);
-
+      this.loadingService.hide();
+      
       setTimeout(() => {
         this.cdr.detectChanges();
       }, 0);
+    }, () => {
+      this.loadingService.hide();
+      this.cdr.detectChanges();
     });
   }
 
@@ -77,41 +114,97 @@ export class Products implements OnInit {
   }
 
   activateProduct(productId: number) {
-    this.productService.activateProduct(productId).subscribe((response) => {
-      const product = this.products.find((p) => p.id === productId);
+    this.loadingService.show();
+    this.productService.activateProduct(productId).subscribe(() => {
+      const product = this.products.find(p => p.id === productId);
       if (product) {
         product.status = response?.product?.status || 'active';
         product.isActive = true;
       }
       this.productService.clearCache();
+      this.loadingService.hide();
+      this.cdr.detectChanges();
+    }, () => {
+      this.loadingService.hide();
       this.cdr.detectChanges();
     });
   }
 
   deactivateProduct(productId: number) {
-    this.productService.deactivateProduct(productId).subscribe((response) => {
-      const product = this.products.find((p) => p.id === productId);
+    this.loadingService.show();
+    this.productService.deactivateProduct(productId).subscribe(() => {
+      const product = this.products.find(p => p.id === productId);
       if (product) {
         product.status = response?.product?.status || 'rejected';
         product.isActive = false;
       }
       this.productService.clearCache();
+      this.loadingService.hide();
+      this.cdr.detectChanges();
+    }, () => {
+      this.loadingService.hide();
       this.cdr.detectChanges();
     });
   }
 
-  deleteProduct(productId: number) {
-    if (!confirm('Are you sure you want to delete this product?')) {
+  promptDeleteProduct(product: Product) {
+    this.deletingProductId = product.id;
+    this.deletingProductName = product.name;
+    this.isDeleteModalOpen = true;
+    this.cdr.detectChanges();
+  }
+
+  cancelDeleteProduct() {
+    this.isDeleteModalOpen = false;
+    this.deletingProductId = null;
+    this.deletingProductName = '';
+    this.cdr.detectChanges();
+  }
+
+  deleteProduct() {
+    if (this.deletingProductId === null) {
       return;
     }
-    this.isLoading = true;
+
+    const productId = this.deletingProductId;
+    this.isDeleting = true;
+    this.loadingService.show();
     this.productService.deleteProduct(productId).subscribe(() => {
-      this.products = this.products.filter((product) => product.id !== productId);
+      this.products = this.products.filter(product => product.id !== productId);
+      if (this.page > this.totalPages) {
+        this.page = this.totalPages;
+      }
       this.productService.clearCache();
-      this.isLoading = false;
+      this.isDeleting = false;
+      this.loadingService.hide();
+      this.cancelDeleteProduct();
       setTimeout(() => {
         this.cdr.detectChanges();
       }, 0);
+    }, () => {
+      this.isDeleting = false;
+      this.loadingService.hide();
+      this.cdr.detectChanges();
     });
+  }
+
+  goToProductReviews(productId: number) {
+    this.router.navigate(['/admin/products', productId, 'reviews']);
+  }
+
+  onCategoryChange() {
+    this.page = 1;
+  }
+
+  prevPage() {
+    if (this.page > 1) {
+      this.page--;
+    }
+  }
+
+  nextPage() {
+    if (this.page < this.totalPages) {
+      this.page++;
+    }
   }
 }

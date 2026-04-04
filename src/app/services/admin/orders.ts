@@ -38,6 +38,12 @@ export class OrderService {
     return this.orderItemsCache$;
   }
 
+  confirmCashOnDelivery(orderId: number): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/admin/orders/${orderId}/shipping`, {
+      shippingStatus: 'delivered'
+    });
+  }
+
   clearCache(): void {
     this.orderItemsCache$ = null;
   }
