@@ -70,18 +70,21 @@ export class Products implements OnInit {
 
   ngOnInit() {
     this.loadingService.show();
-    this.productService.getAllProducts().subscribe((response: any) => {
-      this.products = response.products;
-      console.log('Fetched products:', this.products);
-      this.loadingService.hide();
-      
-      setTimeout(() => {
+    this.productService.getAllProducts().subscribe(
+      (response: any) => {
+        this.products = response.products;
+        console.log('Fetched products:', this.products);
+        this.loadingService.hide();
+
+        setTimeout(() => {
+          this.cdr.detectChanges();
+        }, 0);
+      },
+      () => {
+        this.loadingService.hide();
         this.cdr.detectChanges();
-      }, 0);
-    }, () => {
-      this.loadingService.hide();
-      this.cdr.detectChanges();
-    });
+      },
+    );
   }
 
   isProductActive(product: Product): boolean {
@@ -115,36 +118,42 @@ export class Products implements OnInit {
 
   activateProduct(productId: number) {
     this.loadingService.show();
-    this.productService.activateProduct(productId).subscribe(() => {
-      const product = this.products.find(p => p.id === productId);
-      if (product) {
-        product.status = response?.product?.status || 'active';
-        product.isActive = true;
-      }
-      this.productService.clearCache();
-      this.loadingService.hide();
-      this.cdr.detectChanges();
-    }, () => {
-      this.loadingService.hide();
-      this.cdr.detectChanges();
-    });
+    this.productService.activateProduct(productId).subscribe(
+      () => {
+        const product = this.products.find((p) => p.id === productId);
+        if (product) {
+          product.status = 'active';
+          product.isActive = true;
+        }
+        this.productService.clearCache();
+        this.loadingService.hide();
+        this.cdr.detectChanges();
+      },
+      () => {
+        this.loadingService.hide();
+        this.cdr.detectChanges();
+      },
+    );
   }
 
   deactivateProduct(productId: number) {
     this.loadingService.show();
-    this.productService.deactivateProduct(productId).subscribe(() => {
-      const product = this.products.find(p => p.id === productId);
-      if (product) {
-        product.status = response?.product?.status || 'rejected';
-        product.isActive = false;
-      }
-      this.productService.clearCache();
-      this.loadingService.hide();
-      this.cdr.detectChanges();
-    }, () => {
-      this.loadingService.hide();
-      this.cdr.detectChanges();
-    });
+    this.productService.deactivateProduct(productId).subscribe(
+      () => {
+        const product = this.products.find((p) => p.id === productId);
+        if (product) {
+          product.status = 'rejected';
+          product.isActive = false;
+        }
+        this.productService.clearCache();
+        this.loadingService.hide();
+        this.cdr.detectChanges();
+      },
+      () => {
+        this.loadingService.hide();
+        this.cdr.detectChanges();
+      },
+    );
   }
 
   promptDeleteProduct(product: Product) {
@@ -169,23 +178,26 @@ export class Products implements OnInit {
     const productId = this.deletingProductId;
     this.isDeleting = true;
     this.loadingService.show();
-    this.productService.deleteProduct(productId).subscribe(() => {
-      this.products = this.products.filter(product => product.id !== productId);
-      if (this.page > this.totalPages) {
-        this.page = this.totalPages;
-      }
-      this.productService.clearCache();
-      this.isDeleting = false;
-      this.loadingService.hide();
-      this.cancelDeleteProduct();
-      setTimeout(() => {
+    this.productService.deleteProduct(productId).subscribe(
+      () => {
+        this.products = this.products.filter((product) => product.id !== productId);
+        if (this.page > this.totalPages) {
+          this.page = this.totalPages;
+        }
+        this.productService.clearCache();
+        this.isDeleting = false;
+        this.loadingService.hide();
+        this.cancelDeleteProduct();
+        setTimeout(() => {
+          this.cdr.detectChanges();
+        }, 0);
+      },
+      () => {
+        this.isDeleting = false;
+        this.loadingService.hide();
         this.cdr.detectChanges();
-      }, 0);
-    }, () => {
-      this.isDeleting = false;
-      this.loadingService.hide();
-      this.cdr.detectChanges();
-    });
+      },
+    );
   }
 
   goToProductReviews(productId: number) {

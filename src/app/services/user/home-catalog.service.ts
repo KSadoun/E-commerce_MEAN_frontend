@@ -31,6 +31,7 @@ interface ProductApi {
   images?: string[];
   rating?: number | null;
   reviewCount?: number;
+  orderCount?: number;
   reviews?: ProductReviewApi[];
   seller?: {
     id: number;
@@ -159,6 +160,7 @@ export class HomeCatalogService {
             stock: product.stock ?? 0,
             rating: product.rating ?? null,
             reviewCount: product.reviewCount ?? 0,
+            orderCount: product.orderCount ?? 0,
             imageUrl:
               product.images?.[0] ||
               this.fallbackProductImages[index % this.fallbackProductImages.length] ||

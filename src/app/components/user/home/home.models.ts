@@ -24,6 +24,7 @@ export interface CatalogProduct {
   label?: ProductLabel;
   rating?: number | null;
   reviewCount?: number;
+  orderCount?: number;
 }
 
 export interface ProductReview {
