@@ -7,6 +7,7 @@ import { Category } from '../../../models/category';
 import { CategoryService } from '../../../services/admin/categories';
 import { DeleteConfirmModalComponent } from '../../../shared/components/delete-confirm-modal/delete-confirm-modal';
 import { LoadingService } from '../../../core/services/loading.service';
+import { catchError, forkJoin, map, of } from 'rxjs';
 
 @Component({
   selector: 'app-categories',
@@ -55,11 +56,7 @@ export class Categories implements OnInit {
     this.categoryService.getAllCategories().subscribe((response: any) => {
       this.categories = response.categories;
       console.log('Fetched categories:', this.categories);
-      this.loadingService.hide();
-      
-      setTimeout(() => {
-        this.cdr.detectChanges();
-      }, 0);
+      this.loadProductCounts();
     }, () => {
       this.loadingService.hide();
       this.cdr.detectChanges();
@@ -68,6 +65,30 @@ export class Categories implements OnInit {
 
   viewCategoryProducts(categoryId: number): void {
     this.router.navigate(['/admin/categories', categoryId, 'products']);
+  }
+
+  loadProductCounts(): void {
+    if (!this.categories.length) {
+      this.loadingService.hide();
+      this.cdr.detectChanges();
+      return;
+    }
+
+    const countsRequests = this.categories.map(category =>
+      this.categoryService.getCategoryProducts(category.id).pipe(
+        map(response => response.products?.length ?? 0),
+        catchError(() => of(0)),
+      )
+    );
+
+    forkJoin(countsRequests).subscribe((counts) => {
+      this.categories = this.categories.map((category, index) => ({
+        ...category,
+        productsCount: counts[index],
+      }));
+      this.loadingService.hide();
+      this.cdr.detectChanges();
+    });
   }
 
   restrictCategory(categoryId: number): void {
