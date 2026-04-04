@@ -3,30 +3,45 @@
         <div class="py-20">
             <span class="material-symbols-outlined text-6xl text-blue-600 animate-spin mb-4">autorenew</span>
             <p class="text-gray-500 text-lg">Checking payment status...</p>
+            @if (retryCount > 0) {
+                <p class="text-gray-400 text-sm mt-2">Attempt {{ retryCount }} of {{ maxRetries }}...</p>
+            }
         </div>
     }
 
-    @if (error) {
+    @if (!loading && error) {
         <div class="py-20">
             <span class="material-symbols-outlined text-6xl text-red-400 mb-4">error</span>
             <p class="text-red-600 text-lg mb-6">{{ error }}</p>
-            <button (click)="goHome()" class="bg-blue-700 text-white font-bold py-3 px-8 rounded-xl hover:bg-blue-800 transition">
-                Go Home
-            </button>
+            <div class="flex gap-4 justify-center">
+                @if (orderId) {
+                    <button (click)="checkStatus()"
+                            class="bg-blue-700 text-white font-bold py-3 px-8 rounded-xl hover:bg-blue-800 transition">
+                        Retry
+                    </button>
+                }
+                <button (click)="goHome()"
+                        class="text-blue-700 font-medium py-3 px-8 rounded-xl hover:bg-blue-50 transition">
+                    Go Home
+                </button>
+            </div>
         </div>
     }
 
     @if (!loading && !error && paymentStatus === 'paid') {
         <div class="py-20">
-            <span class="material-symbols-outlined text-7xl text-green-500 mb-4" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+            <span class="material-symbols-outlined text-7xl text-green-500 mb-4"
+                  style="font-variation-settings: 'FILL' 1;">check_circle</span>
             <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Payment Successful!</h1>
             <p class="text-gray-500 text-lg mb-2">Order #{{ orderId }} has been placed.</p>
             <p class="text-sm text-gray-400 mb-8">You will receive a confirmation notification.</p>
             <div class="flex gap-4 justify-center">
-                <button (click)="goToOrder()" class="bg-blue-700 text-white font-bold py-3 px-8 rounded-xl hover:bg-blue-800 transition">
+                <button (click)="goToOrder()"
+                        class="bg-blue-700 text-white font-bold py-3 px-8 rounded-xl hover:bg-blue-800 transition">
                     View Order
                 </button>
-                <button (click)="goHome()" class="text-blue-700 font-medium py-3 px-8 rounded-xl hover:bg-blue-50 transition">
+                <button (click)="goHome()"
+                        class="text-blue-700 font-medium py-3 px-8 rounded-xl hover:bg-blue-50 transition">
                     Continue Shopping
                 </button>
             </div>
@@ -38,12 +53,14 @@
             <span class="material-symbols-outlined text-7xl text-yellow-500 mb-4">hourglass_top</span>
             <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Payment Pending</h1>
             <p class="text-gray-500 text-lg mb-2">Order #{{ orderId }} is waiting for payment confirmation.</p>
-            <p class="text-sm text-gray-400 mb-8">This may take a few moments. Refresh to check again.</p>
+            <p class="text-sm text-gray-400 mb-8">This may take a few moments. Click refresh to check again.</p>
             <div class="flex gap-4 justify-center">
-                <button (click)="checkStatus()" class="bg-blue-700 text-white font-bold py-3 px-8 rounded-xl hover:bg-blue-800 transition">
+                <button (click)="retryCount = 0; checkStatus()"
+                        class="bg-blue-700 text-white font-bold py-3 px-8 rounded-xl hover:bg-blue-800 transition">
                     Refresh Status
                 </button>
-                <button (click)="goToOrders()" class="text-blue-700 font-medium py-3 px-8 rounded-xl hover:bg-blue-50 transition">
+                <button (click)="goToOrders()"
+                        class="text-blue-700 font-medium py-3 px-8 rounded-xl hover:bg-blue-50 transition">
                     View All Orders
                 </button>
             </div>
@@ -52,15 +69,18 @@
 
     @if (!loading && !error && paymentStatus === 'failed') {
         <div class="py-20">
-            <span class="material-symbols-outlined text-7xl text-red-500 mb-4" style="font-variation-settings: 'FILL' 1;">cancel</span>
+            <span class="material-symbols-outlined text-7xl text-red-500 mb-4"
+                  style="font-variation-settings: 'FILL' 1;">cancel</span>
             <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Payment Failed</h1>
             <p class="text-gray-500 text-lg mb-2">Order #{{ orderId }} payment was not successful.</p>
             <p class="text-sm text-gray-400 mb-8">Please try again or choose a different payment method.</p>
             <div class="flex gap-4 justify-center">
-                <button (click)="goToOrders()" class="bg-blue-700 text-white font-bold py-3 px-8 rounded-xl hover:bg-blue-800 transition">
+                <button (click)="goToOrders()"
+                        class="bg-blue-700 text-white font-bold py-3 px-8 rounded-xl hover:bg-blue-800 transition">
                     View Orders
                 </button>
-                <button (click)="goHome()" class="text-blue-700 font-medium py-3 px-8 rounded-xl hover:bg-blue-50 transition">
+                <button (click)="goHome()"
+                        class="text-blue-700 font-medium py-3 px-8 rounded-xl hover:bg-blue-50 transition">
                     Go Home
                 </button>
             </div>
