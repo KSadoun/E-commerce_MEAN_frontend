@@ -7,6 +7,7 @@ import { Category } from '../../../models/category';
 import { CategoryService } from '../../../services/admin/categories';
 import { DeleteConfirmModalComponent } from '../../../shared/components/delete-confirm-modal/delete-confirm-modal';
 import { LoadingService } from '../../../core/services/loading.service';
+import { catchError, forkJoin, map, of } from 'rxjs';
 
 @Component({
   selector: 'app-categories',
@@ -17,6 +18,9 @@ import { LoadingService } from '../../../core/services/loading.service';
 export class Categories implements OnInit {
   categories: Category[] = [];
   searchTerm: string = '';
+  newCategoryName = '';
+  newCategoryImageFile: File | null = null;
+  isAddingCategory = false;
   page = 1;
   readonly pageSize = 6;
   isDeleteModalOpen = false;
@@ -37,7 +41,7 @@ export class Categories implements OnInit {
     }
     return this.categories.filter(category =>
       category.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-      category.description.toLowerCase().includes(this.searchTerm.toLowerCase())
+      (category.description ?? '').toLowerCase().includes(this.searchTerm.toLowerCase())
     );
   }
 
@@ -51,16 +55,46 @@ export class Categories implements OnInit {
   }
 
   ngOnInit() {
+    this.fetchCategories();
+  }
+
+  fetchCategories(): void {
     this.loadingService.show();
     this.categoryService.getAllCategories().subscribe((response: any) => {
-      this.categories = response.categories;
+      this.categories = response.categories ?? [];
       console.log('Fetched categories:', this.categories);
-      this.loadingService.hide();
-      
-      setTimeout(() => {
-        this.cdr.detectChanges();
-      }, 0);
+      this.loadProductCounts();
     }, () => {
+      this.loadingService.hide();
+      this.cdr.detectChanges();
+    });
+  }
+
+  onCategoryImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.newCategoryImageFile = input.files && input.files.length > 0 ? input.files[0] : null;
+  }
+
+  addCategory(fileInput: HTMLInputElement): void {
+    const name = this.newCategoryName.trim();
+    const imageFile = this.newCategoryImageFile;
+
+    if (!name || !imageFile || this.isAddingCategory) {
+      return;
+    }
+
+    this.isAddingCategory = true;
+    this.loadingService.show();
+    this.categoryService.createCategory(name, imageFile).subscribe(() => {
+      this.newCategoryName = '';
+      this.newCategoryImageFile = null;
+      fileInput.value = '';
+      this.page = 1;
+      this.categoryService.clearCache();
+      this.isAddingCategory = false;
+      this.fetchCategories();
+    }, () => {
+      this.isAddingCategory = false;
       this.loadingService.hide();
       this.cdr.detectChanges();
     });
@@ -68,6 +102,30 @@ export class Categories implements OnInit {
 
   viewCategoryProducts(categoryId: number): void {
     this.router.navigate(['/admin/categories', categoryId, 'products']);
+  }
+
+  loadProductCounts(): void {
+    if (!this.categories.length) {
+      this.loadingService.hide();
+      this.cdr.detectChanges();
+      return;
+    }
+
+    const countsRequests = this.categories.map(category =>
+      this.categoryService.getCategoryProducts(category.id).pipe(
+        map(response => response.products?.length ?? 0),
+        catchError(() => of(0)),
+      )
+    );
+
+    forkJoin(countsRequests).subscribe((counts) => {
+      this.categories = this.categories.map((category, index) => ({
+        ...category,
+        productsCount: counts[index],
+      }));
+      this.loadingService.hide();
+      this.cdr.detectChanges();
+    });
   }
 
   restrictCategory(categoryId: number): void {

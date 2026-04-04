@@ -6,61 +6,58 @@ import { Product } from '../../models/product';
 // remove after setting the API
 // import { SAMPLE_PRODUCTS } from '../../data/sample-products';
 
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { shareReplay } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProductService {
+
   private productsCache$: Observable<{ products: Product[] }> | null = null;
 
   constructor(private http: HttpClient) {}
 
-  getAllProducts(forceRefresh = false): Observable<{ products: Product[] }> {
-    if (forceRefresh) {
-      this.productsCache$ = null;
-    }
-
+  getAllProducts(): Observable<{ products: Product[] }> {
     if (!this.productsCache$) {
       // this.productsCache$ = of({ products: SAMPLE_PRODUCTS }).pipe(shareReplay(1));
-      this.productsCache$ = this.http
-        .get<{
-          products: Product[];
-        }>(`${environment.apiUrl}/products?includeInactive=true&limit=100`)
+      this.productsCache$ = this.http.get<{ products: Product[] }>(`${environment.apiUrl}/products`)
         .pipe(shareReplay(1));
     }
-
+    
     return this.productsCache$;
   }
 
-  activateProduct(productId: number): Observable<{ product: Product }> {
+  activateProduct(productId: number): Observable<void> {
     const headers = new HttpHeaders({
-      Authorization: `Bearer ${localStorage.getItem('token')}`,
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
-    return this.http.patch<{ product: Product }>(
+    return this.http.patch<void>(
       `${environment.apiUrl}/products/${productId}/activate`,
       {},
-      { headers },
+      { headers }
     );
   }
 
-  deactivateProduct(productId: number): Observable<{ product: Product }> {
+  deactivateProduct(productId: number): Observable<void> {
     const headers = new HttpHeaders({
-      Authorization: `Bearer ${localStorage.getItem('token')}`,
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
-    return this.http.patch<{ product: Product }>(
+    return this.http.patch<void>(
       `${environment.apiUrl}/products/${productId}/deactivate`,
       {},
-      { headers },
+      { headers }
     );
   }
 
   deleteProduct(productId: number): Observable<void> {
     const headers = new HttpHeaders({
-      Authorization: `Bearer ${localStorage.getItem('token')}`,
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
-    return this.http.delete<void>(`${environment.apiUrl}/products/${productId}`, { headers });
+    return this.http.delete<void>(
+      `${environment.apiUrl}/products/${productId}`,
+      { headers }
+    );
   }
 
   clearCache(): void {

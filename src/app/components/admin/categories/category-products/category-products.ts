@@ -20,10 +20,6 @@ export class CategoryProducts implements OnInit {
   page = 1;
   readonly pageSize = 6;
 
-  get isLoading(): boolean {
-    return this.loadingService.isLoading();
-  }
-
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -83,7 +79,17 @@ export class CategoryProducts implements OnInit {
   }
 
   getPrimaryImage(product: Product): string {
-    return Array.isArray(product.image) && product.image.length > 0 ? product.image[0] : '';
+    const images = product.images || product.image || [];
+    return Array.isArray(images) && images.length > 0 ? images[0] : '';
+  }
+
+  getAverageRating(product: Product): number {
+    if (!product.reviews?.length) {
+      return 0;
+    }
+
+    const total = product.reviews.reduce((sum, review) => sum + review.rating, 0);
+    return total / product.reviews.length;
   }
 
   goToProductReviews(productId: number): void {

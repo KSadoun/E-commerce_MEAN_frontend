@@ -4,7 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Product } from '../../../../models/product';
+import { Category } from '../../../../models/category';
 import { ProductService } from '../../../../services/admin/products';
+import { CategoryService } from '../../../../services/admin/categories';
 import { DeleteConfirmModalComponent } from '../../../../shared/components/delete-confirm-modal/delete-confirm-modal';
 import { LoadingService } from '../../../../core/services/loading.service';
 
@@ -17,6 +19,7 @@ import { LoadingService } from '../../../../core/services/loading.service';
 })
 export class Products implements OnInit {
   products: Product[] = [];
+  categories: Category[] = [];
   isDeleting = false;
   selectedCategory: string = '';
   page = 1;
@@ -25,29 +28,19 @@ export class Products implements OnInit {
   deletingProductId: number | null = null;
   deletingProductName = '';
 
-  get isLoading(): boolean {
-    return this.loadingService.isLoading();
-  }
-
   constructor(
     @Inject(ProductService) private productService: ProductService,
+    @Inject(CategoryService) private categoryService: CategoryService,
     private cdr: ChangeDetectorRef,
     private router: Router,
     private loadingService: LoadingService,
   ) {}
 
-  get uniqueCategories(): string[] {
-    const categories = this.products.map((product) => product.categoryId.toString());
-    return [...new Set(categories)].filter((cat) => cat);
-  }
-
   get filteredProducts(): Product[] {
     if (!this.selectedCategory) {
       return this.products;
     }
-    return this.products.filter(
-      (product) => product.categoryId.toString() === this.selectedCategory,
-    );
+    return this.products.filter(product => product.categoryId.toString() === this.selectedCategory);
   }
 
   get totalPages(): number {
@@ -60,11 +53,57 @@ export class Products implements OnInit {
   }
 
   getPrimaryImage(product: Product): string {
-    return Array.isArray(product.image) && product.image.length > 0 ? product.image[0] : '';
+    const candidate = product.images ?? product.image;
+
+    if (Array.isArray(candidate) && candidate.length > 0) {
+      return candidate[0];
+    }
+
+    if (typeof candidate === 'string') {
+      return candidate;
+    }
+
+    return '';
+  }
+
+  getAverageRating(product: Product): number {
+    if (!product.reviews || product.reviews.length === 0) {
+      return 0;
+    }
+
+    const total = product.reviews.reduce((sum, review) => sum + review.rating, 0);
+    return total / product.reviews.length;
+  }
+
+  isProductActive(product: Product): boolean {
+    if (typeof product.isActive === 'boolean') {
+      return product.isActive;
+    }
+
+    return (product.status ?? '').toLowerCase() === 'active';
+  }
+
+  productStatusLabel(product: Product): 'Active' | 'Pending' | 'Rejected' {
+    const status = (product.status ?? '').toLowerCase();
+
+    if (status === 'active' || this.isProductActive(product)) {
+      return 'Active';
+    }
+
+    if (status === 'pending') {
+      return 'Pending';
+    }
+
+    return 'Rejected';
   }
 
   ngOnInit() {
     this.loadingService.show();
+    this.categoryService.getAllCategories().subscribe((response: any) => {
+      this.categories = response.categories ?? [];
+      this.cdr.detectChanges();
+    });
+
     this.productService.getAllProducts().subscribe(
       (response: any) => {
         this.products = response.products;
@@ -82,42 +121,13 @@ export class Products implements OnInit {
     );
   }
 
-  isProductActive(product: Product): boolean {
-    if (product.status) {
-      return product.status === 'active';
-    }
-
-    return Boolean(product.isActive);
-  }
-
-  productStatusLabel(product: Product): string {
-    if (product.status === 'pending') {
-      return 'Pending';
-    }
-
-    if (product.status === 'rejected') {
-      return 'Rejected';
-    }
-
-    if (this.isProductActive(product)) {
-      return 'Active';
-    }
-
-    return 'Rejected';
-  }
-
-  productImageCount(product: Product): number {
-    const images = product.images || product.image || [];
-    return Array.isArray(images) ? images.length : 0;
-  }
-
   activateProduct(productId: number) {
     this.loadingService.show();
     this.productService.activateProduct(productId).subscribe(
-      (response: any) => {
+      () => {
         const product = this.products.find((p) => p.id === productId);
         if (product) {
-          product.status = response?.product?.status || 'active';
+          product.status = 'active';
           product.isActive = true;
         }
         this.productService.clearCache();
@@ -134,10 +144,10 @@ export class Products implements OnInit {
   deactivateProduct(productId: number) {
     this.loadingService.show();
     this.productService.deactivateProduct(productId).subscribe(
-      (response: any) => {
+      () => {
         const product = this.products.find((p) => p.id === productId);
         if (product) {
-          product.status = response?.product?.status || 'rejected';
+          product.status = 'rejected';
           product.isActive = false;
         }
         this.productService.clearCache();
