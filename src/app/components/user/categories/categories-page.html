@@ -9,14 +9,12 @@
     </header>
 
     @if (loading()) {
-      <div
-        class="rounded-2xl border border-stone-200 bg-white p-6 text-sm text-stone-500 shadow-sm"
-      >
+      <div class="rounded-2xl border border-stone-200 bg-white p-6 text-sm text-stone-500 shadow-sm">
         Loading categories...
       </div>
     } @else {
       <section class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        @for (category of categories(); track category.id) {
+        @for (category of visibleCategories(); track category.id) {
           <a
             [routerLink]="'/shop'"
             [queryParams]="{ material: category.name }"
@@ -37,6 +35,48 @@
           </a>
         }
       </section>
+
+      @if (totalPages() > 1) {
+        <div class="mt-12 flex items-center justify-center gap-2 border-t border-stone-200 pt-8">
+          
+          <button 
+            (click)="goToPage(currentPage() - 1)"
+            [disabled]="currentPage() === 1"
+            class="flex h-10 w-10 items-center justify-center rounded-lg border border-stone-200 text-stone-600 transition hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+          </button>
+
+          <div class="flex gap-1">
+            @for (page of [].constructor(totalPages()); track $index) {
+              @let pageNum = $index + 1;
+              <button
+                (click)="goToPage(pageNum)"
+                [class.bg-stone-900]="currentPage() === pageNum"
+                [class.text-white]="currentPage() === pageNum"
+                [class.border-stone-900]="currentPage() === pageNum"
+                [class.bg-white]="currentPage() !== pageNum"
+                [class.text-stone-600]="currentPage() !== pageNum"
+                class="flex h-10 w-10 items-center justify-center rounded-lg border border-stone-200 font-medium transition hover:border-stone-400"
+              >
+                {{ pageNum }}
+              </button>
+            }
+          </div>
+
+          <button 
+            (click)="goToPage(currentPage() + 1)"
+            [disabled]="currentPage() === totalPages()"
+            class="flex h-10 w-10 items-center justify-center rounded-lg border border-stone-200 text-stone-600 transition hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </div>
+      }
     }
   </main>
 

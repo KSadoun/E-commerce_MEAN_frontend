@@ -6,9 +6,8 @@ import {
   inject,
   input,
   signal,
+  untracked
 } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
-
 import { CatalogProduct } from '../home/home.models';
 import { AuthService } from '../../../core/services/auth.service';
 import { CartService } from '../../../services/cart/cart.service';
@@ -17,7 +16,7 @@ import { ProductCard } from '../../../shared/components/product-card/product-car
 
 @Component({
   selector: 'app-products-grid-section',
-  imports: [DecimalPipe, ProductCard],
+  imports: [ProductCard],
   templateUrl: './products-grid-section.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -29,19 +28,30 @@ export class ProductsGridSection {
   readonly products = input.required<ReadonlyArray<CatalogProduct>>();
   readonly materialOptions = input.required<ReadonlyArray<string>>();
 
-  readonly visibleCount = signal(8);
+  // --- Signals الخاصة بالفلتر والـ Pagination ---
   readonly maxSelectedPrice = signal(6000);
   readonly selectedMaterials = signal<Set<string>>(new Set());
+  readonly itemsPerPage = signal(4); // عدد المنتجات في الصفحة
+  readonly currentPage = signal(1);  // الصفحة الحالية
 
   readonly addingToCart = signal<Record<string, boolean>>({});
   readonly wishlistLoading = signal<Record<string, boolean>>({});
   readonly wishlistedProductIds = signal<Set<number>>(new Set());
   readonly cartMessage = signal('');
+  readonly sortBy = signal<string>('featured');
 
-  readonly highestPrice = computed(() =>
-    Math.max(...this.products().map((product) => product.price), 6000),
-  );
+  // 1. حساب أقل وأعلى سعر (للفلتر)
+  readonly lowestPrice = computed(() => {
+    const prices = this.products().map((p) => p.price);
+    return prices.length > 0 ? Math.floor(Math.min(...prices)) : 0;
+  });
 
+  readonly highestPrice = computed(() => {
+    const prices = this.products().map((p) => p.price);
+    return prices.length > 0 ? Math.ceil(Math.max(...prices)) : 6000;
+  });
+
+  // 2. تصفية المنتجات بناءً على الفلاتر
   readonly filteredProducts = computed(() =>
     this.products().filter((product) => {
       const matchesPrice = product.price <= this.maxSelectedPrice();
@@ -50,14 +60,43 @@ export class ProductsGridSection {
       return matchesPrice && matchesMaterial;
     }),
   );
+// 3. مصفوفة المنتجات بعد الفلترة والترتيب (قبل التقطيع لصفحات)
+readonly sortedProducts = computed(() => {
+  const items = [...this.filteredProducts()]; // ناخد نسخة عشان م نعدلش في الأصل
+  const option = this.sortBy();
 
-  readonly visibleProducts = computed(() => this.filteredProducts().slice(0, this.visibleCount()));
-  readonly canLoadMore = computed(() => this.visibleCount() < this.filteredProducts().length);
+  switch (option) {
+    case 'price-asc': return items.sort((a, b) => a.price - b.price);
+    case 'price-desc': return items.sort((a, b) => b.price - a.price);
+    case 'name-asc': return items.sort((a, b) => a.title.localeCompare(b.title));
+    case 'name-desc': return items.sort((a, b) => b.title.localeCompare(a.title));
+    default: return items; // Featured أو الأحدث (حسب ترتيب الـ API)
+  }
+});
+
+  // 4. تقسيم المنتجات لصفحات (Pagination Logic)
+  readonly totalPages = computed(() => 
+    Math.ceil(this.filteredProducts().length / this.itemsPerPage())
+  );
+
+  readonly visibleProducts = computed(() => {
+    const startIndex = (this.currentPage() - 1) * this.itemsPerPage();
+    const endIndex = startIndex + this.itemsPerPage();
+    return this.sortedProducts().slice(startIndex, endIndex);
+  });
 
   constructor() {
+    // ضبط السعر الأقصى عند تحميل البيانات
     effect(() => {
       const topPrice = this.highestPrice();
-      this.maxSelectedPrice.set(topPrice);
+      untracked(() => this.maxSelectedPrice.set(topPrice));
+    });
+
+    // إعادة اليوزر للصفحة 1 لو غير الفلتر (عشان ميبقاش واقف في صفحة فاضية)
+    effect(() => {
+      this.maxSelectedPrice();
+      this.selectedMaterials();
+      untracked(() => this.currentPage.set(1));
     });
 
     if (this.authService.isAuthenticated()) {
@@ -74,26 +113,31 @@ export class ProductsGridSection {
     });
   }
 
-  loadMore(): void {
-    this.visibleCount.update((value) => value + 4);
+  // --- Functions ---
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 
   setMaxPrice(rawValue: string): void {
     this.maxSelectedPrice.set(Number(rawValue));
-    this.visibleCount.set(8);
   }
 
   toggleMaterial(material: string, checked: boolean): void {
     this.selectedMaterials.update((items) => {
       const next = new Set(items);
-      if (checked) {
-        next.add(material);
-      } else {
-        next.delete(material);
-      }
+      if (checked) next.add(material);
+      else next.delete(material);
       return next;
     });
-    this.visibleCount.set(8);
+  }
+
+  onSortChange(event: Event): void {
+    const value = (event.target as HTMLSelectElement).value;
+    this.sortBy.set(value);
+    this.currentPage.set(1); // نرجع للصفحة الأولى لما الترتيب يتغير
   }
 
   isWishlisted(product: CatalogProduct): boolean {
@@ -154,19 +198,16 @@ export class ProductsGridSection {
     }
 
     this.addingToCart.update((state) => ({ ...state, [product.id]: true }));
-    this.cartMessage.set('');
-
     this.cartService.addItem(product.backendId, 1).subscribe({
       next: () => {
         this.addingToCart.update((state) => ({ ...state, [product.id]: false }));
         this.cartMessage.set(`${product.title} added to cart!`);
         setTimeout(() => this.cartMessage.set(''), 2000);
       },
-      error: (err) => {
+      error: () => {
         this.addingToCart.update((state) => ({ ...state, [product.id]: false }));
-        this.cartMessage.set(err.error?.message || 'Failed to add to cart');
         setTimeout(() => this.cartMessage.set(''), 3000);
-      },
+      }
     });
   }
 }
