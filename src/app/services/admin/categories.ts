@@ -36,8 +36,6 @@ export class CategoryService {
       `${environment.apiUrl}/products?categoryId=${categoryId}&includeInactive=true`,
       { headers },
     );
-    // const filteredProducts = SAMPLE_PRODUCTS.filter(p => p.categoryId === categoryId);
-    // return of({ products: filteredProducts }).pipe(shareReplay(1));
   }
 
   createCategory(name: string, imageFile: File): Observable<{ category: Category }> {
