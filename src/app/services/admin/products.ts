@@ -13,51 +13,53 @@ import { shareReplay } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class ProductService {
-
   private productsCache$: Observable<{ products: Product[] }> | null = null;
 
   constructor(private http: HttpClient) {}
 
   getAllProducts(): Observable<{ products: Product[] }> {
     if (!this.productsCache$) {
+      const headers = new HttpHeaders({
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      });
       // this.productsCache$ = of({ products: SAMPLE_PRODUCTS }).pipe(shareReplay(1));
-      this.productsCache$ = this.http.get<{ products: Product[] }>(`${environment.apiUrl}/products`)
+      this.productsCache$ = this.http
+        .get<{ products: Product[] }>(`${environment.apiUrl}/products?includeInactive=true`, {
+          headers,
+        })
         .pipe(shareReplay(1));
     }
-    
+
     return this.productsCache$;
   }
 
   activateProduct(productId: number): Observable<void> {
     const headers = new HttpHeaders({
-      'Authorization': `Bearer ${localStorage.getItem('token')}`
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
     });
     return this.http.patch<void>(
       `${environment.apiUrl}/products/${productId}/activate`,
       {},
-      { headers }
+      { headers },
     );
   }
 
   deactivateProduct(productId: number): Observable<void> {
     const headers = new HttpHeaders({
-      'Authorization': `Bearer ${localStorage.getItem('token')}`
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
     });
     return this.http.patch<void>(
       `${environment.apiUrl}/products/${productId}/deactivate`,
       {},
-      { headers }
+      { headers },
     );
   }
 
   deleteProduct(productId: number): Observable<void> {
     const headers = new HttpHeaders({
-      'Authorization': `Bearer ${localStorage.getItem('token')}`
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
     });
-    return this.http.delete<void>(
-      `${environment.apiUrl}/products/${productId}`,
-      { headers }
-    );
+    return this.http.delete<void>(`${environment.apiUrl}/products/${productId}`, { headers });
   }
 
   clearCache(): void {
